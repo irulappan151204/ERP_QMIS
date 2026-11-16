@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Pin, Search } from 'lucide-react'
+import { Pin, Search, Menu } from 'lucide-react'
 import { singleTitleMapping } from './Components/TitleMappings'
 import { getNavigationForPath, getNavigationLabelForPath } from '../navigation/navigationRegistry'
 import { isNavigationDestinationActive } from '../navigation/navigationHelpers'
@@ -20,6 +20,8 @@ const CommonHeader = ({
     portalMeta,
     rightDrawerOpen,
     toggleRightDrawer,
+    toggleSidebar,
+    menuButtonRef,
 }) => {
     const location = useLocation()
     const { role, email: authEmail } = useAuth()
@@ -95,8 +97,19 @@ const CommonHeader = ({
                 } ${rightDrawerOpen ? 'lg:right-[300px]' : 'right-0'}`}
             >
                 <div className='mx-auto flex h-[4.75rem] w-full max-w-[var(--erp-content-max)] items-center justify-between gap-3 px-3 sm:px-5 lg:px-6'>
-                    {/* Left: Pin Button + Breadcrumb */}
+                    {/* Left: Mobile Toggle + Pin Button + Breadcrumb */}
                     <div className='flex min-w-0 items-center gap-2 sm:gap-3'>
+                        <button
+                            ref={menuButtonRef}
+                            type='button'
+                            onClick={toggleSidebar}
+                            aria-label={sidebarHidden ? 'Open navigation' : 'Close navigation'}
+                            aria-expanded={!sidebarHidden}
+                            className='inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 lg:hidden cursor-pointer'
+                        >
+                            <Menu size={20} />
+                        </button>
+
                         <button
                             type='button'
                             onClick={handleTogglePin}
@@ -143,6 +156,14 @@ const CommonHeader = ({
 
                     {/* Right: Notifications Popover + User Dropdown */}
                     <div className='flex items-center gap-2 sm:gap-3'>
+                        <button
+                            type='button'
+                            onClick={() => setSearchModalOpen(true)}
+                            aria-label='Search'
+                            className='inline-flex md:hidden size-8 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 cursor-pointer'
+                        >
+                            <Search size={18} />
+                        </button>
                         <UserNotifications />
                         <div className='hidden sm:block h-5 w-px bg-slate-200' />
                         <UserDropdown />
@@ -152,7 +173,7 @@ const CommonHeader = ({
 
             {/* Global Quick Search Modal */}
             <GlobalSearchModal
-                isOpen={searchModalOpen}
+                open={searchModalOpen}
                 onClose={() => setSearchModalOpen(false)}
             />
         </>

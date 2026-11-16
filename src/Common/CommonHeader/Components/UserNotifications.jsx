@@ -147,7 +147,7 @@ const UserNotifications = () => {
 
             {/* Expanded Notification Panel */}
             {open && (
-                <div className='absolute right-0 mt-2 w-[340px] sm:w-[420px] md:w-[460px] rounded-2xl border border-slate-200/90 bg-white shadow-2xl z-50 overflow-hidden flex flex-col max-h-[580px] animate-scaleUp text-xs font-inter'>
+                <div className='absolute right-0 mt-2 w-[calc(100vw-2rem)] max-w-[340px] sm:w-[420px] md:w-[460px] rounded-2xl border border-slate-200/90 bg-white shadow-2xl z-50 overflow-hidden flex flex-col max-h-[580px] animate-scaleUp text-xs font-inter'>
                     {/* Header */}
                     <div className='flex items-center justify-between border-b border-slate-100 p-4 bg-slate-50/80'>
                         <div className='flex items-center gap-2.5'>

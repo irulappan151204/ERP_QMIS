@@ -190,11 +190,13 @@ const ReportCardGenerator = () => {
         return systemStudents[0] || SAMPLE_STUDENTS[0]
     }, [isRestrictedToSingleStudent, activeStudent, selectedStudentId, systemStudents])
 
+    const activeStudentId = activeStudentProfile?.id || null
+
     // Load approved marks for this student if available
     const approvedMarks = useMemo(() => {
-        if (!activeStudentProfile?.id) return []
-        return getApprovedMarksForStudent(activeStudentProfile.id) || []
-    }, [activeStudentProfile?.id])
+        if (!activeStudentId) return []
+        return getApprovedMarksForStudent(activeStudentId) || []
+    }, [activeStudentId])
 
     // Build scholastic subjects dynamically
     const computedScholastics = useMemo(() => {
@@ -217,7 +219,7 @@ const ReportCardGenerator = () => {
         }
 
         // Realistic CBSE subjects baseline
-        const sampleMatch = SAMPLE_STUDENTS.find((s) => s.id === activeStudentProfile.id)
+        const sampleMatch = SAMPLE_STUDENTS.find((s) => s.id === activeStudentId)
         if (sampleMatch) return sampleMatch.scholastics
 
         return DEFAULT_SUBJECTS.map((sub) => {
@@ -233,17 +235,17 @@ const ReportCardGenerator = () => {
                 teacher: sub.teacher,
             }
         })
-    }, [approvedMarks, activeStudentProfile?.id])
+    }, [approvedMarks, activeStudentId])
 
     const bfitData = useMemo(() => {
-        const sampleMatch = SAMPLE_STUDENTS.find((s) => s.id === activeStudentProfile?.id)
+        const sampleMatch = SAMPLE_STUDENTS.find((s) => s.id === activeStudentId)
         return sampleMatch?.bfit || { name: 'Athletics & Physical Fitness', marks: 19, maxMarks: 20, points: 4, credits: 4, faculty: 'Coach Sundaram' }
-    }, [activeStudentProfile?.id])
+    }, [activeStudentId])
 
     const ccaData = useMemo(() => {
-        const sampleMatch = SAMPLE_STUDENTS.find((s) => s.id === activeStudentProfile?.id)
+        const sampleMatch = SAMPLE_STUDENTS.find((s) => s.id === activeStudentId)
         return sampleMatch?.cca || { name: 'Co-Curricular & Performing Arts', marks: 18, maxMarks: 20, points: 4, credits: 4, faculty: 'Arts Faculty' }
-    }, [activeStudentProfile?.id])
+    }, [activeStudentId])
 
     // Compute totals dynamically from scholastic subjects and co-curricular assessments
     const totalMarks = useMemo(

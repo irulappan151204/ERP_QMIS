@@ -412,7 +412,7 @@ const HostelManagementWorkspace = ({ roleOverride }) => {
                                             </div>
                                         </div>
 
-                                        <div className='grid grid-cols-3 gap-3 text-center'>
+                                        <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 text-center'>
                                             <div className='p-2.5 bg-white rounded-xl border border-slate-200'>
                                                 <span className='text-xs text-slate-400 block uppercase'>Rooms</span>
                                                 <span className='text-base font-bold text-slate-800'>{blk.totalRooms || 20}</span>
@@ -476,7 +476,7 @@ const HostelManagementWorkspace = ({ roleOverride }) => {
                                         </span>
                                     </div>
 
-                                    <div className='grid grid-cols-3 gap-2.5'>
+                                    <div className='grid grid-cols-1 sm:grid-cols-3 gap-2.5'>
                                         {room.beds.map((bed) => {
                                             const isOccupied = bed.occupied
                                             return (
@@ -675,7 +675,7 @@ const HostelManagementWorkspace = ({ roleOverride }) => {
             {/* Enrolment Modal */}
             {enrolModalOpen && (
                 <div className='fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto'>
-                    <div className='bg-white rounded-2xl shadow-xl max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in-95'>
+                    <div className='bg-white rounded-2xl shadow-xl max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <h3 className='text-lg font-bold text-slate-900 flex items-center gap-2'>
                                 <Bed size={20} className='text-[#515DEF]' />
@@ -826,7 +826,7 @@ const HostelManagementWorkspace = ({ roleOverride }) => {
             {/* Vacate Bed Modal */}
             {vacateModalOpen && selectedEnrolmentForVacate && (
                 <div className='fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto'>
-                    <div className='bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in-95'>
+                    <div className='bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <h3 className='text-lg font-bold text-rose-700 flex items-center gap-2'>
                                 <LogOut size={20} />

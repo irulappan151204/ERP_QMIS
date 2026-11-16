@@ -19,25 +19,29 @@ const EnterpriseTrendChart = ({
 
     // Default mock data if not supplied
     const activeData = useMemo(() => {
+        let raw = null
         if (dataByTab && dataByTab[activeTab]) {
-            return dataByTab[activeTab]
-        }
-        if (activeTab === 'Total Projects') {
-            return {
+            raw = dataByTab[activeTab]
+        } else if (activeTab === 'Total Projects') {
+            raw = {
                 current: [12, 18, 15, 24, 28, 22, 30],
                 previous: [8, 14, 19, 16, 21, 26, 32],
             }
-        }
-        if (activeTab === 'Operating Status') {
-            return {
+        } else if (activeTab === 'Operating Status') {
+            raw = {
                 current: [92, 94, 91, 96, 95, 98, 97],
                 previous: [88, 90, 89, 92, 93, 94, 95],
             }
+        } else {
+            // Default (Total Users / Students)
+            raw = {
+                current: [18, 14, 16, 28, 26, 23, 25],
+                previous: [10, 19, 12, 17, 24, 28, 32],
+            }
         }
-        // Default (Total Users / Students)
         return {
-            current: [18, 14, 16, 28, 26, 23, 25],
-            previous: [10, 19, 12, 17, 24, 28, 32],
+            currentSeries: raw.currentSeries || raw.currentYear || raw.current || [],
+            previousSeries: raw.previousSeries || raw.previousYear || raw.previous || [],
         }
     }, [dataByTab, activeTab])
 
@@ -90,7 +94,7 @@ const EnterpriseTrendChart = ({
                 type: 'line',
                 smooth: 0.45,
                 showSymbol: false,
-                data: activeData.current,
+                data: activeData.currentSeries,
                 lineStyle: {
                     color: '#1E293B',
                     width: 2.2,
@@ -102,7 +106,7 @@ const EnterpriseTrendChart = ({
                 type: 'line',
                 smooth: 0.45,
                 showSymbol: false,
-                data: activeData.previous,
+                data: activeData.previousSeries,
                 lineStyle: {
                     color: '#60A5FA',
                     width: 2,

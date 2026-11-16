@@ -482,10 +482,12 @@ export function AssetImportPage() {
             </div>
             {message && <p className='text-sm'>{message}</p>}
             {preview.length > 0 && (
-                <table className='w-full text-sm'>
-                    <thead><tr>{['Name', 'Category', 'Qty', 'Serial', 'Validate'].map((label) => <th key={label} className='text-left px-2 py-2'>{label}</th>)}</tr></thead>
-                    <tbody>{preview.map((row) => <tr key={row.serialNumber}><td className='px-2 py-2'>{row.assetName}</td><td>{row.category}</td><td>{row.quantity}</td><td>{row.serialNumber}</td><td>{row.valid ? 'Valid' : 'Invalid'}</td></tr>)}</tbody>
-                </table>
+                <div className="overflow-x-auto">
+                    <table className='w-full text-sm'>
+                        <thead><tr>{['Name', 'Category', 'Qty', 'Serial', 'Validate'].map((label) => <th key={label} className='text-left px-2 py-2'>{label}</th>)}</tr></thead>
+                        <tbody>{preview.map((row) => <tr key={row.serialNumber}><td className='px-2 py-2'>{row.assetName}</td><td>{row.category}</td><td>{row.quantity}</td><td>{row.serialNumber}</td><td>{row.valid ? 'Valid' : 'Invalid'}</td></tr>)}</tbody>
+                    </table>
+                </div>
             )}
         </section>
     )

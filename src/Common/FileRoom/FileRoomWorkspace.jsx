@@ -976,7 +976,7 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
                             {/* Storage Location Coordinates */}
                             <div className='rounded-xl border border-slate-200 p-3 bg-slate-50/50 space-y-2'>
                                 <label className='font-semibold text-slate-700 block'>Assign Physical Storage Coordinates</label>
-                                <div className='grid grid-cols-3 gap-2'>
+                                <div className='grid grid-cols-1 sm:grid-cols-3 gap-2'>
                                     <div>
                                         <label className='text-[10px] text-slate-500 block'>Rack Number</label>
                                         <input
@@ -1044,7 +1044,7 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
             {/* ========================================================================= */}
             {isIssueModalOpen && selectedFileForIssue && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
-                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4'>
+                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <h3 className='text-base font-bold text-slate-900'>Issue Physical Document</h3>
                             <button onClick={() => setIsIssueModalOpen(false)} className='text-slate-400 hover:text-slate-600'>
@@ -1151,7 +1151,7 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
             {/* ========================================================================= */}
             {isReturnModalOpen && selectedRecordForReturn && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
-                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4'>
+                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <h3 className='text-base font-bold text-slate-900'>Verify Document Return</h3>
                             <button onClick={() => setIsReturnModalOpen(false)} className='text-slate-400 hover:text-slate-600'>

@@ -1346,7 +1346,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
                             </div>
 
                             {/* Consolidated Tray Items Table */}
-                            <div className='max-h-56 overflow-y-auto rounded-xl border border-blue-200 bg-white'>
+                            <div className='max-h-56 overflow-y-auto overflow-x-auto rounded-xl border border-blue-200 bg-white'>
                                 <table className='w-full text-left text-xs'>
                                     <thead className='bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 sticky top-0'>
                                         <tr>
@@ -2517,7 +2517,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             {/* ========================================================================= */}
             {isRequisitionModalOpen && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
-                    <div className='w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl space-y-4'>
+                    <div className='w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <h3 className='text-base font-bold text-slate-900'>Raise Material Requisition</h3>
                             <button onClick={() => setIsRequisitionModalOpen(false)} className='text-slate-400 hover:text-slate-600'>
@@ -2632,7 +2632,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
                                                 </select>
                                             </div>
                                         </div>
-                                        <div className='grid grid-cols-3 gap-2'>
+                                        <div className='grid grid-cols-1 sm:grid-cols-3 gap-2'>
                                             <div>
                                                 <label className='text-[10px] font-semibold text-slate-600'>Quantity</label>
                                                 <input
@@ -2931,7 +2931,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             {/* ========================================================================= */}
             {isIssueModalOpen && selectedReqForIssue && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
-                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4'>
+                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <h3 className='text-base font-bold text-slate-900'>Issue Material from Stores</h3>
                             <button onClick={() => setIsIssueModalOpen(false)} className='text-slate-400 hover:text-slate-600'>
@@ -3282,7 +3282,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
                                             <span>{it.itemName}</span>
                                             <span>Ordered: {it.orderedQuantity}</span>
                                         </div>
-                                        <div className='grid grid-cols-3 gap-2'>
+                                        <div className='grid grid-cols-1 sm:grid-cols-3 gap-2'>
                                             <div>
                                                 <label className='text-[10px] text-slate-500 block'>Accepted Qty</label>
                                                 <input
@@ -3352,7 +3352,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             {/* ========================================================================= */}
             {viewPODetail && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
-                    <div className='w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl space-y-4'>
+                    <div className='w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <div>
                                 <h3 className='text-base font-bold text-slate-900'>PO: {viewPODetail.poNumber}</h3>
@@ -3407,7 +3407,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             {/* ========================================================================= */}
             {isAddVendorModalOpen && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
-                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4'>
+                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <h3 className='text-base font-bold text-slate-900'>Register New Supplier</h3>
                             <button onClick={() => setIsAddVendorModalOpen(false)} className='text-slate-400 hover:text-slate-600'>
@@ -3509,7 +3509,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             {/* ========================================================================= */}
             {isReadyModalOpen && selectedReqForReady && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
-                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4'>
+                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <div className='flex items-center gap-2'>
                                 <div className='p-2 bg-emerald-50 text-emerald-600 rounded-lg'>
@@ -3593,7 +3593,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             {/* ========================================================================= */}
             {isAuditModalOpen && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
-                    <div className='w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl space-y-4'>
+                    <div className='w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <div>
                                 <h3 className='text-base font-bold text-slate-900'>
@@ -3689,7 +3689,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             {/* Stock Adjustment Modal */}
             {isAdjustModalOpen && selectedItemForAdjust && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
-                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4'>
+                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <h3 className='text-base font-bold text-slate-900 flex items-center gap-2'>
                                 <Tag size={18} className='text-amber-600' />
@@ -3778,7 +3778,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             {/* Inter-Department Stock Transfer Modal */}
             {isTransferModalOpen && (
                 <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
-                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4'>
+                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
                         <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
                             <h3 className='text-base font-bold text-slate-900 flex items-center gap-2'>
                                 <Truck size={18} className='text-purple-600' />

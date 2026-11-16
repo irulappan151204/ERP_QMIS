@@ -31,6 +31,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../../context/AuthContext'
+import { ROLE_PREFIX } from '../../../constants/roles'
 import { getProfileLabel } from '../../Authentication/profileOptions'
 import { getExits, saveExits, nextId } from '../../HR/domain/hrStore'
 import { getAllTcRequests, createTcRequest } from '../../../Common/TcRequest/tcRequestData'
@@ -659,7 +660,7 @@ const MyProfilePage = () => {
                             </div>
                             <button
                                 type='button'
-                                onClick={() => navigate('/staff-relieving')}
+                                onClick={() => navigate(`${ROLE_PREFIX[role] || ''}/staff-relieving`)}
                                 className='inline-flex items-center gap-1.5 rounded-xl bg-indigo-50 px-3 py-1.5 font-bold text-indigo-700 hover:bg-indigo-100 transition cursor-pointer'
                             >
                                 Open Full Relieving Workspace <ArrowRight size={13} />

@@ -148,7 +148,7 @@ const FeeIncrementSimulatorModal = ({ isOpen, onClose }) => {
                     </div>
 
                     {/* Detailed Simulation Table */}
-                    <div className='rounded-xl border border-[var(--erp-line)] overflow-hidden shadow-xs'>
+                    <div className='rounded-xl border border-[var(--erp-line)] overflow-x-auto shadow-xs'>
                         <table className='w-full text-xs text-left'>
                             <thead className='bg-[var(--erp-canvas)] text-[var(--erp-slate)] uppercase tracking-wider font-semibold border-b border-[var(--erp-line)]'>
                                 <tr>

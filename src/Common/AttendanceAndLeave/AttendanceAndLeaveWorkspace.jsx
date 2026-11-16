@@ -2564,7 +2564,7 @@ function CarryForwardModal({ performedBy, onClose, onSuccess }) {
                         </div>
                     </div>
 
-                    <div className="border border-slate-200 rounded-xl overflow-hidden max-h-64 overflow-y-auto">
+                    <div className="border border-slate-200 rounded-xl overflow-x-auto max-h-64 overflow-y-auto">
                         <table className="w-full text-left divide-y divide-slate-200 text-xs">
                             <thead className="bg-slate-50 font-semibold text-slate-500 uppercase text-[10px] sticky top-0">
                                 <tr>

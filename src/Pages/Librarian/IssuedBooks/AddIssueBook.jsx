@@ -29,8 +29,8 @@ const AddIssueBook = () => {
 
     const [selectedBookId, setSelectedBookId] = useState(CATALOG_BOOKS[0]?.id || '')
     const [selectedMemberId, setSelectedMemberId] = useState(REGISTERED_MEMBERS[0]?.id || '')
-    const [issuedDate, setIssuedDate] = useState(new Date())
-    const [returnedDate, setReturnedDate] = useState(new Date(Date.now() + 14 * 86400000))
+    const [issuedDate, setIssuedDate] = useState(() => new Date())
+    const [returnedDate, setReturnedDate] = useState(() => new Date(Date.now() + 14 * 86400000))
     const [returnComment, setReturnComment] = useState('Standard loan')
     const [notification, setNotification] = useState(null)
 
@@ -378,7 +378,20 @@ const AddIssueBook = () => {
                         <span className='text-xs font-bold text-slate-700 uppercase block mb-2'>
                             Optional: Scan Book Barcode / Member ID Card
                         </span>
-                        <QRScanner onScan={(val) => console.log('Scanned barcode:', val)} />
+                        <QRScanner
+                            onScan={(val) => {
+                                if (!val) return
+                                const matchedBook = CATALOG_BOOKS.find((b) => b.id === val || b.isbn === val)
+                                if (matchedBook) {
+                                    setSelectedBookId(matchedBook.id)
+                                    return
+                                }
+                                const matchedMember = REGISTERED_MEMBERS.find((m) => m.id === val)
+                                if (matchedMember) {
+                                    handleMemberChange(matchedMember.id)
+                                }
+                            }}
+                        />
                     </div>
 
                     {/* Action Buttons */}

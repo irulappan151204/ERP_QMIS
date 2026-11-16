@@ -318,14 +318,24 @@ const CommonSidebar = ({ sidebarHidden, toggleSidebar, portalMeta }) => {
                     <span className='absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-500 ring-2 ring-[#172033]' />
                 </NavLink>
                 {!sidebarHidden && (
-                    <div className='min-w-0 flex-1'>
-                        <NavLink to='/my-profile' className='truncate text-sm font-semibold text-white hover:text-blue-300 transition-colors block'>
-                            {displayName}
-                        </NavLink>
-                        <p className='truncate text-[11px] text-white/50'>
-                            {portalMeta?.shortLabel || roleLabel}
-                        </p>
-                    </div>
+                    <>
+                        <div className='min-w-0 flex-1'>
+                            <NavLink to='/my-profile' className='truncate text-sm font-semibold text-white hover:text-blue-300 transition-colors block'>
+                                {displayName}
+                            </NavLink>
+                            <p className='truncate text-[11px] text-white/50'>
+                                {portalMeta?.shortLabel || roleLabel}
+                            </p>
+                        </div>
+                        <button
+                            type='button'
+                            onClick={toggleSidebar}
+                            aria-label='Close navigation menu'
+                            className='lg:hidden inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-white/10 cursor-pointer ml-auto'
+                        >
+                            <X size={18} />
+                        </button>
+                    </>
                 )}
             </div>
 

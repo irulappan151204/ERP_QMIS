@@ -49,37 +49,39 @@ const ApprovalRulesTab = () => {
             </div>
 
             <div className='bg-white rounded-2xl shadow-md overflow-hidden p-4'>
-                <table className='w-full text-sm text-left'>
-                    <thead className='text-xs bg-[#EDEEF5] whitespace-nowrap rounded-lg'>
-                        <tr>
-                            <th className={`${thClass} rounded-s-lg`}>Request Type</th>
-                            <th className={thClass}>Amount Threshold</th>
-                            <th className={thClass}>Primary Approver</th>
-                            <th className={thClass}>Escalates To</th>
-                            <th className={`${thClass} rounded-e-lg`}>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rules.map((row) => (
-                            <tr key={row.id} className='border-b border-[#f2f4f7] hover:bg-[#f2f4f7]'>
-                                <td className={`${tdClass} rounded-s-lg font-medium text-[#1E1E1E]`}>{row.requestType}</td>
-                                <td className={tdClass}>{row.threshold}</td>
-                                <td className={tdClass}>{row.primaryApprover}</td>
-                                <td className={tdClass}>{row.escalatesTo}</td>
-                                <td className={`${tdClass} rounded-e-lg`}>
-                                    <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${ruleStatusBadgeColor[row.status]}`}>
-                                        {row.status}
-                                    </span>
-                                </td>
+                <div className='overflow-x-auto'>
+                    <table className='w-full text-sm text-left'>
+                        <thead className='text-xs bg-[#EDEEF5] whitespace-nowrap rounded-lg'>
+                            <tr>
+                                <th className={`${thClass} rounded-s-lg`}>Request Type</th>
+                                <th className={thClass}>Amount Threshold</th>
+                                <th className={thClass}>Primary Approver</th>
+                                <th className={thClass}>Escalates To</th>
+                                <th className={`${thClass} rounded-e-lg`}>Status</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {rules.map((row) => (
+                                <tr key={row.id} className='border-b border-[#f2f4f7] hover:bg-[#f2f4f7]'>
+                                    <td className={`${tdClass} rounded-s-lg font-medium text-[#1E1E1E]`}>{row.requestType}</td>
+                                    <td className={tdClass}>{row.threshold}</td>
+                                    <td className={tdClass}>{row.primaryApprover}</td>
+                                    <td className={tdClass}>{row.escalatesTo}</td>
+                                    <td className={`${tdClass} rounded-e-lg`}>
+                                        <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${ruleStatusBadgeColor[row.status]}`}>
+                                            {row.status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {isModalOpen && (
                 <div className='fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4'>
-                    <div className='bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in fade-in zoom-in-95 duration-200'>
+                    <div className='bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto'>
                         <div className='flex justify-between items-center mb-4'>
                             <h3 className='text-lg font-bold text-slate-900'>Add Approval Routing Rule</h3>
                             <button

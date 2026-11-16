@@ -173,7 +173,7 @@ const ScoringRulesList = () => {
 
             <div className='bg-white rounded-2xl shadow-md p-4 mt-6'>
                 <h3 className='text-base font-semibold text-[#1E1E1E] mb-3'>Example Scoring</h3>
-                <div className='max-w-sm rounded-xl border border-[#EDEEF5] overflow-hidden'>
+                <div className='max-w-sm rounded-xl border border-[#EDEEF5] overflow-x-auto'>
                     <table className='w-full text-sm'>
                         <thead>
                             <tr className='bg-[#EDEEF5]'>
