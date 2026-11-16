@@ -5,9 +5,9 @@ const RemoveAllocationModal = ({ open, teacherName, onCancel, onConfirm }) => {
     if (!open) return null
 
     return (
-        <div className='fixed inset-0 z-500 flex items-center justify-center'>
+        <div className='fixed inset-0 z-500 flex items-center justify-center p-4'>
             <div className='absolute inset-0 bg-black/40' onClick={onCancel} />
-            <div className='relative z-10 w-full max-w-lg rounded-xl bg-white shadow-lg p-5 py-4'>
+            <div className='relative z-10 w-full max-w-lg rounded-xl bg-white shadow-lg p-5 py-4 max-h-[90vh] overflow-y-auto'>
                 <div className='flex justify-end items-center'>
                     <button type='button' onClick={onCancel} className='hover:text-red-500 cursor-pointer'>
                         <X />

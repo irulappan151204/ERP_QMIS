@@ -2827,6 +2827,12 @@ export const accountHeadSidebarLinks = [
         to: "/account-head/escalation-management",
         icon: ShieldAlert,
     },
+    {
+        id: "settings",
+        title: "Settings",
+        to: "/account-head/settings",
+        icon: Settings,
+    },
 ];
 
 export const driverSidebarLinks = [

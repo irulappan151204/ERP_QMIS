@@ -1,4 +1,4 @@
-﻿import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import AuthLayout from "./Layout/AuthLayout";
 import { ROLE_HOME_PATHS, ROLES, useAuth } from "./context/AuthContext";
@@ -36,7 +36,6 @@ const FileRoomLayout = lazy(() => import('./Layout/FileRoomLayout'));
 const CctvLayout = lazy(() => import('./Layout/CctvLayout'));
 const AppShell = lazy(() => import("./Layout/AppShell"));
 const MyProfilePage = lazy(() => import("./Pages/Common/Profile/MyProfilePage"));
-const EnterpriseSettingsPage = lazy(() => import("./Pages/Common/Settings/EnterpriseSettingsPage"));
 const ApprovalCenterPage = lazy(() => import("./Pages/Common/Approvals/ApprovalCenterPage"));
 
 const AUTH_ROUTES = ["/signin", "/login", "/signup", "/select-profile"];
@@ -81,13 +80,11 @@ const AppContent = () => {
   }
 
   if (pathname === '/settings') {
-    return (
-      <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading settings...</div>}>
-        <AppShell roleKey={role} showBreadcrumb={true}>
-          <EnterpriseSettingsPage />
-        </AppShell>
-      </Suspense>
-    );
+    if (role === 'accounthead') {
+      return <Navigate to="/account-head/settings" replace />;
+    }
+    const homePath = ROLE_HOME_PATHS[role] || '/dashboard';
+    return <Navigate to={homePath} replace />;
   }
 
   if (pathname === '/approvals') {

@@ -1,6 +1,5 @@
 export const singleTitleMapping = {
     "/my-profile": "My Profile",
-    "/settings": "Settings & Preferences",
     "/approvals": "Unified Approval Center",
     "/admin/dashboard": "Dashboard",
     "/super-admin/dashboard": "Super Admin Dashboard",

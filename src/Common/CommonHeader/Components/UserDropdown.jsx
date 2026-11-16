@@ -78,7 +78,7 @@ const UserDropdown = () => {
                 </button>
 
                 {open && (
-                    <div className='absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl divide-y divide-slate-100 z-50 text-xs font-medium'>
+                    <div className='absolute right-0 mt-2 w-[calc(100vw-2rem)] max-w-xs sm:w-80 rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl divide-y divide-slate-100 z-50 text-xs font-medium'>
                         {/* Header & Essential Profile Summary */}
                         <div className='p-3 bg-gradient-to-b from-slate-50/90 to-white rounded-xl border border-slate-100/80 mb-1 space-y-2.5'>
                             <div className='flex items-start gap-3'>
@@ -142,24 +142,26 @@ const UserDropdown = () => {
                                 <ChevronRight size={14} className='text-slate-300 group-hover:text-blue-600 transition-colors' />
                             </button>
 
-                            <button
-                                className='flex w-full items-center justify-between rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors cursor-pointer group'
-                                onClick={() => {
-                                    navigate('/settings')
-                                    setOpen(false)
-                                }}
-                            >
-                                <div className='flex items-center gap-2.5'>
-                                    <div className='p-1.5 rounded-lg bg-slate-100 text-slate-600 group-hover:bg-slate-200 transition-colors'>
-                                        <Settings size={15} />
+                            {role === ROLES.ACCOUNT_HEAD && (
+                                <button
+                                    className='flex w-full items-center justify-between rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors cursor-pointer group'
+                                    onClick={() => {
+                                        navigate('/account-head/settings')
+                                        setOpen(false)
+                                    }}
+                                >
+                                    <div className='flex items-center gap-2.5'>
+                                        <div className='p-1.5 rounded-lg bg-slate-100 text-slate-600 group-hover:bg-slate-200 transition-colors'>
+                                            <Settings size={15} />
+                                        </div>
+                                        <div className='text-left'>
+                                            <p className='font-semibold text-slate-800'>Finance Settings</p>
+                                            <p className='text-[10px] text-slate-400'>Payment, accounts & financial rules</p>
+                                        </div>
                                     </div>
-                                    <div className='text-left'>
-                                        <p className='font-semibold text-slate-800'>Settings & Preferences</p>
-                                        <p className='text-[10px] text-slate-400'>Workspace, alerts & security parameters</p>
-                                    </div>
-                                </div>
-                                <ChevronRight size={14} className='text-slate-300 group-hover:text-slate-600 transition-colors' />
-                            </button>
+                                    <ChevronRight size={14} className='text-slate-300 group-hover:text-slate-600 transition-colors' />
+                                </button>
+                            )}
                         </div>
 
                         {/* Sign Out */}
