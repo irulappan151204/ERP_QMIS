@@ -1,5 +1,10 @@
 ﻿import {
     DRIVERS as BASE_DRIVERS,
+    getDrivers as getBaseDrivers,
+    addDriver as addBaseDriver,
+    updateDriver as updateBaseDriver,
+    deleteDriver as deleteBaseDriver,
+    getDriverById as getBaseDriverById,
     getDriverDisplayName,
     statusBadgeColor,
     DRIVER_STATUSES,
@@ -40,11 +45,19 @@ const DRIVER_EXTRAS = {
     },
 }
 
-export const DRIVERS = BASE_DRIVERS.map((driver) => ({
-    ...driver,
-    ...(DRIVER_EXTRAS[driver.id] ?? {}),
-}))
+export const getDrivers = () => {
+    const list = getBaseDrivers()
+    return list.map((driver) => ({
+        ...driver,
+        ...(DRIVER_EXTRAS[driver.id] ?? {}),
+    }))
+}
 
-export const getDriverById = (id) => DRIVERS.find((driver) => driver.id === id) ?? null
+export const DRIVERS = getDrivers()
+
+export const addDriver = addBaseDriver
+export const updateDriver = updateBaseDriver
+export const deleteDriver = deleteBaseDriver
+export const getDriverById = (id) => getDrivers().find((driver) => driver.id === id) ?? null
 
 export { getDriverDisplayName, statusBadgeColor, DRIVER_STATUSES }

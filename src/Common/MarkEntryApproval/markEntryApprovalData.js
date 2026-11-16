@@ -704,3 +704,216 @@ export const computeClassRankList = (session) => {
         return { ...item, classRank: 'Rank ' + currentRank }
     })
 }
+
+// ─── REPORT CARD PUBLISHING & PARENT ACKNOWLEDGEMENT LIFECYCLE ─────────────
+
+const STORAGE_KEY_REPORT_CARDS = 'schoolerp_report_cards_lifecycle'
+
+export const DEFAULT_REPORT_CARD_LIFECYCLE = {
+    publications: {
+        'TERM 1': {
+            term: 'TERM 1',
+            status: 'Published',
+            publishedAt: '2025-10-12T10:00:00.000Z',
+            publishedBy: 'Principal Dr. Anita Rajesh',
+            notificationDispatched: true,
+        },
+        'TERM 2': {
+            term: 'TERM 2',
+            status: 'Published',
+            publishedAt: '2025-12-20T09:30:00.000Z',
+            publishedBy: 'Principal Dr. Anita Rajesh',
+            notificationDispatched: true,
+        },
+        'MID TERM': {
+            term: 'MID TERM',
+            status: 'Published',
+            publishedAt: '2025-10-01T11:00:00.000Z',
+            publishedBy: 'Academic Coordinator',
+            notificationDispatched: true,
+        },
+        ANNUAL: {
+            term: 'ANNUAL',
+            status: 'Draft',
+            publishedAt: null,
+            publishedBy: null,
+            notificationDispatched: false,
+        },
+    },
+    acknowledgements: {
+        'STU-2024-1042_TERM 1': {
+            studentId: 'STU-2024-1042',
+            studentName: 'Arjun Sharma',
+            rollNo: 'QMIS202510A02',
+            className: '10',
+            section: 'A',
+            term: 'TERM 1',
+            acknowledged: true,
+            acknowledgedAt: '15-10-2025 04:30 PM',
+            parentName: 'Rajesh Sharma (Father)',
+            contactNumber: '+91 98401 22334',
+            comments: 'Reviewed and satisfied with academic performance. Thank you mentors.',
+        },
+        'STU-2025-0101_TERM 2': {
+            studentId: 'STU-2025-0101',
+            studentName: 'Aariv Doddi',
+            rollNo: 'QMIS20251A01',
+            className: '1',
+            section: 'A',
+            term: 'TERM 2',
+            acknowledged: true,
+            acknowledgedAt: '21-12-2025 10:15 AM',
+            parentName: 'Suresh Doddi (Father)',
+            contactNumber: '+91 94441 55667',
+            comments: 'Progress report noted. Will focus on verbal reading practice as advised.',
+        },
+    },
+}
+
+function readReportCardLifecycle() {
+    try {
+        if (typeof localStorage !== 'undefined') {
+            const raw = localStorage.getItem(STORAGE_KEY_REPORT_CARDS)
+            if (raw) return JSON.parse(raw)
+        }
+    } catch {
+        /* ignore */
+    }
+    return DEFAULT_REPORT_CARD_LIFECYCLE
+}
+
+function writeReportCardLifecycle(data) {
+    try {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(STORAGE_KEY_REPORT_CARDS, JSON.stringify(data))
+        }
+    } catch {
+        /* ignore */
+    }
+}
+
+export function getReportCardLifecycle() {
+    return readReportCardLifecycle()
+}
+
+export function isReportCardPublished(term = 'TERM 2') {
+    const data = readReportCardLifecycle()
+    const pub = data.publications?.[term]
+    return pub?.status === 'Published'
+}
+
+export function publishClassReportCards({ term = 'TERM 2', publishedBy = 'Principal' }) {
+    const data = readReportCardLifecycle()
+    const publications = { ...data.publications }
+    publications[term] = {
+        term,
+        status: 'Published',
+        publishedAt: new Date().toISOString(),
+        publishedBy,
+        notificationDispatched: true,
+    }
+    const updated = { ...data, publications }
+    writeReportCardLifecycle(updated)
+    return publications[term]
+}
+
+export function unpublishClassReportCards({ term = 'TERM 2' }) {
+    const data = readReportCardLifecycle()
+    const publications = { ...data.publications }
+    publications[term] = {
+        term,
+        status: 'Draft',
+        publishedAt: null,
+        publishedBy: null,
+        notificationDispatched: false,
+    }
+    const updated = { ...data, publications }
+    writeReportCardLifecycle(updated)
+    return publications[term]
+}
+
+export function getReportCardAcknowledgement(studentId, term = 'TERM 2') {
+    const data = readReportCardLifecycle()
+    const key = `${studentId}_${term}`
+    return data.acknowledgements?.[key] || null
+}
+
+export function acknowledgeReportCard({
+    studentId,
+    studentName = '',
+    rollNo = '',
+    className = '10',
+    section = 'A',
+    term = 'TERM 2',
+    parentName = 'Parent / Guardian',
+    contactNumber = '',
+    comments = '',
+}) {
+    const data = readReportCardLifecycle()
+    const key = `${studentId}_${term}`
+    const now = new Date()
+    const formattedDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+
+    const ackRecord = {
+        studentId,
+        studentName,
+        rollNo,
+        className,
+        section,
+        term,
+        acknowledged: true,
+        acknowledgedAt: formattedDate,
+        parentName,
+        contactNumber: contactNumber || '+91 98400 00000',
+        comments: comments || 'Acknowledged by parent online via parent portal.',
+    }
+
+    const acknowledgements = {
+        ...data.acknowledgements,
+        [key]: ackRecord,
+    }
+
+    const updated = { ...data, acknowledgements }
+    writeReportCardLifecycle(updated)
+    return ackRecord
+}
+
+export function getAcknowledgementTrackingReport({ term = 'TERM 2', studentList = [] }) {
+    const data = readReportCardLifecycle()
+    const isPub = data.publications?.[term]?.status === 'Published'
+
+    const records = studentList.map((stu) => {
+        const key = `${stu.id}_${term}`
+        const ack = data.acknowledgements?.[key]
+        return {
+            studentId: stu.id,
+            studentName: stu.name,
+            rollNo: stu.rollNo || stu.admissionNumber || '—',
+            className: stu.className,
+            section: stu.section,
+            isPublished: isPub,
+            isAcknowledged: Boolean(ack?.acknowledged),
+            acknowledgedAt: ack?.acknowledgedAt || '—',
+            parentName: ack?.parentName || 'Parent / Guardian',
+            contactNumber: ack?.contactNumber || '—',
+            comments: ack?.comments || '—',
+        }
+    })
+
+    const totalStudents = records.length
+    const acknowledgedCount = records.filter((r) => r.isAcknowledged).length
+    const pendingCount = totalStudents - acknowledgedCount
+    const ackRate = totalStudents > 0 ? Math.round((acknowledgedCount / totalStudents) * 100) : 0
+
+    return {
+        term,
+        isPublished: isPub,
+        publicationDetails: data.publications?.[term],
+        totalStudents,
+        acknowledgedCount,
+        pendingCount,
+        acknowledgementRate: `${ackRate}%`,
+        records,
+    }
+}
+

@@ -151,6 +151,46 @@ export const buildClassGridFromTimelines = (timelines = []) => {
 export const getClassSectionLabel = (record) =>
     `${record.className} - ${record.section}`
 
+export const validateTimetableConflicts = ({ className, section, timelines = [], excludeTimetableId = null }) => {
+    const errors = []
+    const existing = getClassTimetables()
+
+    // 1. Internal clash within this draft (same day, overlapping time)
+    for (let i = 0; i < timelines.length; i++) {
+        for (let j = i + 1; j < timelines.length; j++) {
+            const a = timelines[i]
+            const b = timelines[j]
+            if (a.day && b.day && a.day === b.day) {
+                if (a.startTime && b.startTime && a.startTime === b.startTime) {
+                    errors.push(`Internal Period Conflict: Day ${a.day} has multiple classes scheduled at ${a.startTime}.`)
+                }
+            }
+        }
+    }
+
+    // 2. Teacher double-booking clash across existing timetables
+    timelines.forEach((row) => {
+        if (!row.teacher || !row.day || !row.startTime || !row.endTime) return
+        existing.forEach((tt) => {
+            if (excludeTimetableId && tt.id === excludeTimetableId) return
+            tt.timelines?.forEach((existingRow) => {
+                if (existingRow.teacher && existingRow.teacher.toLowerCase() === row.teacher.toLowerCase()) {
+                    if (existingRow.day === row.day && existingRow.startTime === row.startTime) {
+                        errors.push(
+                            `Faculty Scheduling Conflict: ${row.teacher} is already allocated to ${tt.className}-${tt.section} on ${row.day} (${row.startTime} – ${row.endTime}).`
+                        )
+                    }
+                }
+            })
+        })
+    })
+
+    return {
+        hasConflict: errors.length > 0,
+        errors,
+    }
+}
+
 const readChanges = () => {
     try {
         const stored = localStorage.getItem(CHANGE_KEY)

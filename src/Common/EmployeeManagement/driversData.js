@@ -147,10 +147,86 @@ export const DRIVERS = [
     },
 ]
 
-export const getDriverById = (id) => DRIVERS.find((driver) => driver.id === id) ?? null
+const DRIVERS_STORAGE_KEY = 'schoolerp_drivers'
+
+export const getDrivers = () => {
+    try {
+        if (typeof localStorage !== 'undefined') {
+            const raw = localStorage.getItem(DRIVERS_STORAGE_KEY)
+            if (raw) {
+                const parsed = JSON.parse(raw)
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed
+            }
+        }
+    } catch {
+        /* ignore */
+    }
+    return DRIVERS
+}
+
+export const saveDrivers = (drivers) => {
+    try {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(DRIVERS_STORAGE_KEY, JSON.stringify(drivers))
+        }
+    } catch {
+        /* ignore */
+    }
+    return drivers
+}
+
+export const addDriver = (driverData) => {
+    const list = getDrivers()
+    const nextId = `VAN-${1000 + list.length + 1}`
+    const newDriver = {
+        id: nextId,
+        profileImage: null,
+        firstName: driverData.firstName?.trim() || 'Driver',
+        middleName: driverData.middleName?.trim() || '',
+        lastName: driverData.lastName?.trim() || '',
+        email: driverData.email?.trim() || `driver.${Date.now()}@school.edu`,
+        gender: driverData.gender || 'Male',
+        mobileNumber: driverData.mobileNumber?.trim() || '',
+        alternativeNumber: driverData.alternativeNumber?.trim() || '',
+        licenseNumber: driverData.licenseNumber?.trim() || '',
+        licenseExpiry: driverData.licenseExpiry || '2028-12-31',
+        experience: driverData.experience || '5 Years',
+        city: driverData.city || 'Chennai',
+        state: driverData.state || 'Tamil Nadu',
+        country: 'India',
+        zipCode: driverData.zipCode || '600001',
+        address: driverData.address || '',
+        bloodGroup: driverData.bloodGroup || 'B+',
+        vehicleNumber: driverData.vehicleNumber || 'Unassigned',
+        vehicleType: driverData.vehicleType || 'School Bus',
+        routeAssigned: driverData.routeAssigned || 'Unassigned',
+        status: driverData.status || 'Active',
+        salary: driverData.salary || '₹30,000 / month',
+        workShift: driverData.workShift || 'Morning (6:00 AM – 2:00 PM)',
+    }
+    const updated = [newDriver, ...list]
+    saveDrivers(updated)
+    return newDriver
+}
+
+export const updateDriver = (id, patch) => {
+    const list = getDrivers()
+    const updated = list.map((d) => (d.id === id ? { ...d, ...patch } : d))
+    saveDrivers(updated)
+    return updated.find((d) => d.id === id) || null
+}
+
+export const deleteDriver = (id) => {
+    const list = getDrivers()
+    const updated = list.filter((d) => d.id !== id)
+    saveDrivers(updated)
+    return updated
+}
+
+export const getDriverById = (id) => getDrivers().find((driver) => driver.id === id) ?? null
 
 export const getDriverDisplayName = (driver) =>
-    [driver.firstName, driver.middleName, driver.lastName].filter(Boolean).join(' ')
+    [driver?.firstName, driver?.middleName, driver?.lastName].filter(Boolean).join(' ') || 'Driver'
 
 export const statusBadgeColor = {
     Active: 'bg-[#4CAF5033] text-[#4CAF50]',

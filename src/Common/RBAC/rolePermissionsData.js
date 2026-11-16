@@ -47,6 +47,9 @@ export const ROLE_LABELS = {
     [ROLES.HR]: 'HR',
     [ROLES.ACCOUNT_HEAD]: 'Account Head',
     [ROLES.DRIVER]: 'Driver',
+    [ROLES.PRO]: 'Public Relations Officer',
+    [ROLES.FILE_ROOM]: 'File Room Incharge',
+    [ROLES.CCTV]: 'CCTV Surveillance Operator',
 }
 
 export const buildDefaultRolePermissions = (enabled = false) =>

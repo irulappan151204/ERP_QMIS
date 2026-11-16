@@ -1,7 +1,16 @@
 import React, { useState } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, Clock, Check } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Clock, Check, Users, UserCheck, UserX } from 'lucide-react'
 import { getExtraClassById, updateExtraClassStatus } from './extraClassData'
+
+const DEFAULT_COHORT_STUDENTS = [
+    { id: 'STU-01', rollNo: '10A-01', name: 'Aarav Patel', status: 'Present' },
+    { id: 'STU-02', rollNo: '10A-02', name: 'Arjun Sharma', status: 'Present' },
+    { id: 'STU-03', rollNo: '10A-05', name: 'Divya Krishnan', status: 'Present' },
+    { id: 'STU-04', rollNo: '10A-08', name: 'Kavita Sundaram', status: 'Present' },
+    { id: 'STU-05', rollNo: '10A-12', name: 'Rahul Varma', status: 'Absent' },
+    { id: 'STU-06', rollNo: '10A-14', name: 'Sneha Ranganathan', status: 'Present' },
+]
 
 const Section = ({ title, children }) => (
     <div className='bg-white rounded-2xl shadow-md p-4'>
@@ -34,12 +43,19 @@ const ViewExtraClass = ({ listPath = null }) => {
 
     const [record, setRecord] = useState(() => getExtraClassById(id))
     const [isConducting, setIsConducting] = useState(false)
-    const [notes, setNotes] = useState('')
+    const [notes, setNotes] = useState(() => record?.sessionNotes || '')
+    const [attendance, setAttendance] = useState(() => record?.attendanceList || DEFAULT_COHORT_STUDENTS)
+
+    const toggleStudentAttendance = (stuId) => {
+        setAttendance((prev) =>
+            prev.map((s) => (s.id === stuId ? { ...s, status: s.status === 'Present' ? 'Absent' : 'Present' } : s))
+        )
+    }
 
     const handleConduct = (e) => {
         e.preventDefault()
         if (!record) return
-        updateExtraClassStatus(record.id, 'Received & Conducted', notes)
+        updateExtraClassStatus(record.id, 'Received & Conducted', notes, attendance)
         setRecord(getExtraClassById(id))
         setIsConducting(false)
     }
@@ -69,21 +85,61 @@ const ViewExtraClass = ({ listPath = null }) => {
             </div>
 
             {isConducting && (
-                <div className='bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3'>
+                <div className='bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-4'>
                     <h3 className='text-sm font-bold text-emerald-900 flex items-center gap-2'>
                         <CheckCircle2 size={18} className='text-emerald-600' />
-                        Confirm Class Delivery & Record Session Notes
+                        Confirm Class Delivery &amp; Record Student Attendance
                     </h3>
-                    <form onSubmit={handleConduct} className='space-y-3'>
-                        <textarea
-                            rows={3}
-                            required
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            placeholder='Enter session summary, attendance highlights, topics covered...'
-                            className='w-full px-3 py-2 text-sm border border-emerald-300 rounded-lg bg-white focus:outline-emerald-600'
-                        />
-                        <div className='flex justify-end gap-2'>
+                    <form onSubmit={handleConduct} className='space-y-4'>
+                        <div>
+                            <label className='block text-xs font-bold text-emerald-950 uppercase mb-1'>Session Delivery Notes</label>
+                            <textarea
+                                rows={3}
+                                required
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                placeholder='Enter session summary, attendance highlights, topics covered, assignment details...'
+                                className='w-full px-3 py-2 text-sm border border-emerald-300 rounded-lg bg-white focus:outline-emerald-600'
+                            />
+                        </div>
+
+                        <div>
+                            <div className='flex items-center justify-between mb-2'>
+                                <label className='block text-xs font-bold text-emerald-950 uppercase'>Student Attendance Roster</label>
+                                <span className='text-xs text-emerald-800 font-semibold'>
+                                    {attendance.filter((s) => s.status === 'Present').length} / {attendance.length} Present
+                                </span>
+                            </div>
+                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white p-3 rounded-xl border border-emerald-200 max-h-56 overflow-y-auto'>
+                                {attendance.map((stu) => {
+                                    const isPresent = stu.status === 'Present'
+                                    return (
+                                        <div
+                                            key={stu.id}
+                                            className='flex items-center justify-between p-2 rounded-lg border border-slate-100 hover:bg-slate-50 text-xs'
+                                        >
+                                            <div>
+                                                <span className='font-mono font-bold text-slate-500 mr-2'>{stu.rollNo}</span>
+                                                <span className='font-bold text-slate-800'>{stu.name}</span>
+                                            </div>
+                                            <button
+                                                type='button'
+                                                onClick={() => toggleStudentAttendance(stu.id)}
+                                                className={`px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition-colors ${
+                                                    isPresent
+                                                        ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                                                        : 'bg-red-100 text-red-800 hover:bg-red-200'
+                                                }`}
+                                            >
+                                                {isPresent ? 'Present' : 'Absent'}
+                                            </button>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+
+                        <div className='flex justify-end gap-2 pt-2 border-t border-emerald-200'>
                             <button
                                 type='button'
                                 onClick={() => setIsConducting(false)}
@@ -93,9 +149,9 @@ const ViewExtraClass = ({ listPath = null }) => {
                             </button>
                             <button
                                 type='submit'
-                                className='px-4 py-1.5 text-xs bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700'
+                                className='px-4 py-1.5 text-xs bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 shadow-xs'
                             >
-                                Save & Mark Conducted
+                                Save &amp; Mark Conducted
                             </button>
                         </div>
                     </form>
@@ -153,6 +209,47 @@ const ViewExtraClass = ({ listPath = null }) => {
                                     <Field label='Conducted Session Notes' value={record.sessionNotes} />
                                 </div>
                             )}
+                        </div>
+                    </Section>
+
+                    <Section title='Student Cohort Attendance & Participation'>
+                        <div className='space-y-4'>
+                            <div className='flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100'>
+                                <div className='flex items-center gap-4'>
+                                    <span>Total Allocated: <strong className='text-slate-900'>{attendance.length} Students</strong></span>
+                                    <span>Present: <strong className='text-emerald-700'>{attendance.filter((s) => s.status === 'Present').length}</strong></span>
+                                    <span>Absent: <strong className='text-red-700'>{attendance.filter((s) => s.status === 'Absent').length}</strong></span>
+                                </div>
+                                <span className='font-bold text-blue-700'>
+                                    Attendance Rate: {Math.round((attendance.filter((s) => s.status === 'Present').length / (attendance.length || 1)) * 100)}%
+                                </span>
+                            </div>
+
+                            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3'>
+                                {attendance.map((stu) => {
+                                    const isPresent = stu.status === 'Present'
+                                    return (
+                                        <div
+                                            key={stu.id}
+                                            className='p-3 rounded-xl border border-slate-200/80 bg-white flex items-center justify-between'
+                                        >
+                                            <div>
+                                                <span className='font-mono text-[10px] text-slate-500 block'>{stu.rollNo}</span>
+                                                <span className='font-bold text-slate-900 text-xs'>{stu.name}</span>
+                                            </div>
+                                            <span
+                                                className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                                                    isPresent
+                                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                        : 'bg-red-50 text-red-700 border-red-200'
+                                                }`}
+                                            >
+                                                {stu.status}
+                                            </span>
+                                        </div>
+                                    )
+                                })}
+                            </div>
                         </div>
                     </Section>
                 </>

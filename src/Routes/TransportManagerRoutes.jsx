@@ -7,6 +7,8 @@ import RedirectLegacyDirectMessages from '../Common/Communication/RedirectLegacy
 import { Route, Routes as ReactRoutes, Navigate } from 'react-router-dom'
 import Dashboard from '../Pages/TransportManager/Dashboard/Dashboard'
 import DriverManagement from '../Pages/TransportManager/DriverManagement/DriverManagement'
+import AddDriver from '../Pages/TransportManager/DriverManagement/AddDriver'
+import EditDriver from '../Pages/TransportManager/DriverManagement/EditDriver'
 import ViewDriver from '../Pages/TransportManager/DriverManagement/ViewDriver'
 import VehicleManagement from '../Pages/TransportManager/VehicleManagement/VehicleManagement'
 import AddVehicle from '../Pages/TransportManager/VehicleManagement/AddVehicle'
@@ -40,6 +42,8 @@ const TransportManagerRoutes = () => {
         <ReactRoutes>
             <Route path="/transport-manager/dashboard" element={<Dashboard />} />
             <Route path="/transport-manager/driver-management" element={<DriverManagement />} />
+            <Route path="/transport-manager/driver-management/add" element={<AddDriver />} />
+            <Route path="/transport-manager/driver-management/edit/:id" element={<EditDriver />} />
             <Route path="/transport-manager/driver-management/view/:id" element={<ViewDriver />} />
             <Route path="/transport-manager/vehicle-management" element={<VehicleManagement />} />
             <Route path="/transport-manager/vehicle-management/add-vehicle" element={<AddVehicle />} />

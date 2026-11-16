@@ -741,6 +741,7 @@ export const singleTitleMapping = {
     "/account-head/approvals": "Approvals",
     "/account-head/reports-analytics": "Reports & Analytics",
     "/account-head/settings": "Settings",
+    "/account-head/pos-sync": "POS / EDC Synchronization",
 
     // Driver
     "/driver/dashboard": "Dashboard",

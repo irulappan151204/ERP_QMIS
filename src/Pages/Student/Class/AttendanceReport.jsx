@@ -3,119 +3,269 @@ import { Download, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import ExportModal from '../../../Common/CommonComponents/ExportModal'
+import { useActiveStudent } from '../../../context/ActiveStudentContext'
+import { getStudentAttendanceSummary } from '../../../Common/AttendanceAndLeave/attendanceLeaveData'
 
 const AttendanceReport = () => {
+    const { activeStudentId, activeStudent } = useActiveStudent()
+    const [selectMonth, setSelectMonth] = useState(new Date())
+    const [statusFilter, setStatusFilter] = useState('ALL')
+    const [searchTerm, setSearchTerm] = useState('')
+    const [entriesPerPage, setEntriesPerPage] = useState(10)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [exportModal, setExportModal] = useState(false)
 
-    const [selectMonth, setSelectMonth] = useState(new Date());
-    const [exportModal, setExportModal] = useState(false);
+    const summary = useMemo(() => {
+        return getStudentAttendanceSummary(activeStudentId || 'STU-2025-1001')
+    }, [activeStudentId])
+
+    // Generate monthly logs dynamically for the selected month
+    const attendanceLogs = useMemo(() => {
+        const year = selectMonth.getFullYear()
+        const month = selectMonth.getMonth()
+        const daysInMonth = new Date(year, month + 1, 0).getDate()
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+        const list = []
+        for (let d = daysInMonth; d >= 1; d--) {
+            const dateObj = new Date(year, month, d)
+            const dayOfWeek = dateObj.getDay()
+            const dayName = dayNames[dayOfWeek]
+            const formattedDate = `${String(d).padStart(2, '0')} ${monthNames[month]} ${year}`
+
+            if (dayOfWeek === 0) {
+                list.push({
+                    date: formattedDate,
+                    status: 'Holiday',
+                    day: dayName,
+                    remarks: 'Weekend Holiday',
+                    timing: '—',
+                })
+            } else if (dayOfWeek === 6 && d % 2 === 0) {
+                list.push({
+                    date: formattedDate,
+                    status: 'Holiday',
+                    day: dayName,
+                    remarks: 'Second / Fourth Saturday Institutional Holiday',
+                    timing: '—',
+                })
+            } else if (d === 14 || d === 22) {
+                list.push({
+                    date: formattedDate,
+                    status: 'Absent',
+                    day: dayName,
+                    remarks: d === 14 ? 'Medical Leave — Doctor Certificate Submitted' : 'Unnotified Leave',
+                    timing: '—',
+                })
+            } else if (d === 7) {
+                list.push({
+                    date: formattedDate,
+                    status: 'Late Arrival',
+                    day: dayName,
+                    remarks: 'Late Bus Transit Entry (09:12 AM)',
+                    timing: '09:15 AM - 03:45 PM',
+                })
+            } else {
+                list.push({
+                    date: formattedDate,
+                    status: 'Present',
+                    day: dayName,
+                    remarks: 'Regular Academic Day — Full Day Attended',
+                    timing: '08:30 AM - 03:30 PM',
+                })
+            }
+        }
+        return list
+    }, [selectMonth])
+
+    const filteredLogs = useMemo(() => {
+        return attendanceLogs.filter((item) => {
+            if (statusFilter !== 'ALL' && item.status !== statusFilter) return false
+            if (searchTerm.trim()) {
+                const q = searchTerm.toLowerCase()
+                return (
+                    item.date.toLowerCase().includes(q) ||
+                    item.day.toLowerCase().includes(q) ||
+                    item.remarks.toLowerCase().includes(q)
+                )
+            }
+            return true
+        })
+    }, [attendanceLogs, statusFilter, searchTerm])
+
+    const totalPages = Math.ceil(filteredLogs.length / entriesPerPage) || 1
+    const paginatedLogs = useMemo(() => {
+        const start = (currentPage - 1) * entriesPerPage
+        return filteredLogs.slice(start, start + entriesPerPage)
+    }, [filteredLogs, currentPage, entriesPerPage])
+
+    const handleClearFilters = () => {
+        setSelectMonth(new Date())
+        setStatusFilter('ALL')
+        setSearchTerm('')
+        setCurrentPage(1)
+    }
+
+    const badgeStyle = {
+        Present: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        Absent: 'bg-red-50 text-red-700 border-red-200',
+        'Late Arrival': 'bg-amber-50 text-amber-700 border-amber-200',
+        Holiday: 'bg-slate-100 text-slate-700 border-slate-200',
+    }
 
     return (
-        <section>
-            <div className='bg-white rounded-2xl shadow-md p-4 mt-2'>
-                <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end'>
-                    <div className='flex flex-col gap-y-2'>
-                        <label className='text-base font-medium text-[#808080]'>Select Month</label>
-
+        <section className='space-y-6'>
+            {/* Filter Card */}
+            <div className='bg-white rounded-2xl shadow-md p-5'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end'>
+                    <div className='flex flex-col gap-y-1.5'>
+                        <label className='text-xs font-bold text-slate-600 uppercase'>Select Month</label>
                         <div className='relative w-full'>
                             <DatePicker
                                 selected={selectMonth}
-                                onChange={(date) => setSelectMonth(date)}
-                                isClearable={true}
-                                showMonthYearDropdown={true}
-                                scrollableMonthYearDropdown={true}
-                                className='w-full text-sm text-[#808080] border border-[#D9D9D9] rounded-md px-3 py-3 pr-10 focus:outline-none'
+                                onChange={(date) => {
+                                    setSelectMonth(date || new Date())
+                                    setCurrentPage(1)
+                                }}
+                                dateFormat='MMMM yyyy'
+                                showMonthYearPicker
+                                className='w-full text-xs text-slate-800 border border-slate-200 rounded-xl px-3 py-2.5 pr-10 focus:outline-none focus:border-[#515DEF]'
                             />
-
                             <Calendar
                                 size={16}
-                                className='absolute right-3 top-1/2 -translate-y-1/2 text-[#808080] pointer-events-none'
+                                className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none'
                             />
                         </div>
                     </div>
 
-                    <div className='flex flex-col gap-y-2'>
-                        <label htmlFor="class" className='text-base font-medium text-[#808080]'>Exams Filter</label>
-                        <select name="" id="" className='text-sm font-normal text-[#808080] border border-[#D9D9D9] rounded-md px-2 py-3 w-full'>
-                            <option value="">All</option>
+                    <div className='flex flex-col gap-y-1.5'>
+                        <label className='text-xs font-bold text-slate-600 uppercase'>Status Filter</label>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => {
+                                setStatusFilter(e.target.value)
+                                setCurrentPage(1)
+                            }}
+                            className='text-xs font-semibold text-slate-800 border border-slate-200 rounded-xl px-3 py-2.5 w-full bg-white focus:outline-none focus:border-[#515DEF]'
+                        >
+                            <option value="ALL">All Statuses</option>
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                            <option value="Late Arrival">Late Arrival</option>
+                            <option value="Holiday">Holiday</option>
                         </select>
                     </div>
 
-                    <button onClick={() => setExportModal(true)} className='bg-[#515DEF] text-white flex items-center gap-x-2 justify-center uppercase text-sm px-6 py-3 border border-[#515DEF] rounded-lg hover:opacity-90 transition-all duration-200 cursor-pointer'>
+                    <button
+                        type='button'
+                        onClick={() => setExportModal(true)}
+                        className='bg-[#515DEF] text-white flex items-center gap-x-2 justify-center uppercase text-xs font-bold px-6 py-2.5 rounded-xl hover:opacity-90 transition-all cursor-pointer'
+                    >
                         <Download className='w-4 h-4' />
-                        Download Report
+                        Export Log
                     </button>
 
-                    <button className='bg-[#515DEF] text-white uppercase text-sm px-6 py-3 border border-[#515DEF] rounded-lg hover:opacity-90 transition-all duration-200 cursor-pointer'>
+                    <button
+                        type='button'
+                        onClick={handleClearFilters}
+                        className='bg-slate-100 text-slate-700 uppercase text-xs font-bold px-6 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-200 transition-all cursor-pointer'
+                    >
                         Clear Filters
                     </button>
                 </div>
             </div>
 
+            {/* Attendance Roster Table */}
+            <div className='bg-white rounded-2xl shadow-md p-5 space-y-4'>
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-3'>
+                    <div>
+                        <h2 className='text-lg font-bold text-slate-900'>
+                            Daily Attendance Ledger — {selectMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+                        </h2>
+                        <p className='text-xs text-slate-500'>
+                            Official biometric and roll-call records for student: <strong className='text-slate-800'>{activeStudent?.name || summary?.studentName || 'Student'}</strong>
+                        </p>
+                    </div>
 
-            <div className='bg-white rounded-2xl shadow-md p-4 mt-8'>
-                <div className='flex justify-between items-center sm:flex-row flex-col gap-y-2 mb-4'>
-                    <h2 className='text-xl font-medium text-black'>Attendance Report List</h2>
+                    <div className='flex items-center gap-2'>
+                        <span className='text-xs text-slate-500'>Rows per page:</span>
+                        <select
+                            value={entriesPerPage}
+                            onChange={(e) => {
+                                setEntriesPerPage(Number(e.target.value))
+                                setCurrentPage(1)
+                            }}
+                            className='px-2.5 py-1 text-xs font-bold bg-slate-50 border border-slate-200 rounded-lg text-slate-700'
+                        >
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                            <option value={30}>30</option>
+                        </select>
+                    </div>
                 </div>
-                <div className='flex gap-x-2 items-center my-2'>
-                    <select name="" id="" className='px-2 py-1.5 bg-white text-[#515DEF] border border-[#515DEF] rounded-md'>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="30">30</option>
-                        <option value="40">40</option>
-                        <option value="50">50</option>
-                    </select>
-                    <span className='text-sm font-normal text-[#515DEF]'>Entries Per Page</span>
-                </div>
-                <div className="relative overflow-x-auto">
-                    <table className="w-full text-sm text-left rtl:text-right">
-                        <thead className="text-xs bg-[#EDEEF5] whitespace-nowrap rounded-lg">
-                            <tr className='rounded-lg'>
-                                <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase rounded-s-lg">Date</th>
-                                <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase">Status</th>
-                                <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase">Day</th>
-                                <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase">Remarks</th>
-                                <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase rounded-e-lg">Class Timing</th>
+
+                <div className="relative overflow-x-auto border border-slate-100 rounded-xl">
+                    <table className="w-full text-xs text-left">
+                        <thead className="bg-[#EDEEF5] text-slate-700 uppercase text-[10px] font-bold">
+                            <tr>
+                                <th className="px-4 py-3">Date</th>
+                                <th className="px-4 py-3 text-center">Status</th>
+                                <th className="px-4 py-3">Day</th>
+                                <th className="px-4 py-3">Class Timing</th>
+                                <th className="px-4 py-3">Attendance Remarks</th>
                             </tr>
                         </thead>
 
-                        <tbody>
-                            <tr className="border-b text-[#667085] border-[#f2f4f7] hover:bg-[#f2f4f7] rounded-lg">
-                                <td className="px-2 py-4 rounded-s-lg">18 May 2026</td>
-                                <td className="px-2 py-4">Present</td>
-                                <td className="px-2 py-4">Monday</td>
-                                <td className="px-2 py-4">Attended Science Class</td>
-                                <td className="px-2 py-4 rounded-e-lg">10:30 AM - 11:15 AM</td>
-                            </tr>
+                        <tbody className='divide-y divide-slate-100 font-medium'>
+                            {paginatedLogs.map((row, idx) => (
+                                <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                                    <td className="px-4 py-3.5 font-bold text-slate-900">{row.date}</td>
+                                    <td className="px-4 py-3.5 text-center">
+                                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeStyle[row.status] || 'bg-slate-100 text-slate-700'}`}>
+                                            {row.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3.5 text-slate-600">{row.day}</td>
+                                    <td className="px-4 py-3.5 text-slate-600 font-mono text-[11px]">{row.timing}</td>
+                                    <td className="px-4 py-3.5 text-slate-700">{row.remarks}</td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
-            </div>
 
-            {/* Pagination */}
-            <div className='flex justify-between items-center px-4 mt-4'>
-                <p className='text-sm font-medium text-[#515DEF]'>Showing 1 to 10 of 20 entries</p>
+                {/* Pagination Controls */}
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs text-slate-500'>
+                    <p>
+                        Showing {(currentPage - 1) * entriesPerPage + 1} to {Math.min(currentPage * entriesPerPage, filteredLogs.length)} of {filteredLogs.length} days
+                    </p>
 
-                <div className="flex justify-center gap-x-2 flex-wrap">
-                    <button className="size-8 flex justify-center items-center p-2 bg-white text-[#515DEF] border border-[#E2E8F0] hover:bg-[#515DEF] hover:text-white rounded-full cursor-pointer">
-                        <ChevronLeft size={16} />
-                    </button>
-
-                    <button className="size-8 flex justify-center items-center p-2 bg-[#EDEDF5] text-[#515DEF] hover:bg-[#515DEF] hover:text-white border border-[#E2E8F0] rounded-full cursor-pointer">
-                        1
-                    </button>
-
-                    <button className="size-8 flex justify-center items-center p-2 bg-[#EDEDF5] text-[#515DEF] hover:bg-[#515DEF] hover:text-white border border-[#E2E8F0] rounded-full cursor-pointer">
-                        2
-                    </button>
-
-                    <button className="size-8 flex justify-center items-center p-2 bg-white text-[#515DEF] border border-[#E2E8F0] hover:bg-[#515DEF] hover:text-white rounded-full cursor-pointer">
-                        <ChevronRight size={16} />
-                    </button>
+                    <div className="flex items-center gap-1.5 self-center">
+                        <button
+                            type='button'
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage((p) => p - 1)}
+                            className="size-7 flex items-center justify-center rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50 cursor-pointer disabled:cursor-not-allowed"
+                        >
+                            <ChevronLeft size={14} />
+                        </button>
+                        <span className='px-2 font-bold text-slate-800'>
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            type='button'
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage((p) => p + 1)}
+                            className="size-7 flex items-center justify-center rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50 cursor-pointer disabled:cursor-not-allowed"
+                        >
+                            <ChevronRight size={14} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <ExportModal exportModal={exportModal} setExportModal={setExportModal} />
-
         </section>
     )
 }

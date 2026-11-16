@@ -9,6 +9,7 @@ import {
     addClassTimetable,
     defaultClassTimetableForm,
     generateTimetableId,
+    validateTimetableConflicts,
 } from './classTimetableData'
 
 const inputClass =
@@ -37,6 +38,16 @@ const CreateClassTimetable = () => {
         if (!form.timelines.some((row) => row.day && row.subject && row.startTime && row.endTime)) {
             nextErrors.push('Add at least one complete timeline row.')
         }
+
+        const conflictCheck = validateTimetableConflicts({
+            className: form.className,
+            section: form.section,
+            timelines: form.timelines,
+        })
+        if (conflictCheck.hasConflict) {
+            nextErrors.push(...conflictCheck.errors)
+        }
+
         setErrors(nextErrors)
         return nextErrors.length === 0
     }

@@ -99,10 +99,17 @@ export const getExtraClasses = () => {
 export const getExtraClassById = (id) =>
     getExtraClasses().find((item) => item.id === id) ?? null
 
-export const updateExtraClassStatus = (id, status, notes = '') => {
+export const updateExtraClassStatus = (id, status, notes = '', attendanceList = null) => {
     const list = getExtraClasses()
     const updated = list.map((item) =>
-        item.id === id ? { ...item, status, sessionNotes: notes } : item
+        item.id === id
+            ? {
+                  ...item,
+                  status,
+                  sessionNotes: notes || item.sessionNotes,
+                  attendanceList: attendanceList !== null ? attendanceList : item.attendanceList,
+              }
+            : item
     )
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))

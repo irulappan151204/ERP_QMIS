@@ -62,6 +62,7 @@ import {
     Settings,
     Landmark,
     Receipt,
+    CreditCard,
     HeartPulse,
     Archive,
     Camera,
@@ -2724,6 +2725,12 @@ export const accountHeadSidebarLinks = [
         title: "Collections",
         to: "/account-head/collections",
         icon: BadgeDollarSign,
+    },
+    {
+        id: "pos-sync",
+        title: "POS / EDC Sync",
+        to: "/account-head/pos-sync",
+        icon: CreditCard,
     },
     {
         id: 4,

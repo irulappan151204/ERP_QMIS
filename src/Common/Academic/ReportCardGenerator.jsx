@@ -23,6 +23,12 @@ import {
     getGradeFromPercentage,
     CLASSES,
     SECTIONS,
+    isReportCardPublished,
+    publishClassReportCards,
+    unpublishClassReportCards,
+    getReportCardAcknowledgement,
+    acknowledgeReportCard,
+    getAcknowledgementTrackingReport,
 } from '../MarkEntryApproval/markEntryApprovalData'
 import { getStudentsList } from '../../Pages/Teacher/StudentsList/studentsListData'
 import { PARENT_CHILD_PROFILES } from '../../Pages/Parent/parentStudentProfiles'
@@ -161,6 +167,18 @@ const ReportCardGenerator = () => {
     const [selectedTerm, setSelectedTerm] = useState('TERM 2')
     const [generatedNotice, setGeneratedNotice] = useState('')
 
+    // Staff vs Parent View Modes & Acknowledgement Lifecycle
+    const [viewMode, setViewMode] = useState('card') // 'card' | 'tracking'
+    const [lifecycleVersion, setLifecycleVersion] = useState(0)
+    const [showAckModal, setShowAckModal] = useState(false)
+    const [ackForm, setAckForm] = useState({
+        parentName: '',
+        contactNumber: '',
+        comments: '',
+    })
+    const [trackingSearch, setTrackingSearch] = useState('')
+    const [trackingFilter, setTrackingFilter] = useState('ALL')
+
     const reportCardRef = useRef(null)
 
     // Current active student profile
@@ -269,6 +287,69 @@ const ReportCardGenerator = () => {
         [overallPercentage]
     )
 
+    // Lifecycle queries & handlers
+    const isPublished = useMemo(() => {
+        return isReportCardPublished(selectedTerm)
+    }, [selectedTerm, lifecycleVersion])
+
+    const currentAcknowledgement = useMemo(() => {
+        if (!activeStudentProfile?.id) return null
+        return getReportCardAcknowledgement(activeStudentProfile.id, selectedTerm)
+    }, [activeStudentProfile, selectedTerm, lifecycleVersion])
+
+    const trackingReport = useMemo(() => {
+        return getAcknowledgementTrackingReport({
+            term: selectedTerm,
+            studentList: classFilteredStudents,
+        })
+    }, [selectedTerm, classFilteredStudents, lifecycleVersion])
+
+    const handlePublishToggle = () => {
+        if (isPublished) {
+            unpublishClassReportCards({ term: selectedTerm })
+            setGeneratedNotice(`Report cards for ${selectedTerm} unpublished. Parents will no longer see this term.`)
+        } else {
+            publishClassReportCards({ term: selectedTerm, publishedBy: 'Principal Dr. Anita Rajesh' })
+            setGeneratedNotice(`Report cards for ${selectedTerm} officially published! Notifications dispatched to parents via Portal and SMS.`)
+        }
+        setLifecycleVersion((v) => v + 1)
+        setTimeout(() => setGeneratedNotice(''), 5000)
+    }
+
+    const handleOpenAckModal = () => {
+        setAckForm({
+            parentName: currentAcknowledgement?.parentName || 'Parent / Guardian',
+            contactNumber: currentAcknowledgement?.contactNumber || '+91 98401 22334',
+            comments: currentAcknowledgement?.comments || 'Acknowledged and reviewed student report card.',
+        })
+        setShowAckModal(true)
+    }
+
+    const handleAcknowledgeSubmit = (e) => {
+        e.preventDefault()
+        if (!activeStudentProfile?.id) return
+        acknowledgeReportCard({
+            studentId: activeStudentProfile.id,
+            studentName: activeStudentProfile.name,
+            rollNo: activeStudentProfile.rollNo,
+            className: activeStudentProfile.className,
+            section: activeStudentProfile.section,
+            term: selectedTerm,
+            parentName: ackForm.parentName || 'Parent / Guardian',
+            contactNumber: ackForm.contactNumber,
+            comments: ackForm.comments,
+        })
+        setShowAckModal(false)
+        setLifecycleVersion((v) => v + 1)
+        setGeneratedNotice(`Thank you! Report card for ${activeStudentProfile.name} successfully acknowledged.`)
+        setTimeout(() => setGeneratedNotice(''), 5000)
+    }
+
+    const handleSendReminders = () => {
+        setGeneratedNotice(`Automated SMS and notification reminders dispatched to ${trackingReport.pendingCount} parent(s) with pending acknowledgement.`)
+        setTimeout(() => setGeneratedNotice(''), 5000)
+    }
+
     // Handle Print
     const handlePrint = () => {
         window.print()
@@ -306,7 +387,33 @@ const ReportCardGenerator = () => {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {!isRestrictedToSingleStudent && (
+                            <button
+                                type="button"
+                                onClick={handlePublishToggle}
+                                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer border ${
+                                    isPublished
+                                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
+                                        : 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
+                                }`}
+                            >
+                                <CheckCircle2 size={14} />
+                                <span>{isPublished ? 'Published to Parents (Click to Unpublish)' : 'Publish to Parents'}</span>
+                            </button>
+                        )}
+
+                        {isParentRole && isPublished && !currentAcknowledgement?.acknowledged && (
+                            <button
+                                type="button"
+                                onClick={handleOpenAckModal}
+                                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer animate-pulse"
+                            >
+                                <Check size={14} />
+                                <span>Acknowledge Report Card</span>
+                            </button>
+                        )}
+
                         <button
                             type="button"
                             onClick={handleGenerate}
@@ -330,6 +437,74 @@ const ReportCardGenerator = () => {
                     <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-150">
                         <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
                         <span>{generatedNotice}</span>
+                    </div>
+                )}
+
+                {/* View Mode Tabs for Staff */}
+                {!isRestrictedToSingleStudent && (
+                    <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
+                        <button
+                            type="button"
+                            onClick={() => setViewMode('card')}
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                                viewMode === 'card'
+                                    ? 'bg-blue-600 text-white shadow-xs'
+                                    : 'bg-slate-100 text-slate-600 hover:text-slate-900'
+                            }`}
+                        >
+                            Official Report Card Document
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setViewMode('tracking')}
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                                viewMode === 'tracking'
+                                    ? 'bg-blue-600 text-white shadow-xs'
+                                    : 'bg-slate-100 text-slate-600 hover:text-slate-900'
+                            }`}
+                        >
+                            Parent Acknowledgement Tracking ({trackingReport.acknowledgedCount}/{trackingReport.totalStudents})
+                        </button>
+                    </div>
+                )}
+
+                {/* Parent Status Alert Banner */}
+                {isParentRole && (
+                    <div className="p-3.5 rounded-xl border text-xs">
+                        {!isPublished ? (
+                            <div className="flex items-center gap-2 text-amber-800 bg-amber-50/80 p-2.5 rounded-lg border border-amber-200 font-medium">
+                                <Award size={16} className="text-amber-600 shrink-0" />
+                                <span>Assessment evaluations for <strong>{selectedTerm}</strong> are currently being processed by the Academic Board and will be published shortly.</span>
+                            </div>
+                        ) : currentAcknowledgement?.acknowledged ? (
+                            <div className="flex items-center justify-between gap-3 text-emerald-900 bg-emerald-50/80 p-2.5 rounded-lg border border-emerald-200">
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                                    <span>
+                                        <strong>Report Card Acknowledged:</strong> Confirmed by {currentAcknowledgement.parentName} on {currentAcknowledgement.acknowledgedAt}.
+                                    </span>
+                                </div>
+                                <span className="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
+                                    Verified
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-blue-900 bg-blue-50/80 p-2.5 rounded-lg border border-blue-200">
+                                <div className="flex items-center gap-2">
+                                    <Sparkles size={16} className="text-blue-600 shrink-0" />
+                                    <span>
+                                        <strong>Parent Action Requested:</strong> Please review this term report card and submit digital acknowledgement below.
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleOpenAckModal}
+                                    className="px-3 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shrink-0 cursor-pointer"
+                                >
+                                    Acknowledge Now
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -428,7 +603,201 @@ const ReportCardGenerator = () => {
                 )}
             </div>
 
+            {/* PARENT ACKNOWLEDGEMENT TRACKING VIEW FOR STAFF */}
+            {!isRestrictedToSingleStudent && viewMode === 'tracking' && (
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 className="text-base font-bold text-slate-900">
+                                Parent Acknowledgement Tracking — Grade {selectedClass}-{selectedSection} ({selectedTerm})
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                                Verification records confirming parent review of published academic report cards.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleSendReminders}
+                            disabled={trackingReport.pendingCount === 0}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold transition-colors cursor-pointer"
+                        >
+                            <Sparkles size={14} /> Send Reminders ({trackingReport.pendingCount} Pending)
+                        </button>
+                    </div>
+
+                    {/* KPI Metrics */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50">
+                            <span className="text-[10px] uppercase font-bold text-slate-500 block">Total Students</span>
+                            <span className="text-2xl font-black text-slate-900">{trackingReport.totalStudents}</span>
+                        </div>
+                        <div className="p-4 rounded-xl border border-slate-200 bg-emerald-50/50">
+                            <span className="text-[10px] uppercase font-bold text-emerald-700 block">Acknowledged</span>
+                            <span className="text-2xl font-black text-emerald-800">{trackingReport.acknowledgedCount}</span>
+                        </div>
+                        <div className="p-4 rounded-xl border border-slate-200 bg-amber-50/50">
+                            <span className="text-[10px] uppercase font-bold text-amber-700 block">Pending Acknowledgement</span>
+                            <span className="text-2xl font-black text-amber-800">{trackingReport.pendingCount}</span>
+                        </div>
+                        <div className="p-4 rounded-xl border border-slate-200 bg-purple-50/50">
+                            <span className="text-[10px] uppercase font-bold text-purple-700 block">Compliance Rate</span>
+                            <span className="text-2xl font-black text-purple-800">{trackingReport.acknowledgementRate}</span>
+                        </div>
+                    </div>
+
+                    {/* Filter and Search */}
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="relative max-w-xs w-full">
+                            <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="Search student name or roll..."
+                                value={trackingSearch}
+                                onChange={(e) => setTrackingSearch(e.target.value)}
+                                className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                            />
+                        </div>
+                        <select
+                            value={trackingFilter}
+                            onChange={(e) => setTrackingFilter(e.target.value)}
+                            className="px-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-white font-medium text-slate-700 focus:outline-none"
+                        >
+                            <option value="ALL">All Statuses</option>
+                            <option value="ACKNOWLEDGED">Acknowledged Only</option>
+                            <option value="PENDING">Pending Only</option>
+                        </select>
+                    </div>
+
+                    {/* Table */}
+                    <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table className="w-full text-xs text-left divide-y divide-slate-200">
+                            <thead className="bg-slate-50 font-bold text-slate-700 uppercase text-[10px]">
+                                <tr>
+                                    <th className="py-2.5 px-3">Roll No</th>
+                                    <th className="py-2.5 px-3">Student Name</th>
+                                    <th className="py-2.5 px-3 text-center">Status</th>
+                                    <th className="py-2.5 px-3">Acknowledged At</th>
+                                    <th className="py-2.5 px-3">Parent Name</th>
+                                    <th className="py-2.5 px-3">Parent Contact</th>
+                                    <th className="py-2.5 px-3">Feedback / Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 font-medium">
+                                {trackingReport.records
+                                    .filter((r) => {
+                                        if (trackingFilter === 'ACKNOWLEDGED' && !r.isAcknowledged) return false
+                                        if (trackingFilter === 'PENDING' && r.isAcknowledged) return false
+                                        if (trackingSearch.trim()) {
+                                            const q = trackingSearch.toLowerCase()
+                                            return r.studentName.toLowerCase().includes(q) || r.rollNo.toLowerCase().includes(q)
+                                        }
+                                        return true
+                                    })
+                                    .map((r) => (
+                                        <tr key={r.studentId} className="hover:bg-slate-50/80">
+                                            <td className="py-2.5 px-3 font-mono font-bold text-slate-800">{r.rollNo}</td>
+                                            <td className="py-2.5 px-3 font-bold text-slate-900">{r.studentName}</td>
+                                            <td className="py-2.5 px-3 text-center">
+                                                <span
+                                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                                        r.isAcknowledged
+                                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                                                    }`}
+                                                >
+                                                    {r.isAcknowledged ? 'Acknowledged' : 'Pending'}
+                                                </span>
+                                            </td>
+                                            <td className="py-2.5 px-3 text-slate-600">{r.acknowledgedAt}</td>
+                                            <td className="py-2.5 px-3 font-semibold text-slate-800">{r.parentName}</td>
+                                            <td className="py-2.5 px-3 text-slate-600">{r.contactNumber}</td>
+                                            <td className="py-2.5 px-3 text-slate-600 italic max-w-xs truncate">{r.comments}</td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL: Parent Digital Acknowledgement */}
+            {showAckModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+                    <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-4 animate-in fade-in duration-200">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <h3 className="font-bold text-slate-900 text-base">Parent Digital Acknowledgement</h3>
+                            <button
+                                type="button"
+                                onClick={() => setShowAckModal(false)}
+                                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+                            >
+                                <Check size={18} />
+                            </button>
+                        </div>
+
+                        <p className="text-xs text-slate-600">
+                            By acknowledging, you confirm you have viewed and reviewed the term assessment results for{' '}
+                            <strong>{activeStudentProfile.name}</strong> ({selectedTerm}).
+                        </p>
+
+                        <form onSubmit={handleAcknowledgeSubmit} className="space-y-3.5 text-xs font-sans">
+                            <div>
+                                <label className="block font-bold text-slate-700 mb-1">Parent / Guardian Name</label>
+                                <input
+                                    type="text"
+                                    value={ackForm.parentName}
+                                    onChange={(e) => setAckForm({ ...ackForm, parentName: e.target.value })}
+                                    placeholder="e.g., Rajesh Sharma (Father)"
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold focus:outline-none focus:border-blue-500"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block font-bold text-slate-700 mb-1">Registered Contact Number</label>
+                                <input
+                                    type="text"
+                                    value={ackForm.contactNumber}
+                                    onChange={(e) => setAckForm({ ...ackForm, contactNumber: e.target.value })}
+                                    placeholder="+91 98401 22334"
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold focus:outline-none focus:border-blue-500"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block font-bold text-slate-700 mb-1">Parent Feedback / Remarks (Optional)</label>
+                                <textarea
+                                    rows="3"
+                                    value={ackForm.comments}
+                                    onChange={(e) => setAckForm({ ...ackForm, comments: e.target.value })}
+                                    placeholder="Enter any feedback or notes for class mentor..."
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold focus:outline-none focus:border-blue-500"
+                                />
+                            </div>
+
+                            <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAckModal(false)}
+                                    className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs"
+                                >
+                                    Confirm Digital Acknowledgement
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* OFFICIAL CBSE / QMIS REPORT CARD DISPLAY */}
+            {(isRestrictedToSingleStudent || viewMode === 'card') && (
             <div
                 ref={reportCardRef}
                 className="bg-white rounded-2xl shadow-lg border border-slate-300 p-8 max-w-4xl mx-auto text-slate-900 font-sans print:shadow-none print:border-none print:p-0 print:m-0"
@@ -706,7 +1075,33 @@ const ReportCardGenerator = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Parent Digital Acknowledgement Verified Stamp */}
+                {currentAcknowledgement?.acknowledged && (
+                    <div className="mt-8 p-4 rounded-xl border-2 border-emerald-600 bg-emerald-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 size={18} className="text-emerald-700" />
+                                <span className="font-bold text-xs uppercase tracking-wider text-emerald-950">
+                                    Official Parent Digital Acknowledgement Recorded
+                                </span>
+                            </div>
+                            <p className="text-xs text-emerald-900">
+                                Acknowledged by: <strong className="text-emerald-950">{currentAcknowledgement.parentName}</strong> ({currentAcknowledgement.contactNumber}) on {currentAcknowledgement.acknowledgedAt}
+                            </p>
+                            {currentAcknowledgement.comments && (
+                                <p className="text-[11px] text-emerald-800 italic">
+                                    &ldquo;{currentAcknowledgement.comments}&rdquo;
+                                </p>
+                            )}
+                        </div>
+                        <div className="px-3 py-1.5 rounded-lg bg-emerald-700 text-white font-mono text-[11px] font-bold tracking-wider uppercase text-center shrink-0">
+                            DIGITALLY VERIFIED
+                        </div>
+                    </div>
+                )}
             </div>
+            )}
         </section>
     )
 }

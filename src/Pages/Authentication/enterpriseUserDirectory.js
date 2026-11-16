@@ -496,11 +496,11 @@ export const findUserByIdentifier = (rawIdentifier) => {
 
     // 1. Check Primary Enterprise User Directory (matches email, employeeId, id, username, or aliases)
     const seedUser = ENTERPRISE_USER_DIRECTORY.find((user) =>
-        user.email.toLowerCase() === query ||
-        user.id.toLowerCase() === query ||
-        user.employeeId.toLowerCase() === query ||
-        user.username.toLowerCase() === query ||
-        (Array.isArray(user.aliases) && user.aliases.some((a) => a.toLowerCase() === query))
+        user.email?.toLowerCase() === query ||
+        user.id?.toLowerCase() === query ||
+        user.employeeId?.toLowerCase() === query ||
+        user.username?.toLowerCase() === query ||
+        (Array.isArray(user.aliases) && user.aliases.some((a) => a?.toLowerCase() === query))
     )
     if (seedUser) return seedUser
 

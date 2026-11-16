@@ -499,6 +499,7 @@ export default function AttendanceAndLeaveWorkspace({ defaultTab = 'overview', r
                             currentEmployee={currentEmployee}
                             employeeBalance={employeeBalance}
                             myLeaveRequests={myLeaveRequests}
+                            activeRole={activeRole}
                             onApply={() => setIsApplyModalOpen(true)}
                             onCancelRequest={(requestId) => {
                                 const res = cancelLeaveRequest(requestId, 'Cancelled by employee')
@@ -915,7 +916,8 @@ function MyAttendanceView({ currentEmployee, attendanceRecords, onRequestRegular
 // -------------------------------------------------------------
 // MY LEAVE VIEW (Employee Balances & Applications)
 // -------------------------------------------------------------
-function MyLeaveView({ currentEmployee, employeeBalance, myLeaveRequests, onApply, onCancelRequest }) {
+function MyLeaveView({ currentEmployee, employeeBalance, myLeaveRequests, onApply, onCancelRequest, activeRole }) {
+    const isParent = activeRole === 'parent'
     const [subSection, setSubSection] = useState('applications') // 'applications' | 'ledger'
     const ledger = getLeaveLedger(currentEmployee.id)
 
@@ -925,34 +927,91 @@ function MyLeaveView({ currentEmployee, employeeBalance, myLeaveRequests, onAppl
             <div className="space-y-3">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-sm font-bold text-slate-900">Available Statutory Leave Balance</h2>
-                        <p className="text-slate-500 text-[11px]">Academic Year: {CURRENT_ACADEMIC_YEAR} ({currentEmployee.category} Policy)</p>
+                        <h2 className="text-sm font-bold text-slate-900">
+                            {isParent ? 'Student Absence & Leave Requests' : 'Available Statutory Leave Balance'}
+                        </h2>
+                        <p className="text-slate-500 text-[11px]">
+                            {isParent
+                                ? `Student: ${currentEmployee.name} • Directed to Assigned Class Teacher`
+                                : `Academic Year: ${CURRENT_ACADEMIC_YEAR} (${currentEmployee.category} Policy)`}
+                        </p>
                     </div>
                     <button
                         onClick={onApply}
                         className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition shadow-sm"
                     >
                         <Plus className="w-4 h-4" />
-                        <span>Apply for Leave</span>
+                        <span>{isParent ? 'Submit Child Leave Application' : 'Apply for Leave'}</span>
                     </button>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                    {(employeeBalance?.categories || []).map((cat) => (
-                        <div key={cat.code} className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                            <span className="font-bold text-slate-800 text-[11px] block">{cat.name}</span>
-                            <div className="mt-1 flex items-baseline gap-1">
-                                <span className="text-2xl font-bold text-blue-600">{cat.availableBalance}</span>
-                                <span className="text-[10px] text-slate-400">/ {cat.annualAllocation} days</span>
+                    {isParent ? (
+                        <>
+                            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <span className="font-bold text-slate-800 text-[11px] block">Term Working Days</span>
+                                <div className="mt-1 flex items-baseline gap-1">
+                                    <span className="text-2xl font-black text-slate-800">22</span>
+                                    <span className="text-[10px] text-slate-400">days</span>
+                                </div>
+                                <div className="mt-1 text-[10px] text-slate-500">Scheduled Sessions</div>
                             </div>
-                            <div className="mt-1 text-[10px] text-slate-500 flex justify-between">
-                                <span>Used: {cat.used}</span>
-                                {cat.carryForwardAllowed && (
-                                    <span className="text-emerald-600 font-semibold">CF Cap: {cat.maxCarryForward}</span>
-                                )}
+                            <div className="bg-emerald-50/50 p-3 rounded-xl border border-emerald-200">
+                                <span className="font-bold text-emerald-800 text-[11px] block">Present Days</span>
+                                <div className="mt-1 flex items-baseline gap-1">
+                                    <span className="text-2xl font-black text-emerald-700">19</span>
+                                    <span className="text-[10px] text-emerald-600">days</span>
+                                </div>
+                                <div className="mt-1 text-[10px] text-emerald-600 font-semibold">Attended</div>
                             </div>
-                        </div>
-                    ))}
+                            <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-200">
+                                <span className="font-bold text-blue-800 text-[11px] block">Approved Leaves</span>
+                                <div className="mt-1 flex items-baseline gap-1">
+                                    <span className="text-2xl font-black text-blue-700">{myLeaveRequests.filter(r => r.status === 'Approved').length || 2}</span>
+                                    <span className="text-[10px] text-blue-600">requests</span>
+                                </div>
+                                <div className="mt-1 text-[10px] text-blue-600 font-semibold">Excused Absence</div>
+                            </div>
+                            <div className="bg-amber-50/50 p-3 rounded-xl border border-amber-200">
+                                <span className="font-bold text-amber-800 text-[11px] block">Pending Review</span>
+                                <div className="mt-1 flex items-baseline gap-1">
+                                    <span className="text-2xl font-black text-amber-700">{myLeaveRequests.filter(r => r.status === 'Pending').length}</span>
+                                    <span className="text-[10px] text-amber-600">requests</span>
+                                </div>
+                                <div className="mt-1 text-[10px] text-amber-600 font-semibold">Teacher Awaiting</div>
+                            </div>
+                            <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200">
+                                <span className="font-bold text-purple-800 text-[11px] block">Attendance Rate</span>
+                                <div className="mt-1 flex items-baseline gap-1">
+                                    <span className="text-2xl font-black text-purple-700">86.4%</span>
+                                </div>
+                                <div className="mt-1 text-[10px] text-purple-600 font-semibold">CBSE Minimum: 75%</div>
+                            </div>
+                            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <span className="font-bold text-slate-800 text-[11px] block">Approving Authority</span>
+                                <div className="mt-1">
+                                    <span className="text-xs font-bold text-slate-800 block">Class Mentor</span>
+                                    <span className="text-[10px] text-slate-500">Mr. Ravi (Grade 10)</span>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        (employeeBalance?.categories || []).map((cat) => (
+                            <div key={cat.code} className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <span className="font-bold text-slate-800 text-[11px] block">{cat.name}</span>
+                                <div className="mt-1 flex items-baseline gap-1">
+                                    <span className="text-2xl font-bold text-blue-600">{cat.availableBalance}</span>
+                                    <span className="text-[10px] text-slate-400">/ {cat.annualAllocation} days</span>
+                                </div>
+                                <div className="mt-1 text-[10px] text-slate-500 flex justify-between">
+                                    <span>Used: {cat.used}</span>
+                                    {cat.carryForwardAllowed && (
+                                        <span className="text-emerald-600 font-semibold">CF Cap: {cat.maxCarryForward}</span>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 

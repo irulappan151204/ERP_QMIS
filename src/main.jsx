@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import './index.css'
 import App from './App.jsx'
+import ErrorBoundary from './Common/ui/ErrorBoundary.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { FinanceProvider } from './Pages/AccountHead/financeDomain/FinanceContext.jsx'
 import { runAcademicsWipeIfNeeded } from './Common/RBAC/academicsWipe.js'
@@ -38,7 +39,9 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <AuthProvider>
         <FinanceProvider>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
           <ToastContainer position="top-right" autoClose={2500} newestOnTop closeOnClick />
         </FinanceProvider>
       </AuthProvider>

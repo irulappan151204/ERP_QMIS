@@ -158,16 +158,17 @@ const SignIn = () => {
         (cat) => cat.name === selectedCategoryTab || cat.id === selectedCategoryTab
     )
 
-    const filteredUsers = ENTERPRISE_USER_DIRECTORY.filter((user) => {
-        const query = demoSearchQuery.trim().toLowerCase()
+    const filteredUsers = (ENTERPRISE_USER_DIRECTORY || []).filter((user) => {
+        if (!user) return false
+        const query = (demoSearchQuery || '').trim().toLowerCase()
         const matchesQuery =
             !query ||
-            user.roleLabel.toLowerCase().includes(query) ||
-            user.name.toLowerCase().includes(query) ||
-            user.department.toLowerCase().includes(query) ||
-            user.email.toLowerCase().includes(query) ||
-            user.employeeId.toLowerCase().includes(query) ||
-            user.role.toLowerCase().includes(query)
+            (user.roleLabel || '').toLowerCase().includes(query) ||
+            (user.name || '').toLowerCase().includes(query) ||
+            (user.department || '').toLowerCase().includes(query) ||
+            (user.email || '').toLowerCase().includes(query) ||
+            (user.employeeId || '').toLowerCase().includes(query) ||
+            (user.role || '').toLowerCase().includes(query)
 
         if (query) return matchesQuery
 
