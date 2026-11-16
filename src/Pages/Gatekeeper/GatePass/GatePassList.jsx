@@ -8,6 +8,7 @@ import Dropdown from '../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../Common/CommonComponents/ExportModal';
 import EditRequestModal from '../../../Common/CommonComponents/EditRequestModal';
 import DeleteRequestModal from '../../../Common/CommonComponents/DeleteRequestModal';
+import ViewRecordModal from '../../../Common/CommonComponents/ViewRecordModal';
 
 const GatePassList = () => {
 
@@ -16,6 +17,7 @@ const GatePassList = () => {
     const [exportModal, setExportModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
+    const [selectedPass, setSelectedPass] = useState(null);
 
     return (
         <section>
@@ -138,7 +140,22 @@ const GatePassList = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedPass({
+                                                gatePassId: 'GP001',
+                                                passType: 'Campus Visitor Pass',
+                                                visitorName: 'Ravi Kumar',
+                                                mobileNumber: '+91 98765 43210',
+                                                purposeOfVisit: 'Parent Teacher Meeting',
+                                                inTime: '09:30 AM',
+                                                outTime: '10:15 AM',
+                                                approvingAuthority: 'Principal Office',
+                                                gateLocation: 'Main Gate #1',
+                                                badgeNumber: 'V-042',
+                                                verificationStatus: 'Completed & Checked Out',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -184,6 +201,13 @@ const GatePassList = () => {
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
 
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+
+            <ViewRecordModal
+                isOpen={!!selectedPass}
+                onClose={() => setSelectedPass(null)}
+                title="Gate Pass Movement Record"
+                data={selectedPass}
+            />
 
         </section>
     )

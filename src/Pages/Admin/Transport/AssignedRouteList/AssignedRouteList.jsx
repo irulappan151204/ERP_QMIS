@@ -7,6 +7,7 @@ import Dropdown from '../../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../../Common/CommonComponents/ExportModal';
 import DeleteRequestModal from '../../../../Common/CommonComponents/DeleteRequestModal';
 import EditRequestModal from '../../../../Common/CommonComponents/EditRequestModal';
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal';
 
 const AssignedRouteList = () => {
 
@@ -15,6 +16,7 @@ const AssignedRouteList = () => {
     const [exportModal, setExportModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
+    const [selectedRoute, setSelectedRoute] = useState(null);
 
     return (
         <section>
@@ -133,7 +135,22 @@ const AssignedRouteList = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedRoute({
+                                                studentName: 'Sandy Selva',
+                                                routeName: 'Route 1 – Main Road',
+                                                startLocation: 'Kochadai Depot',
+                                                endLocation: 'Queen Mira South Gate',
+                                                classGrade: 'Class 5th',
+                                                vehicleNumber: 'TN55 AB 1234',
+                                                assignedDriver: 'M. Selvam',
+                                                supportStaff: 'Ramesh Kumar',
+                                                pickupTime: '07:15 AM',
+                                                dropTime: '03:45 PM',
+                                                assignedDate: '20-10-2025',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -178,6 +195,13 @@ const AssignedRouteList = () => {
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
 
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
+
+            <ViewRecordModal
+                isOpen={!!selectedRoute}
+                onClose={() => setSelectedRoute(null)}
+                title="Assigned Transport Route Details"
+                data={selectedRoute}
+            />
 
         </section>
     )

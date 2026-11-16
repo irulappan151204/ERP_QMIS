@@ -8,6 +8,7 @@ import Dropdown from '../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../Common/CommonComponents/ExportModal';
 import EditRequestModal from '../../../Common/CommonComponents/EditRequestModal';
 import DeleteRequestModal from '../../../Common/CommonComponents/DeleteRequestModal';
+import ViewRecordModal from '../../../Common/CommonComponents/ViewRecordModal';
 import { useAuth } from '../../../Context/AuthContext';
 import { canRoleDelete } from '../../../Common/RBAC/actionPermissions';
 
@@ -20,6 +21,7 @@ const Documents = () => {
     const [exportModal, setExportModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
+    const [selectedDoc, setSelectedDoc] = useState(null);
 
 
     return (
@@ -141,7 +143,19 @@ const Documents = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedDoc({
+                                                documentId: 'DOC001',
+                                                documentName: 'Government Education Circular',
+                                                fileName: 'Education-Circle-Circular.pdf',
+                                                documentCategory: 'Government Orders',
+                                                description: 'Latest government guidelines for school administration and academic calendar synchronisation.',
+                                                uploadedBy: 'Director Office',
+                                                uploadDate: '10-08-2025',
+                                                accessLevel: 'Executive & Departmental Heads',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -188,6 +202,13 @@ const Documents = () => {
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
 
             {canDelete && <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />}
+
+            <ViewRecordModal
+                isOpen={!!selectedDoc}
+                onClose={() => setSelectedDoc(null)}
+                title="Institutional Document Overview"
+                data={selectedDoc}
+            />
 
         </section>
     )

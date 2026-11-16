@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import {
     Users,
@@ -15,6 +16,7 @@ import {
     Package,
     Sparkles,
     Ticket,
+    ArrowUpRight,
 } from 'lucide-react'
 import {
     KPI_CARDS,
@@ -51,6 +53,26 @@ const DEPT_ICONS = {
     Transport: Bus,
 }
 
+const KPI_ROUTES = {
+    'Total Employees': '/joint-director-assistant/employee-management/drivers',
+    'Active Departments': '/joint-director-assistant/employee-management/canteen-manager',
+    'Pending Approvals': '/joint-director-assistant/request-approvals',
+    'Open Escalations': '/joint-director-assistant/escalations',
+    'Pending Tasks': '/joint-director-assistant/task-management',
+    'Active Announcements': '/joint-director-assistant/broadcast',
+    'Critical Inventory Alerts': '/joint-director-assistant/assets-inventory',
+    'Critical IT Issues': '/joint-director-assistant/assets-inventory',
+    'Vehicle Maintenance Due': '/joint-director-assistant/campus-maintenance',
+}
+
+const DEPT_ROUTES = {
+    Canteen: '/joint-director-assistant/employee-management/canteen-manager',
+    'Stationery Store': '/joint-director-assistant/employee-management/stationery-store-manager',
+    Housekeeping: '/joint-director-assistant/employee-management/housekeeping-manager',
+    'IT Support': '/joint-director-assistant/employee-management/it-support-manager',
+    Transport: '/joint-director-assistant/employee-management/transport-manager',
+}
+
 const Panel = ({ title, children, className = '' }) => (
     <div className={`bg-white rounded-2xl shadow-md p-4 h-full ${className}`}>
         <h3 className='text-lg font-semibold text-black mb-4'>{title}</h3>
@@ -69,6 +91,37 @@ const thClass = 'px-2 py-3 text-[#0C1E5B] font-medium uppercase text-xs'
 const tdClass = 'px-2 py-3 text-[#667085] text-sm'
 
 const Dashboard = () => {
+    const navigate = useNavigate()
+
+    const onOperationsTrendClick = (params) => {
+        if (params?.seriesName === 'Pending Approvals') {
+            navigate('/joint-director-assistant/request-approvals')
+        } else if (params?.seriesName === 'Escalations') {
+            navigate('/joint-director-assistant/escalations')
+        } else {
+            navigate('/joint-director-assistant/task-management')
+        }
+    }
+
+    const onEscalationsPieClick = (params) => {
+        if (params?.name) {
+            navigate(`/joint-director-assistant/escalations?priority=${encodeURIComponent(params.name)}`)
+        } else {
+            navigate('/joint-director-assistant/escalations')
+        }
+    }
+
+    const onApprovalsBarClick = () => {
+        navigate('/joint-director-assistant/request-approvals')
+    }
+
+    const onAlertsBarClick = () => {
+        navigate('/joint-director-assistant/assets-inventory')
+    }
+
+    const onWorkloadBarClick = () => {
+        navigate('/joint-director-assistant/task-management')
+    }
     const operationsTrendOption = useMemo(() => ({
         tooltip: { trigger: 'axis' },
         legend: {
@@ -267,29 +320,47 @@ const Dashboard = () => {
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4'>
                 {KPI_CARDS.map((card) => {
                     const Icon = KPI_ICONS[card.label] ?? ClipboardList
+                    const route = KPI_ROUTES[card.label] || '/joint-director-assistant/task-management'
                     return (
-                        <div key={card.label} className='bg-white rounded-2xl shadow-md p-4'>
+                        <Link
+                            key={card.label}
+                            to={route}
+                            className='bg-white rounded-2xl shadow-md p-4 hover:shadow-lg hover:border-indigo-200 border border-transparent transition-all group'
+                        >
                             <div className='flex items-start justify-between gap-2'>
                                 <div className='min-w-0'>
-                                    <p className='text-xs text-[#808080]'>{card.label}</p>
+                                    <p className='text-xs text-[#808080] group-hover:text-indigo-600 transition-colors'>{card.label}</p>
                                     <p className='text-xl font-semibold text-[#1E1E1E] mt-1'>{card.value}</p>
                                     <p className='text-xs text-[#667085] mt-1'>{card.sub}</p>
                                 </div>
-                                <div className='p-2 rounded-xl bg-[#515DEF]/10 text-[#515DEF] shrink-0'>
-                                    <Icon size={18} />
+                                <div className='flex flex-col items-end gap-2'>
+                                    <div className='p-2 rounded-xl bg-[#515DEF]/10 text-[#515DEF] shrink-0 group-hover:bg-[#515DEF] group-hover:text-white transition-colors'>
+                                        <Icon size={18} />
+                                    </div>
+                                    <ArrowUpRight size={14} className='text-slate-300 group-hover:text-indigo-500 transition-colors' />
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     )
                 })}
             </div>
 
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
                 <Panel title="Weekly Operations Trend" className="lg:col-span-2">
-                    <ReactECharts option={operationsTrendOption} style={{ height: 300 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={operationsTrendOption}
+                        style={{ height: 300, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onOperationsTrendClick }}
+                    />
                 </Panel>
                 <Panel title="Escalations by Priority">
-                    <ReactECharts option={escalationsPieOption} style={{ height: 300 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={escalationsPieOption}
+                        style={{ height: 300, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onEscalationsPieClick }}
+                    />
                 </Panel>
             </div>
 
@@ -298,13 +369,21 @@ const Dashboard = () => {
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4'>
                     {DEPARTMENT_SUMMARIES.map((dept) => {
                         const Icon = DEPT_ICONS[dept.department] ?? Building2
+                        const deptRoute = DEPT_ROUTES[dept.department] || '/joint-director-assistant/dashboard'
                         return (
-                            <div key={dept.department} className='bg-white rounded-2xl shadow-md p-4'>
-                                <div className='flex items-center gap-2 mb-4'>
-                                    <div className='p-2 rounded-lg bg-[#515DEF]/10 text-[#515DEF]'>
-                                        <Icon size={16} />
+                            <Link
+                                key={dept.department}
+                                to={deptRoute}
+                                className='bg-white rounded-2xl shadow-md p-4 hover:shadow-lg hover:border-indigo-200 border border-transparent transition-all group'
+                            >
+                                <div className='flex items-center justify-between mb-4'>
+                                    <div className='flex items-center gap-2'>
+                                        <div className='p-2 rounded-lg bg-[#515DEF]/10 text-[#515DEF] group-hover:bg-[#515DEF] group-hover:text-white transition-colors'>
+                                            <Icon size={16} />
+                                        </div>
+                                        <h4 className='text-sm font-semibold text-[#1E1E1E] group-hover:text-indigo-600 transition-colors'>{dept.department}</h4>
                                     </div>
-                                    <h4 className='text-sm font-semibold text-[#1E1E1E]'>{dept.department}</h4>
+                                    <ArrowUpRight size={14} className='text-slate-300 group-hover:text-indigo-500 transition-colors' />
                                 </div>
                                 <div className='space-y-3'>
                                     {dept.metrics.map((metric) => (
@@ -314,7 +393,7 @@ const Dashboard = () => {
                                         </div>
                                     ))}
                                 </div>
-                            </div>
+                            </Link>
                         )
                     })}
                 </div>
@@ -322,16 +401,31 @@ const Dashboard = () => {
 
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
                 <Panel title="Department Workload Comparison">
-                    <ReactECharts option={departmentWorkloadOption} style={{ height: 320 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={departmentWorkloadOption}
+                        style={{ height: 320, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onWorkloadBarClick }}
+                    />
                 </Panel>
                 <Panel title="Pending Approval Amounts by Department">
-                    <ReactECharts option={approvalsBarOption} style={{ height: 320 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={approvalsBarOption}
+                        style={{ height: 320, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onApprovalsBarClick }}
+                    />
                 </Panel>
             </div>
 
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
                 <Panel title="Critical Alerts by Department" className="lg:col-span-1">
-                    <ReactECharts option={alertsBarOption} style={{ height: 260 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={alertsBarOption}
+                        style={{ height: 260, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onAlertsBarClick }}
+                    />
                 </Panel>
 
                 <Widget title="Pending Approvals">

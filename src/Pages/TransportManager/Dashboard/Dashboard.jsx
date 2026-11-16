@@ -3,10 +3,10 @@ import { AlertTriangle, ArrowRight, Bus, ClipboardCheck, MapPinned, Wrench } fro
 import { IntegrationNotice, PageHeader, StatusBadge } from '../../../Common/ui'
 
 const METRICS = [
-    { label: 'Fleet records', value: 12, detail: 'Reference vehicles', icon: Bus },
-    { label: 'Active routes', value: 8, detail: 'Reference route plans', icon: MapPinned },
-    { label: 'Maintenance due', value: 3, detail: 'Needs scheduling review', icon: Wrench },
-    { label: 'Approval queue', value: 4, detail: 'Requests awaiting decision', icon: ClipboardCheck },
+    { label: 'Fleet records', value: 12, detail: 'Reference vehicles', icon: Bus, to: '/transport-manager/vehicle-management' },
+    { label: 'Active routes', value: 8, detail: 'Reference route plans', icon: MapPinned, to: '/transport-manager/route-management' },
+    { label: 'Maintenance due', value: 3, detail: 'Needs scheduling review', icon: Wrench, to: '/transport-manager/vehicle-maintenance' },
+    { label: 'Approval queue', value: 4, detail: 'Requests awaiting decision', icon: ClipboardCheck, to: '/transport-manager/request-approvals' },
 ]
 
 const ATTENTION = [
@@ -38,14 +38,25 @@ const Dashboard = () => (
         />
 
         <dl className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
-            {METRICS.map(({ label, value, detail, icon: Icon }) => (
-                <div key={label} className='rounded-2xl border border-[var(--erp-line)] bg-white p-4 shadow-[var(--erp-shadow-subtle)]'>
+            {METRICS.map(({ label, value, detail, icon: Icon, to }) => (
+                <NavLink
+                    key={label}
+                    to={to}
+                    className='group block rounded-2xl border border-[var(--erp-line)] bg-white p-4 shadow-[var(--erp-shadow-subtle)] hover:shadow-md hover:border-[#515DEF]/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer'
+                >
                     <div className='flex items-start justify-between gap-3'>
-                        <div><dt className='text-sm font-medium text-[var(--erp-muted)]'>{label}</dt><dd className='mt-1 text-2xl font-semibold text-[var(--erp-ink)]'>{value}</dd></div>
-                        <span className='grid size-10 place-items-center rounded-xl bg-[var(--erp-primary-soft)] text-[var(--erp-primary)]'>{Icon && <Icon size={19} aria-hidden='true' />}</span>
+                        <div>
+                            <dt className='text-sm font-medium text-[var(--erp-muted)] group-hover:text-[#515DEF] transition-colors'>
+                                {label}
+                            </dt>
+                            <dd className='mt-1 text-2xl font-semibold text-[var(--erp-ink)]'>{value}</dd>
+                        </div>
+                        <span className='grid size-10 place-items-center rounded-xl bg-[var(--erp-primary-soft)] text-[var(--erp-primary)] group-hover:scale-105 transition-transform'>
+                            {Icon && <Icon size={19} aria-hidden='true' />}
+                        </span>
                     </div>
                     <p className='mt-2 text-xs text-[var(--erp-slate)]'>{detail}</p>
-                </div>
+                </NavLink>
             ))}
         </dl>
 

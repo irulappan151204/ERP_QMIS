@@ -7,6 +7,7 @@ import Dropdown from '../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../Common/CommonComponents/ExportModal';
 import EditRequestModal from '../../../Common/CommonComponents/EditRequestModal'
 import DeleteRequestModal from '../../../Common/CommonComponents/DeleteRequestModal'
+import ViewRecordModal from '../../../Common/CommonComponents/ViewRecordModal'
 import { TASKS, statusBadgeColor } from './taskData'
 
 const TaskManagement = () => {
@@ -15,6 +16,7 @@ const TaskManagement = () => {
     const [toDate, setToDate] = useState(null);
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState('');
+    const [selectedTask, setSelectedTask] = useState(null);
     const parseDmy = (value) => {
         const [day, month, year] = String(value || '').split('-').map(Number)
         return year ? new Date(year, month - 1, day) : null
@@ -155,7 +157,21 @@ const TaskManagement = () => {
                                         <Dropdown
                                             buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                         >
-                                            <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                            <button
+                                                onClick={() => setSelectedTask({
+                                                    taskId: task.taskId,
+                                                    taskTitle: task.title,
+                                                    description: task.description,
+                                                    assignedTo: task.assignedTo,
+                                                    assignedBy: task.assignedBy || 'Housekeeping Manager',
+                                                    priority: task.priority,
+                                                    assignedDate: task.assignedDate,
+                                                    dueDate: task.dueDate,
+                                                    status: task.status,
+                                                    completionRemarks: task.remarks || 'Standard facility protocol followed.',
+                                                })}
+                                                className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                            >
                                                 View
                                             </button>
                                             <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -201,6 +217,13 @@ const TaskManagement = () => {
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
 
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+
+            <ViewRecordModal
+                isOpen={!!selectedTask}
+                onClose={() => setSelectedTask(null)}
+                title="Housekeeping Operational Task Dossier"
+                data={selectedTask}
+            />
 
         </section>
     )

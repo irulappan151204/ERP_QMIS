@@ -2,7 +2,7 @@ export const BUDGET_THRESHOLD = 75000
 
 export const REQUEST_TYPES = ['Financial Request', 'General Request']
 
-export const REQUESTS = [
+export const INITIAL_JD_REQUESTS = [
     {
         requestId: 'JD-REQ-2026-001',
         requestType: 'Financial Request',
@@ -74,6 +74,9 @@ export const REQUESTS = [
         items: null,
         remarks: 'Approved for Saturday 14-06-2026, 10:00 PM – 2:00 AM.',
         generalDetails: 'Maintenance window: 14-06-2026 · Systems: ERP server, backup cluster',
+        approvedBy: 'Joint Director Operations',
+        approvedAt: '06-06-2026 10:15 AM',
+        approverRemarks: 'Approved for off-peak hours with IT team on standby.',
     },
     {
         requestId: 'JD-REQ-2026-006',
@@ -88,6 +91,9 @@ export const REQUESTS = [
         exceedsBudget: false,
         items: '6 × Bus tyres, wheel alignment, safety inspection',
         remarks: 'Rejected — deferred to quarterly fleet maintenance budget.',
+        rejectionReason: 'Quotation exceeds quarterly departmental budget threshold without 3 comparative vendor bids. Please collect 2 additional estimates.',
+        rejectedBy: 'Joint Director Operations',
+        rejectedAt: '05-06-2026 03:30 PM',
     },
     {
         requestId: 'JD-REQ-2026-007',
@@ -117,6 +123,8 @@ export const REQUESTS = [
         exceedsBudget: false,
         items: 'Disinfectant (50 L), floor cleaner (30 L), microfiber mops (20)',
         remarks: 'Approved for zone-wise deep cleaning schedule.',
+        approvedBy: 'Joint Director Operations',
+        approvedAt: '04-06-2026 09:30 AM',
     },
     {
         requestId: 'JD-REQ-2026-009',
@@ -134,6 +142,91 @@ export const REQUESTS = [
         generalDetails: 'Attendees: All JD-managed department heads · Duration: 2 hours',
     },
 ]
+
+export const STORAGE_KEY_JD_REQUESTS = 'jd_operational_requests'
+
+export const getJdRequests = () => {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY_JD_REQUESTS)
+        if (stored) {
+            const parsed = JSON.parse(stored)
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed
+        }
+    } catch {
+        /* fallback */
+    }
+    return INITIAL_JD_REQUESTS
+}
+
+export const REQUESTS = getJdRequests()
+
+export const getJdRequestById = (requestId) => {
+    const list = getJdRequests()
+    return list.find((item) => item.requestId === requestId || item.id === requestId) || null
+}
+
+const notifyJdSubscribers = () => {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('jd_requests_updated'))
+    }
+}
+
+export const updateJdRequestStatus = (requestId, status, remarks = '', actorRole = 'Joint Director') => {
+    const list = getJdRequests()
+    const nowStr = new Date().toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    })
+
+    const updated = list.map((item) => {
+        if (item.requestId === requestId || item.id === requestId) {
+            const copy = { ...item, status }
+            if (status === 'Rejected') {
+                copy.rejectionReason = remarks || 'Declined during review'
+                copy.rejectedBy = actorRole
+                copy.rejectedAt = nowStr
+            } else if (status === 'Approved') {
+                copy.approverRemarks = remarks || 'Approved'
+                copy.approvedBy = actorRole
+                copy.approvedAt = nowStr
+            }
+            return copy
+        }
+        return item
+    })
+
+    try {
+        localStorage.setItem(STORAGE_KEY_JD_REQUESTS, JSON.stringify(updated))
+        notifyJdSubscribers()
+    } catch {
+        /* ignore */
+    }
+
+    return updated.find((item) => item.requestId === requestId || item.id === requestId) || null
+}
+
+export const addJdRequest = (requestData) => {
+    const list = getJdRequests()
+    const nextNum = String(list.length + 1).padStart(3, '0')
+    const newReq = {
+        requestId: `JD-REQ-2026-${nextNum}`,
+        requestDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+        status: 'Pending',
+        exceedsBudget: (requestData.requestedAmount || 0) > BUDGET_THRESHOLD,
+        ...requestData,
+    }
+    const updated = [newReq, ...list]
+    try {
+        localStorage.setItem(STORAGE_KEY_JD_REQUESTS, JSON.stringify(updated))
+        notifyJdSubscribers()
+    } catch {
+        /* ignore */
+    }
+    return newReq
+}
 
 export const statusBadgeColor = {
     Pending: 'bg-[#FF980033] text-[#FF9800]',

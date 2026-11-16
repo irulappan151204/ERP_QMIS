@@ -1,4 +1,5 @@
 import { createElement, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import { Download, Gauge, IndianRupee, Landmark, ReceiptText, Wallet, Calendar } from 'lucide-react'
 import { DataTable, IntegrationNotice, PageHeader, StatusBadge, EnterpriseKpiCard, HierarchyFilterBar, EnterpriseTrendChart, EnterpriseDonutChart } from '../../../Common/ui'
@@ -17,6 +18,7 @@ const Panel = ({ title, subtitle, children }) => (
 )
 
 const Dashboard = () => {
+    const navigate = useNavigate()
     const { dashboardMetrics, receipts = [], students = [], annualBudget = [] } = useFinance()
     const [filterState, setFilterState] = useState({
         campus: 'All Campuses',
@@ -105,6 +107,7 @@ const Dashboard = () => {
                     change='+5.4%'
                     isPositive={true}
                     context='Cash and verified online receipts'
+                    to='/account-head/fees/collections'
                 />
                 <EnterpriseKpiCard
                     title='Collection Efficiency'
@@ -112,6 +115,7 @@ const Dashboard = () => {
                     change='+1.8%'
                     isPositive={true}
                     context='Term 1 & Term 2 realizing against target'
+                    to='/account-head/fees/master'
                 />
                 <EnterpriseKpiCard
                     title='Total Outstanding Fee Dues'
@@ -119,6 +123,7 @@ const Dashboard = () => {
                     change='-12.4%'
                     isPositive={true}
                     context='Defaulter parent notices dispatched'
+                    to='/account-head/fees/collections?status=overdue'
                 />
                 <EnterpriseKpiCard
                     title='Cheques Pending Clearance'
@@ -126,6 +131,7 @@ const Dashboard = () => {
                     change='3 instruments'
                     isPositive={false}
                     context='Under clearing or verification'
+                    to='/account-head/fees/cheques'
                 />
             </div>
 
@@ -150,6 +156,7 @@ const Dashboard = () => {
                             },
                         }}
                         height={280}
+                        onPointClick={(month) => navigate(`/account-head/fees/collections?month=${encodeURIComponent(month)}`)}
                     />
                 </div>
 
@@ -163,6 +170,7 @@ const Dashboard = () => {
                             { name: 'Parent Cheques', value: 3.6, color: '#F59E0B' },
                         ]}
                         height={280}
+                        onSliceClick={(slice) => navigate(`/account-head/fees/collections?instrument=${encodeURIComponent(slice)}`)}
                     />
                 </div>
             </div>

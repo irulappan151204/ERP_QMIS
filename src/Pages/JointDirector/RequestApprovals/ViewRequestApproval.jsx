@@ -1,13 +1,17 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, CheckCircle, XCircle } from 'lucide-react'
+import { toast } from 'react-toastify'
 import {
-    REQUESTS,
+    getJdRequests,
+    getJdRequestById,
+    updateJdRequestStatus,
     statusBadgeColor,
     requestTypeBadgeColor,
     formatAmount,
     BUDGET_THRESHOLD,
 } from './requestApprovalData'
+import { RejectRequestModal, RejectionAlertBanner } from '../../../Common/ui'
 
 const Section = ({ title, children }) => (
     <div className='bg-white rounded-2xl shadow-md p-4'>
@@ -27,8 +31,57 @@ const ViewRequestApproval = () => {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const requestId = searchParams.get('requestId')
-    const request = REQUESTS.find((item) => item.requestId === requestId) ?? REQUESTS[0]
-    const isFinancial = request.requestType === 'Financial Request'
+    const [request, setRequest] = useState(() => getJdRequestById(requestId) ?? getJdRequests()[0])
+    const [showRejectModal, setShowRejectModal] = useState(false)
+
+    useEffect(() => {
+        const item = getJdRequestById(requestId)
+        if (item) setRequest(item)
+    }, [requestId])
+
+    const isFinancial = request?.requestType === 'Financial Request'
+
+    const handleApprove = () => {
+        const updated = updateJdRequestStatus(
+            request.requestId,
+            'Approved',
+            'Approved by Joint Director Operations',
+            'Joint Director'
+        )
+        if (updated) {
+            setRequest(updated)
+            toast.success(`Request ${request.requestId} approved successfully!`)
+        }
+    }
+
+    const handleRejectConfirm = ({ reason }) => {
+        const updated = updateJdRequestStatus(
+            request.requestId,
+            'Rejected',
+            reason,
+            'Joint Director'
+        )
+        if (updated) {
+            setRequest(updated)
+            setShowRejectModal(false)
+            toast.info(`Request ${request.requestId} rejected with recorded rationale.`)
+        }
+    }
+
+    if (!request) {
+        return (
+            <div className='p-6 bg-white rounded-2xl shadow text-center'>
+                <p className='text-gray-500'>Request not found.</p>
+                <button
+                    type='button'
+                    onClick={() => navigate('/joint-director/request-approvals')}
+                    className='mt-4 px-4 py-2 bg-[#515DEF] text-white rounded-lg text-sm'
+                >
+                    Back to List
+                </button>
+            </div>
+        )
+    }
 
     return (
         <section className='space-y-6'>
@@ -44,15 +97,34 @@ const ViewRequestApproval = () => {
 
                 {request.status === 'Pending' && (
                     <div className='flex flex-wrap gap-2'>
-                        <button type='button' className='bg-[#4CAF50] text-white text-sm px-5 py-2 rounded-lg hover:opacity-90 transition-all cursor-pointer'>
+                        <button
+                            type='button'
+                            onClick={handleApprove}
+                            className='inline-flex items-center gap-1.5 bg-[#4CAF50] text-white text-sm px-5 py-2 rounded-lg hover:opacity-90 transition-all cursor-pointer font-medium shadow-sm'
+                        >
+                            <CheckCircle size={16} />
                             Approve
                         </button>
-                        <button type='button' className='bg-[#FF0000] text-white text-sm px-5 py-2 rounded-lg hover:opacity-90 transition-all cursor-pointer'>
+                        <button
+                            type='button'
+                            onClick={() => setShowRejectModal(true)}
+                            className='inline-flex items-center gap-1.5 bg-[#FF0000] text-white text-sm px-5 py-2 rounded-lg hover:opacity-90 transition-all cursor-pointer font-medium shadow-sm'
+                        >
+                            <XCircle size={16} />
                             Reject
                         </button>
                     </div>
                 )}
             </div>
+
+            {/* Dedicated Rejection Alert Banner if Rejected */}
+            {request.status === 'Rejected' && (
+                <RejectionAlertBanner
+                    reason={request.rejectionReason}
+                    rejectedBy={request.rejectedBy || 'Joint Director'}
+                    rejectedAt={request.rejectedAt}
+                />
+            )}
 
             <div className='bg-white rounded-2xl shadow-md p-4'>
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
@@ -80,46 +152,52 @@ const ViewRequestApproval = () => {
                     <Field label='Requested by' value={request.requestedBy} />
                     <Field label='Department' value={request.department} />
                     {isFinancial && (
-                        <Field label='Requested amount' value={formatAmount(request.requestedAmount)} />
+                        <>
+                            <Field
+                                label='Requested amount'
+                                value={
+                                    <span>
+                                        {formatAmount(request.requestedAmount)}
+                                        {request.exceedsBudget && (
+                                            <span className='block text-xs text-[#FF9800] mt-1 font-semibold'>
+                                                Exceeds budget threshold of {formatAmount(BUDGET_THRESHOLD)}
+                                            </span>
+                                        )}
+                                    </span>
+                                }
+                            />
+                            <Field label='Budget status' value={request.exceedsBudget ? 'Over budget' : 'Within budget'} />
+                            <Field label='Items / Breakdown' value={request.items ?? '—'} />
+                        </>
                     )}
-                    <div className='lg:col-span-3'>
-                        <Field label='Purpose' value={request.purpose} />
+                    {!isFinancial && (
+                        <Field label='General details' value={request.generalDetails ?? '—'} />
+                    )}
+                    <div className='sm:col-span-2 lg:col-span-3'>
+                        <Field label='Purpose & Description' value={request.description ?? request.purpose} />
                     </div>
-                    <div className='lg:col-span-3'>
-                        <Field label='Description' value={request.description} />
-                    </div>
+                    {request.remarks && (
+                        <div className='sm:col-span-2 lg:col-span-3'>
+                            <Field label='Submission Remarks' value={request.remarks} />
+                        </div>
+                    )}
+                    {request.approverRemarks && (
+                        <div className='sm:col-span-2 lg:col-span-3'>
+                            <Field label='Approver Remarks' value={request.approverRemarks} />
+                        </div>
+                    )}
                 </div>
             </Section>
 
-            {isFinancial ? (
-                <Section title='Financial request details'>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-                        <div className='lg:col-span-3'>
-                            <Field label='Items / materials' value={request.items} />
-                        </div>
-                        <div className='lg:col-span-3'>
-                            <Field label='Remarks' value={request.remarks} />
-                        </div>
-                        <Field label='Budget threshold' value={formatAmount(BUDGET_THRESHOLD)} />
-                        <Field
-                            label='Over budget'
-                            value={request.exceedsBudget ? 'Yes — exceeds approved limit' : 'No — within approved limit'}
-                        />
-                        <Field label='Amount summary' value={formatAmount(request.requestedAmount)} />
-                    </div>
-                </Section>
-            ) : (
-                <Section title='General request details'>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-                        <div className='lg:col-span-3'>
-                            <Field label='Request specifics' value={request.generalDetails} />
-                        </div>
-                        <div className='lg:col-span-3'>
-                            <Field label='Remarks' value={request.remarks} />
-                        </div>
-                    </div>
-                </Section>
-            )}
+            {/* Rejection Modal with Mandatory Rationale */}
+            <RejectRequestModal
+                isOpen={showRejectModal}
+                onClose={() => setShowRejectModal(false)}
+                onConfirm={handleRejectConfirm}
+                title={`Reject Request ${request.requestId}`}
+                itemDescription={`${request.requestType} from ${request.department} (${request.purpose})`}
+                confirmLabel='Confirm Rejection'
+            />
         </section>
     )
 }

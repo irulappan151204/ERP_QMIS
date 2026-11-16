@@ -70,6 +70,7 @@ const StudentGuardianDashboard = () => {
                     change='+0.6%'
                     isPositive={true}
                     context='Biometric ESSL Gate sync verified'
+                    to={`${routePrefix}/attendance`}
                 />
                 <EnterpriseKpiCard
                     title='Overall Academic Grade'
@@ -77,6 +78,7 @@ const StudentGuardianDashboard = () => {
                     change='Top 5%'
                     isPositive={true}
                     context={`Average: ${resultSummary.averagePercent}% across all subjects`}
+                    to={`${routePrefix}/examination`}
                 />
                 <EnterpriseKpiCard
                     title='Due Assignments & Tasks'
@@ -84,6 +86,7 @@ const StudentGuardianDashboard = () => {
                     change='Due Tomorrow'
                     isPositive={false}
                     context='Mathematics Worksheet & Science Lab Report'
+                    to={`${routePrefix}/assessment-list/assignment`}
                 />
                 <EnterpriseKpiCard
                     title='Tuition & Transport Fee'
@@ -91,6 +94,7 @@ const StudentGuardianDashboard = () => {
                     change='All Cleared'
                     isPositive={true}
                     context='Term 1 & Term 2 paid up to date'
+                    to={`${routePrefix}/fees`}
                 />
             </div>
 

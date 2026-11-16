@@ -1,10 +1,10 @@
 import OperationalBriefing from '../../../Common/Governance/OperationalBriefing'
 
 const metrics = [
-    { label: 'Open admissions', value: '18', context: '6 awaiting document checks', icon: 'people' },
-    { label: 'Pending approvals', value: '9', context: '3 due before end of day', icon: 'approvals' },
-    { label: 'Attendance exceptions', value: '14', context: 'Students and employees combined', icon: 'risk' },
-    { label: 'Documents incomplete', value: '22', context: 'Across active student records', icon: 'documents' },
+    { label: 'Open admissions', value: '18', context: '6 awaiting document checks', icon: 'people', to: '/admin/front-office/admission-list' },
+    { label: 'Pending approvals', value: '9', context: '3 due before end of day', icon: 'approvals', to: '/admin/leave-request/received' },
+    { label: 'Attendance exceptions', value: '14', context: 'Students and employees combined', icon: 'risk', to: '/admin/attendance/student' },
+    { label: 'Documents incomplete', value: '22', context: 'Across active student records', icon: 'documents', to: '/admin/students/student-details' },
 ]
 
 const queues = [

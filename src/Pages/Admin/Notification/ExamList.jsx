@@ -7,6 +7,7 @@ import Dropdown from '../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../Common/CommonComponents/ExportModal';
 import DeleteRequestModal from '../../../Common/CommonComponents/DeleteRequestModal';
 import EditRequestModal from '../../../Common/CommonComponents/EditRequestModal';
+import ViewRecordModal from '../../../Common/CommonComponents/ViewRecordModal';
 
 const ExamList = () => {
     
@@ -15,6 +16,7 @@ const ExamList = () => {
     const [exportModal, setExportModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
+    const [selectedExam, setSelectedExam] = useState(null);
 
     return (
         <section>
@@ -129,7 +131,20 @@ const ExamList = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedExam({
+                                                examTitle: 'Mid Term Examination',
+                                                classSection: 'Grade 6 - Section A',
+                                                subject: 'Mathematics',
+                                                examDate: '10-09-2025',
+                                                timings: '09:00 AM - 12:00 PM',
+                                                hallRoomNumber: 'Room 101 (Main Academic Block)',
+                                                invigilator: 'Mr. Ravi',
+                                                maximumMarks: '100 Marks',
+                                                instructions: 'Calculators not permitted; hall ticket mandatory.',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -174,6 +189,13 @@ const ExamList = () => {
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
 
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
+
+            <ViewRecordModal
+                isOpen={!!selectedExam}
+                onClose={() => setSelectedExam(null)}
+                title="Examination Schedule Dossier"
+                data={selectedExam}
+            />
 
         </section>
     )

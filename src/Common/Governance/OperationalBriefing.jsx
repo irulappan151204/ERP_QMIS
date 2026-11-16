@@ -1,6 +1,7 @@
 import {
     AlertTriangle,
     ArrowRight,
+    ArrowUpRight,
     CheckCircle2,
     ClipboardCheck,
     Clock3,
@@ -8,7 +9,7 @@ import {
     ShieldCheck,
     Users,
 } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { IntegrationNotice, PageHeader, StatusBadge, Surface } from '../ui'
 
 const ICONS = {
@@ -22,12 +23,41 @@ const ICONS = {
 }
 
 const MetricCard = ({ metric }) => {
+    const navigate = useNavigate()
     const Icon = ICONS[metric.icon] || FileText
+    const isInteractive = Boolean(metric.to || metric.onClick)
+
+    const handleClick = () => {
+        if (metric.onClick) metric.onClick()
+        else if (metric.to) navigate(metric.to)
+    }
+
+    const handleKeyDown = (e) => {
+        if (!isInteractive) return
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            handleClick()
+        }
+    }
+
     return (
-        <article className='rounded-[var(--erp-radius-surface)] border border-[var(--erp-line)] bg-white p-4'>
+        <article
+            onClick={isInteractive ? handleClick : undefined}
+            onKeyDown={isInteractive ? handleKeyDown : undefined}
+            role={isInteractive ? 'button' : undefined}
+            tabIndex={isInteractive ? 0 : undefined}
+            className={`group rounded-[var(--erp-radius-surface)] border border-[var(--erp-line)] bg-white p-4 transition-all duration-200 ${
+                isInteractive ? 'cursor-pointer hover:shadow-md hover:border-[#515DEF]/40 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#515DEF]/40' : ''
+            }`}
+        >
             <div className='flex items-start justify-between gap-3'>
                 <div>
-                    <p className='text-sm font-medium text-[var(--erp-slate)]'>{metric.label}</p>
+                    <div className='flex items-center gap-1.5'>
+                        <p className='text-sm font-medium text-[var(--erp-slate)]'>{metric.label}</p>
+                        {isInteractive && (
+                            <ArrowUpRight size={13} className='text-slate-400 group-hover:text-[#515DEF] transition-colors' />
+                        )}
+                    </div>
                     <p className='mt-2 text-3xl font-semibold tracking-tight text-[var(--erp-ink)]'>{metric.value}</p>
                 </div>
                 <span className='inline-flex size-10 items-center justify-center rounded-xl bg-[var(--erp-indigo-soft)] text-[var(--erp-indigo)]'>

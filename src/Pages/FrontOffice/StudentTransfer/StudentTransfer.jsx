@@ -25,6 +25,7 @@ const StudentTransfer = () => {
     const [exportModal, setExportModal] = useState(false)
     const [editRequestModal, setEditRequestModal] = useState(false)
     const [deleteRequestModal, setDeleteRequestModal] = useState(false)
+    const [viewRecord, setViewRecord] = useState(null)
 
     const bagdeColor = {
         Completed: 'bg-[#4CAF5033] text-[#4CAF50]',
@@ -126,7 +127,22 @@ const StudentTransfer = () => {
                                 </td>
                                 <td className='px-2 py-4 text-center rounded-e-lg'>
                                     <Dropdown buttonContent={<EllipsisIcon size={16} className='text-black' />}>
-                                        <button type='button' className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>View</button>
+                                        <button
+                                            type='button'
+                                            onClick={() => setViewRecord({
+                                                studentName: 'Sandy Selva',
+                                                transferType: 'External',
+                                                institution: 'Global Academy',
+                                                className: 'Class-12',
+                                                reason: 'Parent Job Transfer',
+                                                date: '02-07-2025',
+                                                approvalStatus: 'Pending',
+                                                progress: 'In Progress',
+                                            })}
+                                            className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'
+                                        >
+                                            View
+                                        </button>
                                         <button type='button' onClick={() => setEditRequestModal(true)} className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>Edit</button>
                                         {canDelete && (
                                             <button type='button' onClick={() => setDeleteRequestModal(true)} className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>Delete</button>
@@ -147,7 +163,22 @@ const StudentTransfer = () => {
                                 </td>
                                 <td className='px-2 py-4 text-center rounded-e-lg'>
                                     <Dropdown buttonContent={<EllipsisIcon size={16} className='text-black' />}>
-                                        <button type='button' className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>View</button>
+                                        <button
+                                            type='button'
+                                            onClick={() => setViewRecord({
+                                                studentName: 'Sandy Selva',
+                                                transferType: 'External',
+                                                institution: 'Global Academy',
+                                                className: 'Class-12',
+                                                reason: 'Parent Job Transfer',
+                                                date: '02-07-2025',
+                                                approvalStatus: 'Approved',
+                                                progress: 'Completed',
+                                            })}
+                                            className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'
+                                        >
+                                            View
+                                        </button>
                                         <button type='button' onClick={() => setEditRequestModal(true)} className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>Edit</button>
                                         {canDelete && (
                                             <button type='button' onClick={() => setDeleteRequestModal(true)} className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>Delete</button>
@@ -177,6 +208,67 @@ const StudentTransfer = () => {
             <ExportModal exportModal={exportModal} setExportModal={setExportModal} />
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
             {canDelete && <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />}
+
+            {/* View Transfer Record Modal */}
+            {viewRecord && (
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
+                    <div className='bg-white rounded-2xl max-w-md w-full p-6 shadow-xl'>
+                        <div className='flex items-center justify-between pb-3 border-b mb-4'>
+                            <h3 className='text-lg font-bold text-gray-900'>Student Transfer Details</h3>
+                            <button
+                                type='button'
+                                onClick={() => setViewRecord(null)}
+                                className='text-gray-400 hover:text-gray-600'
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className='space-y-3 text-sm'>
+                            <div className='grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-xl'>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Student Name</span>
+                                    <span className='font-semibold text-gray-900'>{viewRecord.studentName}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Class</span>
+                                    <span className='font-semibold text-gray-900'>{viewRecord.className}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Transfer Type</span>
+                                    <span className='font-medium text-gray-700'>{viewRecord.transferType}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Target Institution</span>
+                                    <span className='font-medium text-gray-700'>{viewRecord.institution}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Request Date</span>
+                                    <span className='font-medium text-gray-700'>{viewRecord.date}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Approval Status</span>
+                                    <span className='font-semibold text-emerald-600'>{viewRecord.approvalStatus}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span className='text-xs text-gray-500 font-semibold block mb-1'>Reason for Transfer</span>
+                                <p className='text-gray-700 p-3 bg-gray-50 rounded-xl leading-relaxed'>
+                                    {viewRecord.reason}
+                                </p>
+                            </div>
+                        </div>
+                        <div className='flex justify-end mt-4 pt-3 border-t'>
+                            <button
+                                type='button'
+                                onClick={() => setViewRecord(null)}
+                                className='px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200'
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     )
 }

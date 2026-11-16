@@ -112,42 +112,61 @@ export default function GateKeeperManagerDashboard() {
 
             {/* 4 Unified KPI Cards */}
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-                <div className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs flex items-center justify-between'>
+                <button
+                    type='button'
+                    onClick={() => setActiveTab('visitors')}
+                    className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between text-left cursor-pointer group'
+                >
                     <div>
-                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500'>Visitors Inside Campus</p>
+                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500 group-hover:text-blue-600 transition-colors'>Visitors Inside Campus</p>
                         <h3 className='text-2xl font-bold text-slate-900 mt-1'>{kpis.visitorsCurrentlyInside}</h3>
-                        <p className='text-[10px] text-blue-600 font-medium mt-0.5'>Active guest badges</p>
+                        <p className='text-[10px] text-blue-600 font-medium mt-0.5'>Active guest badges →</p>
                     </div>
-                    <div className='rounded-xl bg-blue-50 p-3 text-blue-600'>
+                    <div className='rounded-xl bg-blue-50 p-3 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors'>
                         <Users size={22} />
                     </div>
-                </div>
+                </button>
 
-                <div className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs flex items-center justify-between'>
+                <button
+                    type='button'
+                    onClick={() => setActiveTab('all-passes')}
+                    className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all flex items-center justify-between text-left cursor-pointer group'
+                >
                     <div>
-                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500'>Student Passes Awaiting Exit</p>
+                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500 group-hover:text-emerald-600 transition-colors'>Student Passes Awaiting Exit</p>
                         <h3 className='text-2xl font-bold text-slate-900 mt-1'>{kpis.studentPassesAwaitingExit}</h3>
-                        <p className='text-[10px] text-emerald-600 font-medium mt-0.5'>Approved by Principal/Director</p>
+                        <p className='text-[10px] text-emerald-600 font-medium mt-0.5'>Approved by Principal/Director →</p>
                     </div>
-                    <div className='rounded-xl bg-emerald-50 p-3 text-emerald-600'>
+                    <div className='rounded-xl bg-emerald-50 p-3 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors'>
                         <ArrowRightLeft size={22} />
                     </div>
-                </div>
+                </button>
 
-                <div className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs flex items-center justify-between'>
+                <button
+                    type='button'
+                    onClick={() => setActiveTab('active-movements')}
+                    className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all flex items-center justify-between text-left cursor-pointer group'
+                >
                     <div>
-                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500'>Students Currently Outside</p>
+                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500 group-hover:text-indigo-600 transition-colors'>Students Currently Outside</p>
                         <h3 className='text-2xl font-bold text-slate-900 mt-1'>{kpis.studentsCurrentlyOutside}</h3>
-                        <p className='text-[10px] text-indigo-600 font-medium mt-0.5'>Departures logged at gate</p>
+                        <p className='text-[10px] text-indigo-600 font-medium mt-0.5'>Departures logged at gate →</p>
                     </div>
-                    <div className='rounded-xl bg-indigo-50 p-3 text-indigo-600'>
+                    <div className='rounded-xl bg-indigo-50 p-3 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors'>
                         <Clock size={22} />
                     </div>
-                </div>
+                </button>
 
-                <div className={`rounded-2xl border p-4 shadow-xs flex items-center justify-between ${
-                    kpis.overdueReturns > 0 ? 'border-rose-200 bg-rose-50/40' : 'border-slate-200/80 bg-white'
-                }`}>
+                <button
+                    type='button'
+                    onClick={() => {
+                        setActiveTab('active-movements')
+                        setSearch('Overdue')
+                    }}
+                    className={`rounded-2xl border p-4 shadow-xs hover:shadow-md transition-all flex items-center justify-between text-left cursor-pointer group ${
+                        kpis.overdueReturns > 0 ? 'border-rose-200 bg-rose-50/40 hover:border-rose-400' : 'border-slate-200/80 bg-white hover:border-rose-300'
+                    }`}
+                >
                     <div>
                         <p className={`text-[11px] font-semibold uppercase tracking-wider ${
                             kpis.overdueReturns > 0 ? 'text-rose-700' : 'text-slate-500'
@@ -157,14 +176,14 @@ export default function GateKeeperManagerDashboard() {
                         }`}>{kpis.overdueReturns}</h3>
                         <p className={`text-[10px] font-medium mt-0.5 ${
                             kpis.overdueReturns > 0 ? 'text-rose-600' : 'text-slate-400'
-                        }`}>Students &amp; Material past expected time</p>
+                        }`}>Students &amp; Material past expected time →</p>
                     </div>
                     <div className={`rounded-xl p-3 ${
-                        kpis.overdueReturns > 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-500'
+                        kpis.overdueReturns > 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-500 group-hover:bg-rose-600 group-hover:text-white transition-colors'
                     }`}>
                         <ShieldAlert size={22} />
                     </div>
-                </div>
+                </button>
             </div>
 
             {/* Navigation Tabs */}

@@ -7,6 +7,7 @@ import Dropdown from '../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../Common/CommonComponents/ExportModal';
 import DeleteRequestModal from '../../../Common/CommonComponents/DeleteRequestModal';
 import EditRequestModal from '../../../Common/CommonComponents/EditRequestModal';
+import ViewRecordModal from '../../../Common/CommonComponents/ViewRecordModal';
 
 const EventList = () => {
 
@@ -15,6 +16,7 @@ const EventList = () => {
     const [exportModal, setExportModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState(null);
 
     return (
         <section>
@@ -111,7 +113,8 @@ const EventList = () => {
                                 <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase">End Time</th>
                                 <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase">Venue</th>
                                 <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase">Coordinator</th>
-                                <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase rounded-e-lg">Description</th>
+                                <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase">Description</th>
+                                <th className="px-2 py-3.5 text-[#0C1E5B] font-medium uppercase rounded-e-lg">Actions</th>
                             </tr>
                         </thead>
 
@@ -125,12 +128,25 @@ const EventList = () => {
                                 <td className="px-2 py-4">12:00 PM</td>
                                 <td className="px-2 py-4">School Auditorium</td>
                                 <td className="px-2 py-4">Ms. Priya</td>
-                                <td className="px-2 py-4 rounded-e-lg">
-                                    Traditional dance performance by students
-                                    {/* <Dropdown
+                                <td className="px-2 py-4">Traditional dance performance by students</td>
+                                <td className="px-2 py-4 text-center rounded-e-lg">
+                                    <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedEvent({
+                                                eventName: 'Classical Dance',
+                                                eventType: 'Annual Day Celebrations',
+                                                targetAudience: 'All Students & Parents',
+                                                eventDate: '15-08-2025',
+                                                timings: '09:00 AM - 12:00 PM',
+                                                venue: 'School Auditorium',
+                                                coordinator: 'Ms. Priya',
+                                                description: 'Traditional Bharatanatyam and folk dance performance by students from Grades 6 to 12.',
+                                                status: 'Scheduled & Confirmed',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -139,7 +155,7 @@ const EventList = () => {
                                         <button onClick={() => setDeleteRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
                                             Delete
                                         </button>
-                                    </Dropdown> */}
+                                    </Dropdown>
                                 </td>
                             </tr>
                         </tbody>
@@ -175,6 +191,13 @@ const EventList = () => {
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
 
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
+
+            <ViewRecordModal
+                isOpen={!!selectedEvent}
+                onClose={() => setSelectedEvent(null)}
+                title="Institutional Event Details"
+                data={selectedEvent}
+            />
 
         </section>
     )

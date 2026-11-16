@@ -1,4 +1,4 @@
-﻿import {
+import {
     DRIVERS as BASE_DRIVERS,
     getDrivers as getBaseDrivers,
     addDriver as addBaseDriver,

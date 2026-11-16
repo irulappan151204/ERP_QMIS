@@ -7,6 +7,7 @@ import Dropdown from '../../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../../Common/CommonComponents/ExportModal';
 import DeleteRequestModal from '../../../../Common/CommonComponents/DeleteRequestModal';
 import EditRequestModal from '../../../../Common/CommonComponents/EditRequestModal';
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal';
 
 const VehicleDetailsList = () => {
 
@@ -15,6 +16,7 @@ const VehicleDetailsList = () => {
     const [exportModal, setExportModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
+    const [selectedVehicle, setSelectedVehicle] = useState(null);
 
     return (
         <section>
@@ -131,7 +133,22 @@ const VehicleDetailsList = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedVehicle({
+                                                vehicleId: 'VH001',
+                                                vehicleNumber: 'TN55 AB 1234',
+                                                vehicleType: 'School Bus (40-Seater)',
+                                                seatingCapacity: '50 Students',
+                                                assignedDriver: 'Ramesh Kumar',
+                                                driverContact: '+91 98765 43210',
+                                                fuelType: 'Diesel',
+                                                insuranceExpiryDate: '02-07-2025',
+                                                fitnessCertificateExpiry: '15-08-2026',
+                                                pollutionCheckExpiry: '10-09-2026',
+                                                operationalStatus: 'Active / On Route',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -176,6 +193,13 @@ const VehicleDetailsList = () => {
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
 
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
+
+            <ViewRecordModal
+                isOpen={!!selectedVehicle}
+                onClose={() => setSelectedVehicle(null)}
+                title="Campus Vehicle Fleet Dossier"
+                data={selectedVehicle}
+            />
 
         </section>
     )

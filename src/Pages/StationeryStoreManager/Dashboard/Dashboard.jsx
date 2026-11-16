@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import {
     AlertTriangle,
     ArrowDownToLine,
@@ -25,6 +25,7 @@ import { LOW_STOCK_ITEMS, PENDING_REQUESTS } from './dashboardData'
 import StoreRequestModal from '../RequestsApprovals/Components/StoreRequestModal'
 
 const Dashboard = () => {
+    const navigate = useNavigate()
     const [requestModalOpen, setRequestModalOpen] = useState(false)
     const [filterState, setFilterState] = useState({
         campus: 'All Campuses',
@@ -86,6 +87,7 @@ const Dashboard = () => {
                     change='+12'
                     isPositive={true}
                     context='Stationery, printer kits & lab consumables'
+                    to='/stationery-store-manager/inventory'
                 />
                 <EnterpriseKpiCard
                     title='Total Inventory Stock Value'
@@ -93,6 +95,7 @@ const Dashboard = () => {
                     change='+8.4%'
                     isPositive={true}
                     context='Calculated from batch purchase costs'
+                    to='/stationery-store-manager/inventory'
                 />
                 <EnterpriseKpiCard
                     title='Low Stock & Out-of-Stock Items'
@@ -100,6 +103,7 @@ const Dashboard = () => {
                     change='Reorders Active'
                     isPositive={false}
                     context='A4 Copier Paper & Black Ink cartridges'
+                    to='/stationery-store-manager/critical-alerts'
                 />
                 <EnterpriseKpiCard
                     title='Pending Store Requisitions'
@@ -107,6 +111,7 @@ const Dashboard = () => {
                     change='4 Today'
                     isPositive={false}
                     context='Awaiting HOD authorization & dispatch'
+                    to='/stationery-store-manager/requests-approvals'
                 />
             </div>
 
@@ -131,6 +136,7 @@ const Dashboard = () => {
                             },
                         }}
                         height={280}
+                        onItemClick={() => navigate('/stationery-store-manager/reports')}
                     />
                 </div>
 

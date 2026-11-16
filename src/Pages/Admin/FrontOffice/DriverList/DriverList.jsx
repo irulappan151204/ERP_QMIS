@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react'
+import React, { useState } from 'react'
 import { NavLink } from 'react-router-dom';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -7,6 +7,7 @@ import mo_user from "../../../../assets/images/no-profile.png"
 import Dropdown from '../../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../../Common/CommonComponents/ExportModal';
 import EditRequestModal from '../../../../Common/CommonComponents/EditRequestModal';
+import DeleteRequestModal from '../../../../Common/CommonComponents/DeleteRequestModal';
 
 const DriverList = () => {
 
@@ -14,6 +15,8 @@ const DriverList = () => {
     const [toDate, setToDate] = useState(new Date());
     const [exportModal, setExportModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
+    const [deleteRequestModal, setDeleteRequestModal] = useState(false);
+    const [viewRecord, setViewRecord] = useState(null);
 
     return (
         <section>
@@ -138,13 +141,27 @@ const DriverList = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            type='button'
+                                            onClick={() => setViewRecord({
+                                                name: 'Sandy Selva',
+                                                id: 'VAN-1001',
+                                                email: 'san@gmail.com',
+                                                gender: 'Male',
+                                                mobile: '9944076993',
+                                                license: 'AG7586NG78',
+                                                experience: '8 Years',
+                                                city: 'Trichy',
+                                                state: 'Tamil Nadu',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
-                                        <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button type='button' onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
                                             Edit
                                         </button>
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button type='button' onClick={() => setDeleteRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
                                             Delete
                                         </button>
                                     </Dropdown>
@@ -182,6 +199,54 @@ const DriverList = () => {
             <ExportModal exportModal={exportModal} setExportModal={setExportModal} />
 
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
+            <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+
+            {/* View Driver Details Modal */}
+            {viewRecord && (
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
+                    <div className='bg-white rounded-2xl max-w-md w-full p-6 shadow-xl'>
+                        <div className='flex items-center justify-between pb-3 border-b mb-4'>
+                            <h3 className='text-lg font-bold text-gray-900'>{viewRecord.name} ({viewRecord.id})</h3>
+                            <button
+                                type='button'
+                                onClick={() => setViewRecord(null)}
+                                className='text-gray-400 hover:text-gray-600'
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className='space-y-3 text-sm'>
+                            <div className='grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-xl'>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Mobile Number</span>
+                                    <span className='font-semibold text-gray-900'>{viewRecord.mobile}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>License Number</span>
+                                    <span className='font-semibold text-gray-900'>{viewRecord.license}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Experience</span>
+                                    <span className='font-medium text-gray-700'>{viewRecord.experience}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>City / State</span>
+                                    <span className='font-medium text-gray-700'>{viewRecord.city}, {viewRecord.state}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className='flex justify-end mt-4 pt-3 border-t'>
+                            <button
+                                type='button'
+                                onClick={() => setViewRecord(null)}
+                                className='px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200'
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </section>
     )

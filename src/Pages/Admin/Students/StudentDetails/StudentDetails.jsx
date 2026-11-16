@@ -5,12 +5,14 @@ import { Calendar, EllipsisIcon, ChevronLeft, ChevronRight, Plus, Download } fro
 import mo_user from "../../../../assets/images/no-profile.png"
 import Dropdown from '../../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../../Common/CommonComponents/ExportModal';
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal';
 
 const StudentDetails = () => {
 
     const [fromDate, setFromDate] = useState(new Date());
     const [toDate, setToDate] = useState(new Date());
     const [exportModal, setExportModal] = useState(false);
+    const [selectedStudent, setSelectedStudent] = useState(null);
 
     return (
         <section>
@@ -129,7 +131,22 @@ const StudentDetails = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedStudent({
+                                                admissionNumber: 'ADM-NO1845',
+                                                studentName: 'Sandy Selva',
+                                                gender: 'Male',
+                                                email: 'san@gmail.com',
+                                                mobileNumber: '9944076993',
+                                                dateOfBirth: '20-12-1996',
+                                                country: 'India',
+                                                state: 'TamilNadu',
+                                                city: 'Trichy',
+                                                enrollmentStatus: 'Active / Enrolled',
+                                                section: 'Grade 12-A',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                     </Dropdown>
@@ -164,6 +181,12 @@ const StudentDetails = () => {
             </div>
 
             <ExportModal exportModal={exportModal} setExportModal={setExportModal} />
+            <ViewRecordModal
+                isOpen={!!selectedStudent}
+                onClose={() => setSelectedStudent(null)}
+                title="Student Record Profile"
+                data={selectedStudent}
+            />
 
         </section>
     )

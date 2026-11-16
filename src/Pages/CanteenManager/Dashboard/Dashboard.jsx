@@ -21,6 +21,15 @@ const CARD_ICONS = {
     'Active Announcements': Rss,
 }
 
+const CARD_ROUTES = {
+    'Orders Today': '/canteen-manager/orders',
+    "Today's Sales": '/canteen-manager/reports',
+    'Inventory Items': '/canteen-manager/inventory',
+    'Low Stock Alerts': '/canteen-manager/inventory',
+    'Pending Approvals': '/canteen-manager/requests-approvals',
+    'Active Announcements': '/canteen-manager/broadcast',
+}
+
 const orderColumns = [
     { key: 'orderId', label: 'Order', required: true },
     { key: 'customer', label: 'Customer', required: true },
@@ -68,13 +77,24 @@ const Dashboard = () => (
         <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6'>
             {SUMMARY_CARDS.map((card) => {
                 const Icon = CARD_ICONS[card.label] ?? Package
+                const to = CARD_ROUTES[card.label] || '/canteen-manager/orders'
                 return (
-                    <article key={card.label} className='rounded-2xl bg-white p-4 shadow-md'>
+                    <NavLink
+                        key={card.label}
+                        to={to}
+                        className='rounded-2xl bg-white p-4 shadow-md hover:shadow-lg hover:border-indigo-300 border border-transparent transition-all group'
+                    >
                         <div className='flex items-start justify-between gap-3'>
-                            <div className='min-w-0'><p className='text-xs text-[var(--erp-muted)]'>{card.label}</p><p className='mt-1 text-xl font-semibold text-[var(--erp-ink)]'>{card.value}</p><p className='mt-1 text-xs text-[var(--erp-slate)]'>{card.sub} · sample</p></div>
-                            <span className='rounded-xl bg-[var(--erp-indigo-soft)] p-2 text-[var(--erp-indigo)]'><Icon aria-hidden='true' size={18} /></span>
+                            <div className='min-w-0'>
+                                <p className='text-xs text-[var(--erp-muted)] group-hover:text-[var(--erp-indigo)] transition-colors'>{card.label}</p>
+                                <p className='mt-1 text-xl font-semibold text-[var(--erp-ink)]'>{card.value}</p>
+                                <p className='mt-1 text-xs text-[var(--erp-slate)]'>{card.sub}</p>
+                            </div>
+                            <span className='rounded-xl bg-[var(--erp-indigo-soft)] p-2 text-[var(--erp-indigo)] group-hover:bg-[var(--erp-indigo)] group-hover:text-white transition-colors'>
+                                <Icon aria-hidden='true' size={18} />
+                            </span>
                         </div>
-                    </article>
+                    </NavLink>
                 )
             })}
         </div>

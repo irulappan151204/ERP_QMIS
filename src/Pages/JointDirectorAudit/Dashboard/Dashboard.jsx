@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import {
     LayoutDashboard,
@@ -10,6 +11,7 @@ import {
     AlertTriangle,
     Percent,
     Clock,
+    ArrowUpRight,
 } from 'lucide-react'
 import {
     KPI_CARDS,
@@ -32,6 +34,17 @@ const KPI_ICONS = {
     'Overdue Actions': Clock,
 }
 
+const KPI_ROUTES = {
+    'Total Audits Scheduled': '/joint-director-audit/audit-planning',
+    'Audits In Progress': '/joint-director-audit/audit-monitoring',
+    'Completed Audits': '/joint-director-audit/audit-monitoring',
+    'Pending Findings': '/joint-director-audit/findings-compliance',
+    'Open Compliance Actions': '/joint-director-audit/findings-compliance',
+    'Critical Observations': '/joint-director-audit/findings-compliance',
+    'Compliance Score (%)': '/joint-director-audit/reports-analytics',
+    'Overdue Actions': '/joint-director-audit/findings-compliance',
+}
+
 const Panel = ({ title, children, className = '' }) => (
     <div className={`bg-white rounded-2xl shadow-md p-4 h-full ${className}`}>
         <h3 className='text-lg font-semibold text-black mb-4'>{title}</h3>
@@ -50,6 +63,23 @@ const thClass = 'px-2 py-3 text-[#0C1E5B] font-medium uppercase text-xs'
 const tdClass = 'px-2 py-3 text-[#667085] text-sm'
 
 const Dashboard = () => {
+    const navigate = useNavigate()
+
+    const onAuditTrendsClick = (params) => {
+        if (params?.seriesName === 'Monthly Audits Conducted') {
+            navigate('/joint-director-audit/audit-monitoring')
+        } else {
+            navigate('/joint-director-audit/findings-compliance')
+        }
+    }
+
+    const onComplianceBarClick = (params) => {
+        if (params?.name) {
+            navigate(`/joint-director-audit/reports-analytics?dept=${encodeURIComponent(params.name)}`)
+        } else {
+            navigate('/joint-director-audit/reports-analytics')
+        }
+    }
     const auditTrendsOption = useMemo(() => ({
         tooltip: { trigger: 'axis' },
         legend: {
@@ -158,29 +188,47 @@ const Dashboard = () => {
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
                 {KPI_CARDS.map((card) => {
                     const Icon = KPI_ICONS[card.label] ?? ClipboardList
+                    const route = KPI_ROUTES[card.label] || '/joint-director-audit/audit-planning'
                     return (
-                        <div key={card.label} className='bg-white rounded-2xl shadow-md p-4'>
+                        <Link
+                            key={card.label}
+                            to={route}
+                            className='bg-white rounded-2xl shadow-md p-4 hover:shadow-lg hover:border-indigo-200 border border-transparent transition-all group'
+                        >
                             <div className='flex items-start justify-between gap-2'>
                                 <div className='min-w-0'>
-                                    <p className='text-xs text-[#808080]'>{card.label}</p>
+                                    <p className='text-xs text-[#808080] group-hover:text-indigo-600 transition-colors'>{card.label}</p>
                                     <p className='text-xl font-semibold text-[#1E1E1E] mt-1'>{card.value}</p>
                                     <p className='text-xs text-[#667085] mt-1'>{card.sub}</p>
                                 </div>
-                                <div className='p-2 rounded-xl bg-[#515DEF]/10 text-[#515DEF] shrink-0'>
-                                    <Icon size={18} />
+                                <div className='flex flex-col items-end gap-2'>
+                                    <div className='p-2 rounded-xl bg-[#515DEF]/10 text-[#515DEF] shrink-0 group-hover:bg-[#515DEF] group-hover:text-white transition-colors'>
+                                        <Icon size={18} />
+                                    </div>
+                                    <ArrowUpRight size={14} className='text-slate-300 group-hover:text-indigo-500 transition-colors' />
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     )
                 })}
             </div>
 
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
                 <Panel title='Audit Trends' className='lg:col-span-2'>
-                    <ReactECharts option={auditTrendsOption} style={{ height: 320 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={auditTrendsOption}
+                        style={{ height: 320, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onAuditTrendsClick }}
+                    />
                 </Panel>
                 <Panel title='Compliance Summary'>
-                    <ReactECharts option={complianceBarOption} style={{ height: 320 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={complianceBarOption}
+                        style={{ height: 320, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onComplianceBarClick }}
+                    />
                 </Panel>
             </div>
 

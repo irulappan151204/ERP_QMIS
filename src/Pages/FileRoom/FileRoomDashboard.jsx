@@ -176,60 +176,75 @@ const FileRoomDashboard = () => {
 
             {/* KPI Cards */}
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4'>
-                <div className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex items-center justify-between'>
+                <Link
+                    to="/file-room/files"
+                    className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-teal-300 transition-all flex items-center justify-between group'
+                >
                     <div>
-                        <div className='text-xs font-medium text-slate-500 uppercase tracking-wider'>Cataloged Files</div>
+                        <div className='text-xs font-medium text-slate-500 uppercase tracking-wider group-hover:text-teal-600 transition-colors'>Cataloged Files</div>
                         <div className='text-2xl font-black text-slate-900 mt-1'>{stats.totalFiles}</div>
-                        <div className='text-[11px] text-slate-400 mt-0.5'>Master Dossiers</div>
+                        <div className='text-[11px] text-slate-400 mt-0.5'>Master Dossiers →</div>
                     </div>
-                    <span className='p-3 rounded-2xl bg-slate-100 text-slate-700'>
+                    <span className='p-3 rounded-2xl bg-slate-100 text-slate-700 group-hover:bg-teal-600 group-hover:text-white transition-colors'>
                         <FolderOpen className='w-5 h-5' />
                     </span>
-                </div>
+                </Link>
 
-                <div className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex items-center justify-between'>
+                <Link
+                    to="/file-room/files"
+                    className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all flex items-center justify-between group'
+                >
                     <div>
-                        <div className='text-xs font-medium text-slate-500 uppercase tracking-wider'>In Archive Custody</div>
+                        <div className='text-xs font-medium text-slate-500 uppercase tracking-wider group-hover:text-emerald-600 transition-colors'>In Archive Custody</div>
                         <div className='text-2xl font-black text-emerald-600 mt-1'>{stats.availableFiles}</div>
-                        <div className='text-[11px] text-emerald-600 font-semibold mt-0.5'>Available on Shelves</div>
+                        <div className='text-[11px] text-emerald-600 font-semibold mt-0.5'>Available on Shelves →</div>
                     </div>
-                    <span className='p-3 rounded-2xl bg-emerald-50 text-emerald-600'>
+                    <span className='p-3 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors'>
                         <FolderCheck className='w-5 h-5' />
                     </span>
-                </div>
+                </Link>
 
-                <div className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex items-center justify-between'>
+                <Link
+                    to="/file-room/outward-loans"
+                    className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group'
+                >
                     <div>
-                        <div className='text-xs font-medium text-slate-500 uppercase tracking-wider'>Checked Out / Issued</div>
+                        <div className='text-xs font-medium text-slate-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors'>Checked Out / Issued</div>
                         <div className='text-2xl font-black text-blue-600 mt-1'>{stats.checkedOutFiles}</div>
-                        <div className='text-[11px] text-blue-500 font-semibold mt-0.5'>Active Staff Loans</div>
+                        <div className='text-[11px] text-blue-500 font-semibold mt-0.5'>Active Staff Loans →</div>
                     </div>
-                    <span className='p-3 rounded-2xl bg-blue-50 text-blue-600'>
+                    <span className='p-3 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors'>
                         <Clock className='w-5 h-5' />
                     </span>
-                </div>
+                </Link>
 
-                <div className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex items-center justify-between'>
+                <Link
+                    to="/file-room/access-approvals"
+                    className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-amber-300 transition-all flex items-center justify-between group'
+                >
                     <div>
-                        <div className='text-xs font-medium text-slate-500 uppercase tracking-wider'>MD Sign-off Required</div>
+                        <div className='text-xs font-medium text-slate-500 uppercase tracking-wider group-hover:text-amber-600 transition-colors'>MD Sign-off Required</div>
                         <div className='text-2xl font-black text-amber-600 mt-1'>{stats.strictlyConfidentialCount}</div>
-                        <div className='text-[11px] text-amber-600 font-semibold mt-0.5'>Strictly Confidential</div>
+                        <div className='text-[11px] text-amber-600 font-semibold mt-0.5'>Strictly Confidential →</div>
                     </div>
-                    <span className='p-3 rounded-2xl bg-amber-50 text-amber-600'>
+                    <span className='p-3 rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors'>
                         <Lock className='w-5 h-5' />
                     </span>
-                </div>
+                </Link>
 
-                <div className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex items-center justify-between'>
+                <Link
+                    to="/file-room/outward-loans"
+                    className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-rose-300 transition-all flex items-center justify-between group'
+                >
                     <div>
-                        <div className='text-xs font-medium text-slate-500 uppercase tracking-wider'>Overdue Returns</div>
+                        <div className='text-xs font-medium text-slate-500 uppercase tracking-wider group-hover:text-rose-600 transition-colors'>Overdue Returns</div>
                         <div className='text-2xl font-black text-rose-600 mt-1'>{stats.overdueCount}</div>
-                        <div className='text-[11px] text-rose-600 font-semibold mt-0.5'>Alert Dispatched to HOD</div>
+                        <div className='text-[11px] text-rose-600 font-semibold mt-0.5'>Alert Dispatched to HOD →</div>
                     </div>
-                    <span className='p-3 rounded-2xl bg-rose-50 text-rose-600'>
+                    <span className='p-3 rounded-2xl bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white transition-colors'>
                         <AlertTriangle className='w-5 h-5' />
                     </span>
-                </div>
+                </Link>
             </div>
 
             {/* Active Loans & Checked Out Dossiers */}

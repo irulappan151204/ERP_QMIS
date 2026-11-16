@@ -6,6 +6,7 @@ import { togglePageSelection, toggleRowSelection } from './dataTableState'
 const DataTable = ({
     caption = 'Records',
     rows = [],
+    data,
     columns = [],
     visibleColumnKeys,
     rowKey = 'id',
@@ -21,19 +22,26 @@ const DataTable = ({
     onSort,
     renderActions,
 }) => {
+    const rawList = Array.isArray(rows) && rows.length > 0 ? rows : (Array.isArray(data) ? data : (rows || []))
+    const safeRows = rawList.filter(Boolean)
+
     if (loading) return <FeedbackState kind='loading' compact />
     if (error) return <FeedbackState kind='error' description={error} compact />
-    if (!rows.length) return <FeedbackState kind='empty' title={emptyTitle} description={emptyDescription} compact />
+    if (!safeRows.length) return <FeedbackState kind='empty' title={emptyTitle} description={emptyDescription} compact />
 
     const visibleColumns = columns.filter((column) => !visibleColumnKeys || column.required || visibleColumnKeys.includes(column.key))
-    const getRowKey = (row, index) => typeof rowKey === 'function' ? rowKey(row, index) : (row[rowKey] ?? index)
-    const pageKeys = rows.map(getRowKey)
+    const getRowKey = (row, index) => {
+        if (!row) return index
+        if (typeof rowKey === 'function') return rowKey(row, index)
+        return row?.[rowKey] ?? index
+    }
+    const pageKeys = safeRows.map(getRowKey)
     const allPageSelected = pageKeys.length > 0 && pageKeys.every((key) => selectedRowKeys.includes(key))
 
     return (
         <>
             <p className='border-b border-[var(--erp-line)] px-4 py-2 text-xs text-[var(--erp-muted)] md:hidden'>Records are shown as mobile-friendly cards.</p>
-            <ResponsiveRecordList rows={rows} columns={visibleColumns} getRowKey={getRowKey} renderActions={renderActions} />
+            <ResponsiveRecordList rows={safeRows} columns={visibleColumns} getRowKey={getRowKey} renderActions={renderActions} />
             <div className='ui-scrollbar hidden overflow-x-auto md:block' tabIndex={0} aria-label={`${caption}. Scroll horizontally when needed.`}>
                 <table className='w-full min-w-[44rem] border-collapse text-left text-sm'>
                     <caption className='sr-only'>{caption}</caption>
@@ -41,7 +49,7 @@ const DataTable = ({
                         <tr>
                             {selectable && (
                                 <th scope='col' className='w-12 px-4 py-3'>
-                                    <input type='checkbox' checked={allPageSelected} onChange={() => onSelectionChange?.(togglePageSelection(selectedRowKeys, pageKeys))} aria-label={`Select all ${rows.length} visible records`} />
+                                    <input type='checkbox' checked={allPageSelected} onChange={() => onSelectionChange?.(togglePageSelection(selectedRowKeys, pageKeys))} aria-label={`Select all ${safeRows.length} visible records`} />
                                 </th>
                             )}
                             {visibleColumns.map((column) => {
@@ -61,12 +69,12 @@ const DataTable = ({
                         </tr>
                     </thead>
                     <tbody className='divide-y divide-[var(--erp-line)]'>
-                        {rows.map((row, index) => {
+                        {safeRows.map((row, index) => {
                             const key = getRowKey(row, index)
                             return (
                                 <tr key={key} className='bg-white hover:bg-[#FAFBFD]'>
                                     {selectable && <td className='px-4 py-3'><input type='checkbox' checked={selectedRowKeys.includes(key)} onChange={() => onSelectionChange?.(toggleRowSelection(selectedRowKeys, key))} aria-label={`Select row ${index + 1}`} /></td>}
-                                    {visibleColumns.map((column) => <td key={column.key} className='px-4 py-3 text-[var(--erp-slate)]'>{column.render ? column.render(row, index) : (row[column.key] ?? '—')}</td>)}
+                                    {visibleColumns.map((column) => <td key={column.key} className='px-4 py-3 text-[var(--erp-slate)]'>{column.render ? column.render(row, index) : (row?.[column.key] ?? '—')}</td>)}
                                     {renderActions && <td className='px-4 py-3'><div className='flex justify-end gap-2'>{renderActions(row, index)}</div></td>}
                                 </tr>
                             )

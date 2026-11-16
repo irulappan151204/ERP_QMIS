@@ -30,6 +30,8 @@ import VehicleMaintenance from '../Pages/TransportManager/VehicleMaintenance/Veh
 import AddVehicleMaintenance from '../Pages/TransportManager/VehicleMaintenance/AddVehicleMaintenance'
 import ViewVehicleMaintenance from '../Pages/TransportManager/VehicleMaintenance/ViewVehicleMaintenance'
 import RequestApprovals from '../Pages/TransportManager/RequestApprovals/RequestApprovals'
+import AddRequest from '../Pages/TransportManager/RequestApprovals/AddRequest'
+import ViewRequest from '../Pages/TransportManager/RequestApprovals/ViewRequest'
 import TransportExpenses from '../Pages/TransportManager/TransportExpenses/TransportExpenses'
 import AddTransportExpense from '../Pages/TransportManager/TransportExpenses/AddTransportExpense'
 import ViewTransportExpense from '../Pages/TransportManager/TransportExpenses/ViewTransportExpense'
@@ -65,6 +67,8 @@ const TransportManagerRoutes = () => {
             <Route path="/transport-manager/vehicle-maintenance/add" element={<AddVehicleMaintenance />} />
             <Route path="/transport-manager/vehicle-maintenance/view/:id" element={<ViewVehicleMaintenance />} />
             <Route path="/transport-manager/request-approvals" element={<RequestApprovals />} />
+            <Route path="/transport-manager/request-approvals/add-request" element={<AddRequest />} />
+            <Route path="/transport-manager/request-approvals/view-request/:id" element={<ViewRequest />} />
             <Route path="/transport-manager/transport-expenses" element={<TransportExpenses />} />
             <Route path="/transport-manager/transport-expenses/add/:type" element={<AddTransportExpense />} />
             <Route path="/transport-manager/transport-expenses/view/:type/:id" element={<ViewTransportExpense />} />

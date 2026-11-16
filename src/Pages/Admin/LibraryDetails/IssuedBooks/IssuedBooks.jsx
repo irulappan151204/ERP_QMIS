@@ -8,6 +8,7 @@ import Dropdown from '../../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../../Common/CommonComponents/ExportModal';
 import EditRequestModal from '../../../../Common/CommonComponents/EditRequestModal';
 import DeleteRequestModal from '../../../../Common/CommonComponents/DeleteRequestModal';
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal';
 
 const IssuedBooks = () => {
 
@@ -16,6 +17,7 @@ const IssuedBooks = () => {
     const [exportModal, setExportModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
+    const [selectedIssue, setSelectedIssue] = useState(null);
 
     const bagdeColor = {
         "Returned": "bg-[#4CAF5033] text-[#4CAF50]",
@@ -152,7 +154,21 @@ const IssuedBooks = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedIssue({
+                                                bookId: 'BOK1001',
+                                                admissionNumber: 'STU1909',
+                                                bookTitle: 'Mathematics Basic',
+                                                borrowerCategory: 'Student',
+                                                borrowerName: 'Sandy',
+                                                issueDate: '20-05-2026',
+                                                returnDueDate: '25-05-2026',
+                                                lateFeesAssessed: '₹ 50',
+                                                returnComment: 'No Issues',
+                                                circulationStatus: 'Returned in Good Condition',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -186,7 +202,21 @@ const IssuedBooks = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedIssue({
+                                                bookId: 'BOK1001',
+                                                admissionNumber: 'STU1909',
+                                                bookTitle: 'Mathematics Basic',
+                                                borrowerCategory: 'Student',
+                                                borrowerName: 'Sandy',
+                                                issueDate: '20-05-2026',
+                                                returnDueDate: '25-05-2026',
+                                                lateFeesAssessed: '₹ 50',
+                                                returnComment: 'No Issues',
+                                                circulationStatus: 'Returned in Good Condition',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -220,7 +250,21 @@ const IssuedBooks = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedIssue({
+                                                bookId: 'BOK1001',
+                                                admissionNumber: 'STU1909',
+                                                bookTitle: 'Mathematics Basic',
+                                                borrowerCategory: 'Student',
+                                                borrowerName: 'Sandy',
+                                                issueDate: '20-05-2026',
+                                                returnDueDate: '25-05-2026',
+                                                lateFeesAssessed: '₹ 50',
+                                                returnComment: 'No Issues',
+                                                circulationStatus: 'Returned in Good Condition',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -265,6 +309,13 @@ const IssuedBooks = () => {
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
 
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+
+            <ViewRecordModal
+                isOpen={!!selectedIssue}
+                onClose={() => setSelectedIssue(null)}
+                title="Library Book Circulation Record"
+                data={selectedIssue}
+            />
 
         </section>
     )

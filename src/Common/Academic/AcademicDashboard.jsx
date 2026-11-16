@@ -21,11 +21,12 @@ import {
     Sparkles,
     Calendar
 } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getProfileLabel } from '../../Pages/Authentication/profileOptions'
 
 const AcademicDashboard = ({ role = 'coordinator' }) => {
+    const navigate = useNavigate()
     const { name: authName } = useAuth()
     const roleLabel = getProfileLabel(role)
     const displayName = authName || (role === 'director' ? 'Dr. Kavita Sharma' : role === 'principal' ? 'Dr. Ramanathan K' : 'Academic Coordinator')
@@ -72,6 +73,7 @@ const AcademicDashboard = ({ role = 'coordinator' }) => {
                     change='+4.8%'
                     isPositive={true}
                     context='100% mapped to classes & sections'
+                    to={`/${role}/students/student-details`}
                 />
                 <EnterpriseKpiCard
                     title='Student Attendance Today'
@@ -79,6 +81,7 @@ const AcademicDashboard = ({ role = 'coordinator' }) => {
                     change='+1.2%'
                     isPositive={true}
                     context='1,368 Present · 52 Absent · 4 On Duty'
+                    to={`/${role}/attendance/student`}
                 />
                 <EnterpriseKpiCard
                     title='Pending Lesson Plans'
@@ -86,6 +89,7 @@ const AcademicDashboard = ({ role = 'coordinator' }) => {
                     change='-3'
                     isPositive={true}
                     context='6 awaiting coordinator review'
+                    to={`/${role}/lesson-plan`}
                 />
                 <EnterpriseKpiCard
                     title='Exam Evaluation Index'
@@ -93,6 +97,7 @@ const AcademicDashboard = ({ role = 'coordinator' }) => {
                     change='+5.1%'
                     isPositive={true}
                     context='All 18 exam trackers active'
+                    to={`/${role}/examination`}
                 />
             </div>
 
@@ -117,6 +122,7 @@ const AcademicDashboard = ({ role = 'coordinator' }) => {
                             },
                         }}
                         height={280}
+                        onPointClick={(month) => navigate(`/${role}/attendance/student?month=${encodeURIComponent(month)}`)}
                     />
                 </div>
 
@@ -144,6 +150,7 @@ const AcademicDashboard = ({ role = 'coordinator' }) => {
                     barColor='#93C5FD'
                     height={230}
                     unit='%'
+                    onBarClick={(subj) => navigate(`/${role}/examination?subject=${encodeURIComponent(subj)}`)}
                 />
 
                 <EnterpriseDonutChart
@@ -154,6 +161,7 @@ const AcademicDashboard = ({ role = 'coordinator' }) => {
                         { name: 'Below Average (< 80%)', value: 13.4, color: '#94A3B8' },
                     ]}
                     height={230}
+                    onSliceClick={(perf) => navigate(`/${role}/examination?rating=${encodeURIComponent(perf)}`)}
                 />
             </div>
 

@@ -8,6 +8,7 @@ import Dropdown from '../../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../../Common/CommonComponents/ExportModal';
 import EditRequestModal from '../../../../Common/CommonComponents/EditRequestModal';
 import DeleteRequestModal from '../../../../Common/CommonComponents/DeleteRequestModal';
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal';
 
 const OnlineClass = () => {
 
@@ -16,6 +17,7 @@ const OnlineClass = () => {
     const [exportModal, setExportModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
+    const [selectedSession, setSelectedSession] = useState(null);
 
     return (
         <section>
@@ -138,7 +140,22 @@ const OnlineClass = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedSession({
+                                                classGrade: 'Class 12',
+                                                section: 'Section A',
+                                                instructor: 'Sandy Selva',
+                                                subject: 'English Literature',
+                                                scheduledBy: 'Admin User',
+                                                startDate: '02/04/2026',
+                                                endDate: '10/04/2026',
+                                                timeSlot: '6:30 PM - 7:30 PM',
+                                                meetingPlatform: 'Google Meet',
+                                                meetingLink: 'https://meet.google.com/abc-defg-hij',
+                                                attendanceTracking: 'Automated via Classroom API',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -184,6 +201,13 @@ const OnlineClass = () => {
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
 
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+
+            <ViewRecordModal
+                isOpen={!!selectedSession}
+                onClose={() => setSelectedSession(null)}
+                title="Online Class Session Overview"
+                data={selectedSession}
+            />
         </section>
     )
 }

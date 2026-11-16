@@ -113,6 +113,7 @@ const TeacherDashboard = () => {
                     change='Roll 01-38'
                     isPositive={true}
                     context='100% allocated to Section A'
+                    to='/teacher/student/student-details'
                 />
                 <EnterpriseKpiCard
                     title="Today's Class Attendance"
@@ -120,6 +121,7 @@ const TeacherDashboard = () => {
                     change='37 Present · 1 Absent'
                     isPositive={true}
                     context='1 Medical leave justified on file'
+                    to='/teacher/attendance-management/student-attendance'
                 />
                 <EnterpriseKpiCard
                     title='Class Star of the Month'
@@ -127,6 +129,7 @@ const TeacherDashboard = () => {
                     change={`GPA ${classSomWinner.gpa}`}
                     isPositive={true}
                     context='September 2025 Class Winner'
+                    to='/teacher/star-ratings/som-matrix'
                 />
                 <EnterpriseKpiCard
                     title='Evaluation & Homework Queue'
@@ -134,6 +137,7 @@ const TeacherDashboard = () => {
                     change='36/38 Evaluated'
                     isPositive={true}
                     context='Vectors & Physics Lab reports'
+                    to='/teacher/examinations/enter-marks'
                 />
             </div>
 

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import {
     Activity,
@@ -166,6 +166,31 @@ const Panel = ({ title, action, children, className = '' }) => (
 )
 
 const Dashboard = () => {
+    const navigate = useNavigate()
+
+    const onFinancialTrendClick = (params) => {
+        if (params?.name) {
+            navigate(`/super-admin/finance/overview?period=${encodeURIComponent(params.name)}`)
+        } else {
+            navigate('/super-admin/finance/overview')
+        }
+    }
+
+    const onIncomeMixClick = (params) => {
+        if (params?.name) {
+            navigate(`/super-admin/finance/accounts?stream=${encodeURIComponent(params.name)}`)
+        } else {
+            navigate('/super-admin/finance/accounts')
+        }
+    }
+
+    const onFindingsSeverityClick = (params) => {
+        if (params?.name) {
+            navigate(`/super-admin/audit-reports/overview?severity=${encodeURIComponent(params.name)}`)
+        } else {
+            navigate('/super-admin/audit-reports/overview')
+        }
+    }
     const financialTrendOption = useMemo(() => ({
         tooltip: { trigger: 'axis' },
         legend: {
@@ -336,37 +361,61 @@ const Dashboard = () => {
 
             {/* Focused 4 Executive Governance KPI Cards */}
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-                <div className='bg-white rounded-2xl border border-slate-200 p-4 shadow-xs border-l-4 border-l-indigo-600'>
-                    <span className='text-xs font-semibold uppercase tracking-wider text-slate-400 block'>Net Operating Surplus</span>
+                <Link
+                    to='/super-admin/finance/overview'
+                    className='bg-white rounded-2xl border border-slate-200 p-4 shadow-xs border-l-4 border-l-indigo-600 hover:border-indigo-400 hover:shadow-md transition-all group'
+                >
+                    <div className='flex items-center justify-between'>
+                        <span className='text-xs font-semibold uppercase tracking-wider text-slate-400 block'>Net Operating Surplus</span>
+                        <ArrowUpRight size={14} className='text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform' />
+                    </div>
                     <p className='text-2xl font-bold text-slate-900 mt-1'>{EXECUTIVE_SUMMARY.netSurplus}</p>
                     <span className='text-xs text-emerald-600 font-semibold inline-flex items-center gap-0.5 mt-1'>
                         <ArrowUpRight size={13} /> Reconciled & Audited
                     </span>
-                </div>
+                </Link>
 
-                <div className='bg-white rounded-2xl border border-slate-200 p-4 shadow-xs border-l-4 border-l-emerald-600'>
-                    <span className='text-xs font-semibold uppercase tracking-wider text-slate-400 block'>Fee Collection Rate</span>
+                <Link
+                    to='/super-admin/finance/accounts'
+                    className='bg-white rounded-2xl border border-slate-200 p-4 shadow-xs border-l-4 border-l-emerald-600 hover:border-emerald-400 hover:shadow-md transition-all group'
+                >
+                    <div className='flex items-center justify-between'>
+                        <span className='text-xs font-semibold uppercase tracking-wider text-slate-400 block'>Fee Collection Rate</span>
+                        <ArrowUpRight size={14} className='text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform' />
+                    </div>
                     <p className='text-2xl font-bold text-slate-900 mt-1'>{EXECUTIVE_SUMMARY.feeCollectionRate}%</p>
                     <span className='text-xs text-slate-500 font-medium block mt-1'>
                         Pending dues: {EXECUTIVE_SUMMARY.pendingFees}
                     </span>
-                </div>
+                </Link>
 
-                <div className='bg-white rounded-2xl border border-slate-200 p-4 shadow-xs border-l-4 border-l-blue-600'>
-                    <span className='text-xs font-semibold uppercase tracking-wider text-slate-400 block'>Institutional Compliance</span>
+                <Link
+                    to='/super-admin/audit-reports/overview'
+                    className='bg-white rounded-2xl border border-slate-200 p-4 shadow-xs border-l-4 border-l-blue-600 hover:border-blue-400 hover:shadow-md transition-all group'
+                >
+                    <div className='flex items-center justify-between'>
+                        <span className='text-xs font-semibold uppercase tracking-wider text-slate-400 block'>Institutional Compliance</span>
+                        <ArrowUpRight size={14} className='text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform' />
+                    </div>
                     <p className='text-2xl font-bold text-slate-900 mt-1'>88%</p>
                     <span className='text-xs text-blue-600 font-semibold inline-flex items-center gap-0.5 mt-1'>
                         <ShieldCheck size={13} /> Grade A Regulatory Rating
                     </span>
-                </div>
+                </Link>
 
-                <div className='bg-white rounded-2xl border border-slate-200 p-4 shadow-xs border-l-4 border-l-amber-500'>
-                    <span className='text-xs font-semibold uppercase tracking-wider text-slate-400 block'>Pending Decisions</span>
+                <Link
+                    to='/super-admin/approvals'
+                    className='bg-white rounded-2xl border border-slate-200 p-4 shadow-xs border-l-4 border-l-amber-500 hover:border-amber-400 hover:shadow-md transition-all group'
+                >
+                    <div className='flex items-center justify-between'>
+                        <span className='text-xs font-semibold uppercase tracking-wider text-slate-400 block'>Pending Decisions</span>
+                        <ArrowUpRight size={14} className='text-slate-400 group-hover:text-amber-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform' />
+                    </div>
                     <p className='text-2xl font-bold text-slate-900 mt-1'>{RECENT_APPROVALS.length}</p>
                     <span className='text-xs text-amber-600 font-medium block mt-1'>
                         Awaiting Super Admin sanction
                     </span>
-                </div>
+                </Link>
             </div>
 
             {/* Operational Department Overview Cards */}
@@ -429,10 +478,15 @@ const Dashboard = () => {
             <div className='grid grid-cols-1 xl:grid-cols-3 gap-6'>
                 <Panel
                     title='Budgeted vs Actuals & Compliance Trend'
-                    action={<span className='text-xs text-slate-400'>Monthly financial ledger</span>}
+                    action={<span className='text-xs text-slate-400'>Click chart to drill down</span>}
                     className='xl:col-span-2'
                 >
-                    <ReactECharts option={financialTrendOption} style={{ height: 310 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={financialTrendOption}
+                        style={{ height: 310, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onFinancialTrendClick }}
+                    />
                 </Panel>
                 <Panel
                     title='Performance & Compliance Targets'
@@ -448,20 +502,34 @@ const Dashboard = () => {
 
             {/* Revenue Breakdown, Audit Severity & Approvals Queue */}
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-                <Panel title='Revenue Stream Allocation'>
-                    <ReactECharts option={incomeMixOption} style={{ height: 240 }} opts={{ renderer: 'svg' }} />
+                <Panel title='Revenue Stream Allocation' action={<span className='text-xs text-slate-400'>Click slice to view</span>}>
+                    <ReactECharts
+                        option={incomeMixOption}
+                        style={{ height: 240, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onIncomeMixClick }}
+                    />
                     <div className='grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-100'>
                         {INCOME_MIX.map((item) => (
-                            <div key={item.name} className='flex items-center gap-1.5 text-xs text-slate-600'>
+                            <button
+                                key={item.name}
+                                onClick={() => onIncomeMixClick({ name: item.name })}
+                                className='flex items-center gap-1.5 text-xs text-slate-600 hover:text-indigo-600 transition-colors text-left'
+                            >
                                 <span className='size-2 rounded-full shrink-0' style={{ backgroundColor: item.color }} />
                                 <span className='truncate'>{item.name} ({item.percent}%)</span>
-                            </div>
+                            </button>
                         ))}
                     </div>
                 </Panel>
 
-                <Panel title='Active Findings by Severity'>
-                    <ReactECharts option={findingsSeverityOption} style={{ height: 260 }} opts={{ renderer: 'svg' }} />
+                <Panel title='Active Findings by Severity' action={<span className='text-xs text-slate-400'>Click bar to view</span>}>
+                    <ReactECharts
+                        option={findingsSeverityOption}
+                        style={{ height: 260, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onFindingsSeverityClick }}
+                    />
                 </Panel>
 
                 <Panel

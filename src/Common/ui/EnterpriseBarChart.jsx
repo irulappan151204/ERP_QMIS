@@ -4,6 +4,7 @@ import ReactECharts from 'echarts-for-react'
 /**
  * EnterpriseBarChart - Vertical rounded bar chart with soft blue bars.
  * Matches the reference layout's "Traffic by Device" / "Grade-Wise Strength" widget.
+ * Supports interactive drill-down on bar click.
  */
 const EnterpriseBarChart = ({
     title = 'Traffic by Device',
@@ -12,8 +13,22 @@ const EnterpriseBarChart = ({
     barColor = '#BAE6FD',
     height = 240,
     unit = 'K',
+    onBarClick,
+    onItemClick,
     className = '',
 }) => {
+    const isInteractive = Boolean(onBarClick || onItemClick)
+
+    const onEvents = useMemo(() => {
+        if (!isInteractive) return {}
+        return {
+            click: (params) => {
+                onBarClick?.(params.name, params.value, params.dataIndex)
+                onItemClick?.(params.name, params.value, params.dataIndex)
+            },
+        }
+    }, [isInteractive, onBarClick, onItemClick])
+
     const option = useMemo(() => ({
         tooltip: {
             trigger: 'axis',
@@ -22,7 +37,9 @@ const EnterpriseBarChart = ({
             textStyle: { color: '#FFFFFF', fontSize: 12 },
             formatter: (params) => {
                 const item = params[0]
-                return `<div class="p-1 text-xs"><b>${item.name}</b>: ${item.value}${unit}</div>`
+                return `<div class="p-1 text-xs"><b>${item.name}</b>: ${item.value}${unit}${
+                    isInteractive ? '<br/><span style="color:#94A3B8;font-size:10px;">Click to filter details</span>' : ''
+                }</div>`
             },
         },
         grid: {
@@ -58,6 +75,7 @@ const EnterpriseBarChart = ({
                 type: 'bar',
                 data,
                 barWidth: 26,
+                cursor: isInteractive ? 'pointer' : 'default',
                 itemStyle: {
                     color: barColor,
                     borderRadius: [8, 8, 8, 8],
@@ -69,16 +87,22 @@ const EnterpriseBarChart = ({
                 },
             },
         ],
-    }), [categories, data, barColor, unit])
+    }), [categories, data, barColor, unit, isInteractive])
 
     return (
         <div className={`rounded-[1.25rem] border border-slate-200/80 bg-white p-5 shadow-xs ${className}`}>
-            <h3 className='text-sm font-semibold tracking-tight text-slate-900 mb-2'>
-                {title}
-            </h3>
+            <div className='flex items-center justify-between mb-2'>
+                <h3 className='text-sm font-semibold tracking-tight text-slate-900'>
+                    {title}
+                </h3>
+                {isInteractive && (
+                    <span className='text-[10px] text-slate-400 font-medium'>Click bar to filter</span>
+                )}
+            </div>
             <ReactECharts
                 option={option}
-                style={{ height, width: '100%' }}
+                onEvents={onEvents}
+                style={{ height, width: '100%', cursor: isInteractive ? 'pointer' : 'default' }}
                 opts={{ renderer: 'svg' }}
             />
         </div>
@@ -86,4 +110,3 @@ const EnterpriseBarChart = ({
 }
 
 export default EnterpriseBarChart
-

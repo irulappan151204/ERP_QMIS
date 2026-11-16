@@ -8,6 +8,7 @@ import Dropdown from '../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../Common/CommonComponents/ExportModal';
 import EditRequestModal from '../../../Common/CommonComponents/EditRequestModal';
 import DeleteRequestModal from '../../../Common/CommonComponents/DeleteRequestModal';
+import ViewRecordModal from '../../../Common/CommonComponents/ViewRecordModal';
 
 const Subjects = () => {
 
@@ -16,6 +17,7 @@ const Subjects = () => {
     const [exportModal, setExportModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
+    const [selectedSubject, setSelectedSubject] = useState(null);
 
     return (
         <section>
@@ -134,7 +136,20 @@ const Subjects = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedSubject({
+                                                subjectName: 'Tamil',
+                                                subjectCode: 'TAM1001',
+                                                educationBoard: 'Matriculation',
+                                                subjectType: 'Theory',
+                                                assignedTeacher: 'Sandy Selva',
+                                                classGrade: 'Grade 12th',
+                                                weeklyPeriods: '6 Periods / Week',
+                                                credits: '4.0',
+                                                syllabusStatus: 'Approved & Active',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -180,6 +195,13 @@ const Subjects = () => {
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
 
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+
+            <ViewRecordModal
+                isOpen={!!selectedSubject}
+                onClose={() => setSelectedSubject(null)}
+                title="Subject Curriculum Details"
+                data={selectedSubject}
+            />
 
         </section>
     )

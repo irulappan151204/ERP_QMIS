@@ -105,20 +105,94 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
     }
 
     // Queries
-    const files = useMemo(() => {
+    const rawFiles = useMemo(() => {
         void refreshKey
-        return getPhysicalFiles()
+        return getPhysicalFiles() || []
+    }, [refreshKey])
+
+    const files = useMemo(() => {
+        return (rawFiles || []).filter(Boolean).map((f) => {
+            const rackNo = f.storageCoordinates?.rackNumber || f.storageLocation?.rackNo || f.storageLocation?.cupboardRack || 'Rack A'
+            const shelfNo = f.storageCoordinates?.shelfLevel || f.storageLocation?.shelfNo || f.storageLocation?.shelfLevel || 'Shelf 01'
+            const boxNo = f.storageCoordinates?.boxNumber || f.storageLocation?.boxNo || f.storageLocation?.boxFolder || 'Box 01'
+            const fileNumber = f.fileNumber || f.fileRefNo || f.id || 'FILE-000'
+            const title = f.title || f.fileName || 'Untitled File'
+            const category = f.category || f.documentType || 'General Document'
+            const department = f.department || f.ownerDepartment || 'Administration'
+            const barcode = f.barcode || f.id || fileNumber
+            const confidentialityLevel = f.confidentialityLevel || (f.confidentiality?.includes('MD') ? 'Strictly Confidential' : f.confidentiality?.includes('Executive') ? 'Confidential' : (f.confidentiality?.includes('Restricted') ? 'Confidential' : 'Normal'))
+            const currentStatus = f.currentStatus || (f.currentLocationStatus === 'Checked Out / Issued' || f.currentLocationStatus === 'Checked Out' ? 'Checked Out' : 'Available in File Room')
+
+            return {
+                ...f,
+                id: f.id || fileNumber,
+                fileNumber,
+                title,
+                category,
+                department,
+                barcode,
+                confidentialityLevel,
+                currentStatus,
+                storageCoordinates: {
+                    rackNumber: rackNo,
+                    shelfLevel: shelfNo,
+                    boxNumber: boxNo
+                }
+            }
+        })
+    }, [rawFiles])
+
+    const rawInwardRecords = useMemo(() => {
+        void refreshKey
+        return getFileInwardRecords() || []
     }, [refreshKey])
 
     const inwardRecords = useMemo(() => {
+        return (rawInwardRecords || []).filter(Boolean).map((inw) => {
+            const assignedParts = (inw.storageRackAssigned || '').split(',').map((s) => s.trim())
+            const rackNo = inw.storageCoordinates?.rackNumber || assignedParts[0] || 'Rack A'
+            const shelfNo = inw.storageCoordinates?.shelfLevel || assignedParts[1] || 'Shelf 01'
+            const boxNo = inw.storageCoordinates?.boxNumber || assignedParts[2] || 'Box 01'
+            return {
+                ...inw,
+                id: inw.id || `INW-${Math.random()}`,
+                fileNumber: inw.fileNumber || inw.fileId || inw.id || 'FILE-INW',
+                title: inw.title || inw.fileName || 'Inward Document',
+                sourceSender: inw.sourceSender || inw.receivedFrom || 'External Registry',
+                medium: inw.medium || 'Official Handover / Post',
+                trackingNumber: inw.trackingNumber || inw.id || 'TRK-001',
+                receivedByEmployeeName: inw.receivedByEmployeeName || inw.receivedByCustodian || 'Records Custodian',
+                storageCoordinates: {
+                    rackNumber: rackNo,
+                    shelfLevel: shelfNo,
+                    boxNumber: boxNo
+                }
+            }
+        })
+    }, [rawInwardRecords])
+
+    const rawOutwardRecords = useMemo(() => {
         void refreshKey
-        return getFileInwardRecords()
+        return getFileOutwardRecords() || []
     }, [refreshKey])
 
     const outwardRecords = useMemo(() => {
-        void refreshKey
-        return getFileOutwardRecords()
-    }, [refreshKey])
+        return (rawOutwardRecords || []).filter(Boolean).map((rec) => {
+            return {
+                ...rec,
+                id: rec.id || `ISS-${Math.random()}`,
+                fileNumber: rec.fileNumber || rec.fileId || rec.id || 'FILE-OUT',
+                fileTitle: rec.fileTitle || rec.fileName || 'Checked Out Dossier',
+                issuedToEmployeeName: rec.issuedToEmployeeName || rec.requestedByName || 'Staff Member',
+                issuedToDepartment: rec.issuedToDepartment || rec.department || 'Administration',
+                issuedByEmployeeName: rec.issuedByEmployeeName || rec.issuedByCustodian || 'Archive Custodian',
+                issueDate: rec.issueDate || rec.issueDateTime || 'Recent',
+                expectedReturnDate: rec.expectedReturnDate || 'Pending',
+                purpose: rec.purpose || 'Official Verification',
+                status: rec.status === 'Overdue' ? 'Overdue Return' : (rec.status || 'Checked Out')
+            }
+        })
+    }, [rawOutwardRecords])
 
     // Tabs
     const availableTabs = useMemo(() => {
@@ -205,7 +279,7 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
 
             if (searchQuery.trim()) {
                 const q = searchQuery.toLowerCase().trim()
-                const match = `${f.fileNumber} ${f.title} ${f.barcode} ${f.department} ${f.storageCoordinates.rackNumber}`.toLowerCase()
+                const match = `${f.fileNumber || ''} ${f.title || ''} ${f.barcode || ''} ${f.department || ''} ${f.storageCoordinates?.rackNumber || ''}`.toLowerCase()
                 if (!match.includes(q)) return false
             }
             return true

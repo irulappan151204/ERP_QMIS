@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate, NavLink } from 'react-router-dom'
 import {
     EnterpriseKpiCard,
     EnterpriseTrendChart,
@@ -7,6 +8,7 @@ import {
     EnterpriseDonutChart,
     HierarchyFilterBar
 } from '../../../Common/ui'
+
 import {
     Trophy,
     Star,
@@ -18,9 +20,9 @@ import {
     AlertCircle,
     ArrowRight
 } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
 
 const Dashboard = () => {
+    const navigate = useNavigate()
     const [filterState, setFilterState] = useState({
         campus: 'All Campuses',
         department: 'All Departments',
@@ -63,6 +65,7 @@ const Dashboard = () => {
                     change='+4.2%'
                     isPositive={true}
                     context='Main Campus & City Wing combined'
+                    to='/director/students/student-details'
                 />
                 <EnterpriseKpiCard
                     title='Faculty & Staff Strength'
@@ -70,6 +73,7 @@ const Dashboard = () => {
                     change='98.4%'
                     isPositive={true}
                     context='High institutional retention rate'
+                    to='/director/human-resource/teachers-list'
                 />
                 <EnterpriseKpiCard
                     title='Average Daily Attendance'
@@ -77,6 +81,7 @@ const Dashboard = () => {
                     change='+1.1%'
                     isPositive={true}
                     context='Biometric ESSL SilkBio verified'
+                    to='/director/attendance/student'
                 />
                 <EnterpriseKpiCard
                     title='Annual Fee Realization'
@@ -84,6 +89,7 @@ const Dashboard = () => {
                     change='₹18.4 Cr'
                     isPositive={true}
                     context='Term 1 & Term 2 target achieved'
+                    to='/director/finance-accounts/fee-collection'
                 />
             </div>
 
@@ -108,6 +114,7 @@ const Dashboard = () => {
                             },
                         }}
                         height={280}
+                        onPointClick={(month) => navigate(`/director/finance-accounts/fee-collection?month=${encodeURIComponent(month)}`)}
                     />
                 </div>
 
@@ -135,6 +142,7 @@ const Dashboard = () => {
                     barColor='#93C5FD'
                     height={230}
                     unit=''
+                    onBarClick={(cat) => navigate(`/director/students/student-details?wing=${encodeURIComponent(cat)}`)}
                 />
 
                 <EnterpriseDonutChart
@@ -147,6 +155,7 @@ const Dashboard = () => {
                         { name: 'IT Infrastructure & Cloud', value: 4.5, color: '#64748B' },
                     ]}
                     height={230}
+                    onSliceClick={(slice) => navigate(`/director/finance-accounts/expenses?category=${encodeURIComponent(slice)}`)}
                 />
             </div>
 

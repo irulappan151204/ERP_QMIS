@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import {
     LayoutDashboard,
@@ -11,6 +12,7 @@ import {
     Percent,
     Building2,
     Calendar,
+    ArrowUpRight,
 } from 'lucide-react'
 import {
     KPI_CARDS,
@@ -35,6 +37,17 @@ const KPI_ICONS = {
     'Departments Audited': Building2,
 }
 
+const KPI_ROUTES = {
+    "Today's Audits": '/quality-auditor/audit-management/audit-schedule',
+    'Pending Audits': '/quality-auditor/audit-management/my-audits',
+    'Completed Audits': '/quality-auditor/audit-management/audit-history',
+    'Overdue Audits': '/quality-auditor/audit-management/my-audits',
+    'Open Observations': '/quality-auditor/observations/open',
+    'Escalated Issues': '/quality-auditor/corrective-actions/escalations',
+    'Average Compliance %': '/quality-auditor/reports/compliance-reports',
+    'Departments Audited': '/quality-auditor/reports/audit-reports',
+}
+
 const Panel = ({ title, children, className = '' }) => (
     <div className={`bg-white rounded-2xl shadow-md p-4 h-full ${className}`}>
         <h3 className='text-lg font-semibold text-black mb-4'>{title}</h3>
@@ -43,6 +56,27 @@ const Panel = ({ title, children, className = '' }) => (
 )
 
 const Dashboard = () => {
+    const navigate = useNavigate()
+
+    const onMonthlyTrendClick = () => {
+        navigate('/quality-auditor/reports/compliance-reports')
+    }
+
+    const onDepartmentComplianceClick = (params) => {
+        if (params?.name) {
+            navigate(`/quality-auditor/reports/compliance-reports?dept=${encodeURIComponent(params.name)}`)
+        } else {
+            navigate('/quality-auditor/reports/compliance-reports')
+        }
+    }
+
+    const onObservationStatusClick = () => {
+        navigate('/quality-auditor/observations/open')
+    }
+
+    const onAuditCompletionClick = () => {
+        navigate('/quality-auditor/audit-management/my-audits')
+    }
     const monthlyComplianceOption = useMemo(() => ({
         tooltip: {
             trigger: 'axis',
@@ -214,35 +248,63 @@ const Dashboard = () => {
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
                 {KPI_CARDS.map((card) => {
                     const Icon = KPI_ICONS[card.label] ?? ClipboardList
+                    const route = KPI_ROUTES[card.label] || '/quality-auditor/audit-management/my-audits'
                     return (
-                        <div key={card.label} className='bg-white rounded-2xl shadow-md p-4'>
+                        <Link
+                            key={card.label}
+                            to={route}
+                            className='bg-white rounded-2xl shadow-md p-4 hover:shadow-lg hover:border-indigo-200 border border-transparent transition-all group'
+                        >
                             <div className='flex items-start justify-between gap-2'>
                                 <div className='min-w-0'>
-                                    <p className='text-xs text-[#808080]'>{card.label}</p>
+                                    <p className='text-xs text-[#808080] group-hover:text-indigo-600 transition-colors'>{card.label}</p>
                                     <p className='text-xl font-semibold text-[#1E1E1E] mt-1'>{card.value}</p>
                                     <p className='text-xs text-[#667085] mt-1'>{card.sub}</p>
                                 </div>
-                                <div className='p-2 rounded-xl bg-[#515DEF]/10 text-[#515DEF] shrink-0'>
-                                    <Icon size={18} />
+                                <div className='flex flex-col items-end gap-2'>
+                                    <div className='p-2 rounded-xl bg-[#515DEF]/10 text-[#515DEF] shrink-0 group-hover:bg-[#515DEF] group-hover:text-white transition-colors'>
+                                        <Icon size={18} />
+                                    </div>
+                                    <ArrowUpRight size={14} className='text-slate-300 group-hover:text-indigo-500 transition-colors' />
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     )
                 })}
             </div>
 
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
                 <Panel title='Monthly Compliance Trend'>
-                    <ReactECharts option={monthlyComplianceOption} style={{ height: 300 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={monthlyComplianceOption}
+                        style={{ height: 300, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onMonthlyTrendClick }}
+                    />
                 </Panel>
                 <Panel title='Department-wise Compliance'>
-                    <ReactECharts option={departmentComplianceOption} style={{ height: 300 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={departmentComplianceOption}
+                        style={{ height: 300, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onDepartmentComplianceClick }}
+                    />
                 </Panel>
                 <Panel title='Observation Status'>
-                    <ReactECharts option={observationStatusOption} style={{ height: 300 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={observationStatusOption}
+                        style={{ height: 300, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onObservationStatusClick }}
+                    />
                 </Panel>
                 <Panel title='Audit Completion %'>
-                    <ReactECharts option={auditCompletionOption} style={{ height: 300 }} opts={{ renderer: 'svg' }} />
+                    <ReactECharts
+                        option={auditCompletionOption}
+                        style={{ height: 300, cursor: 'pointer' }}
+                        opts={{ renderer: 'svg' }}
+                        onEvents={{ click: onAuditCompletionClick }}
+                    />
                 </Panel>
             </div>
 

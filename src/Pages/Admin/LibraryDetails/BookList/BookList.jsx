@@ -8,6 +8,7 @@ import Dropdown from '../../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../../Common/CommonComponents/ExportModal';
 import EditRequestModal from '../../../../Common/CommonComponents/EditRequestModal';
 import DeleteRequestModal from '../../../../Common/CommonComponents/DeleteRequestModal';
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal';
 
 const BookList = () => {
 
@@ -16,6 +17,7 @@ const BookList = () => {
     const [exportModal, setExportModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
+    const [selectedBook, setSelectedBook] = useState(null);
 
     return (
         <section>
@@ -142,7 +144,22 @@ const BookList = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedBook({
+                                                bookId: 'BOK1001',
+                                                title: 'Math Basic',
+                                                subject: 'Mathematics',
+                                                author: 'Sandy',
+                                                publishingYear: '2026',
+                                                totalQuantity: '20 Copies',
+                                                availableQuantity: '15 Copies',
+                                                shelfLocation: 'A1 - Section 4',
+                                                publisherName: 'Oxford University Press',
+                                                language: 'English',
+                                                isbn: '978-0-19-853453-1',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -187,6 +204,13 @@ const BookList = () => {
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
 
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+
+            <ViewRecordModal
+                isOpen={!!selectedBook}
+                onClose={() => setSelectedBook(null)}
+                title="Library Catalog Title Dossier"
+                data={selectedBook}
+            />
 
         </section>
     )

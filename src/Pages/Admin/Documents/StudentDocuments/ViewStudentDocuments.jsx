@@ -94,7 +94,7 @@ const ViewStudentDocuments = () => {
                     Back
                 </button>
                 <NavLink
-                    to={`/admin/documents/edit-student-documents/${record.id}`}
+                    to={record?.id ? `/admin/documents/edit-student-documents/${record.id}` : '/admin/documents/student-documents'}
                     className='bg-[#515DEF] text-white text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer md:w-auto w-full'
                 >
                     Edit

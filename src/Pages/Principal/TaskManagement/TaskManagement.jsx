@@ -7,6 +7,7 @@ import Dropdown from '../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../Common/CommonComponents/ExportModal';
 import EditRequestModal from '../../../Common/CommonComponents/EditRequestModal';
 import DeleteRequestModal from '../../../Common/CommonComponents/DeleteRequestModal';
+import ViewRecordModal from '../../../Common/CommonComponents/ViewRecordModal';
 import { useAuth } from '../../../Context/AuthContext';
 import { canRoleDelete } from '../../../Common/RBAC/actionPermissions';
 
@@ -19,6 +20,7 @@ const TaskManagement = () => {
     const [exportModal, setExportModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
+    const [selectedTask, setSelectedTask] = useState(null);
 
     const bagdeColor = {
         "Completed": "bg-[#4CAF5033] text-[#4CAF50]",
@@ -146,7 +148,20 @@ const TaskManagement = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedTask({
+                                                taskId: 'TASK001',
+                                                taskTitle: 'Classroom Inspection & Teacher Observation',
+                                                description: 'Conduct comprehensive pedagogical observation across Grade 10 sections.',
+                                                assignedTo: 'Academic Vice Principal',
+                                                priority: 'High',
+                                                assignedDate: '01-08-2025',
+                                                dueDate: '05-08-2025',
+                                                status: 'Completed',
+                                                notes: 'Checklist submitted to Principal desk.',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -177,7 +192,20 @@ const TaskManagement = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedTask({
+                                                taskId: 'TASK001',
+                                                taskTitle: 'Classroom Inspection & Teacher Observation',
+                                                description: 'Conduct comprehensive pedagogical observation across Grade 10 sections.',
+                                                assignedTo: 'Academic Vice Principal',
+                                                priority: 'High',
+                                                assignedDate: '01-08-2025',
+                                                dueDate: '05-08-2025',
+                                                status: 'Completed',
+                                                notes: 'Checklist submitted to Principal desk.',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -208,7 +236,20 @@ const TaskManagement = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedTask({
+                                                taskId: 'TASK001',
+                                                taskTitle: 'Classroom Inspection & Teacher Observation',
+                                                description: 'Conduct comprehensive pedagogical observation across Grade 10 sections.',
+                                                assignedTo: 'Academic Vice Principal',
+                                                priority: 'High',
+                                                assignedDate: '01-08-2025',
+                                                dueDate: '05-08-2025',
+                                                status: 'Completed',
+                                                notes: 'Checklist submitted to Principal desk.',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -255,6 +296,13 @@ const TaskManagement = () => {
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
 
             {canDelete && <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />}
+
+            <ViewRecordModal
+                isOpen={!!selectedTask}
+                onClose={() => setSelectedTask(null)}
+                title="Principal Task Directive Details"
+                data={selectedTask}
+            />
 
         </section>
     )

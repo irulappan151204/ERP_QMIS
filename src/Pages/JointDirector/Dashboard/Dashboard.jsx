@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
+import { useNavigate, NavLink } from 'react-router-dom'
 import {
-    EnterpriseKpiCard,
     EnterpriseTrendChart,
     EnterpriseBreakdownCard,
     EnterpriseBarChart,
@@ -17,7 +17,6 @@ import {
     Package,
     ArrowRight
 } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
 import {
     PENDING_APPROVALS,
     CRITICAL_ALERTS,
@@ -25,6 +24,7 @@ import {
 } from './dashboardData'
 
 const Dashboard = () => {
+    const navigate = useNavigate()
     const [filterState, setFilterState] = useState({
         campus: 'All Campuses',
         department: 'Operations & Logistics',
@@ -67,6 +67,7 @@ const Dashboard = () => {
                     change='+3.4%'
                     isPositive={true}
                     context='Across 12 non-academic operational units'
+                    to='/joint-director/employee-management/drivers'
                 />
                 <EnterpriseKpiCard
                     title='Vehicle Fleet Readiness'
@@ -74,6 +75,7 @@ const Dashboard = () => {
                     change='100%'
                     isPositive={true}
                     context='All 18 student routes active & on-time'
+                    to='/joint-director/transport-fleet'
                 />
                 <EnterpriseKpiCard
                     title='Pending Approvals'
@@ -81,6 +83,7 @@ const Dashboard = () => {
                     change='₹2.4L'
                     isPositive={false}
                     context='5 purchase requisitions awaiting sign-off'
+                    to='/joint-director/request-approvals'
                 />
                 <EnterpriseKpiCard
                     title='Active Escalations & Tickets'
@@ -88,6 +91,7 @@ const Dashboard = () => {
                     change='-6'
                     isPositive={true}
                     context='3 critical IT tickets in SLA queue'
+                    to='/joint-director/operations/ticketing'
                 />
             </div>
 
@@ -112,6 +116,7 @@ const Dashboard = () => {
                             },
                         }}
                         height={280}
+                        onPointClick={(day) => navigate(`/joint-director/request-approvals?day=${encodeURIComponent(day)}`)}
                     />
                 </div>
 
@@ -139,6 +144,7 @@ const Dashboard = () => {
                     barColor='#BAE6FD'
                     height={230}
                     unit=''
+                    onBarClick={(dept) => navigate(`/joint-director/operations/ticketing?department=${encodeURIComponent(dept)}`)}
                 />
 
                 <EnterpriseDonutChart
@@ -150,6 +156,7 @@ const Dashboard = () => {
                         { name: 'IT Infrastructure', value: 16.2, color: '#64748B' },
                     ]}
                     height={230}
+                    onSliceClick={(slice) => navigate(`/joint-director/request-approvals?category=${encodeURIComponent(slice)}`)}
                 />
             </div>
 

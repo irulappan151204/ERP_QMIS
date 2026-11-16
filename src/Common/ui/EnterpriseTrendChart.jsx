@@ -7,15 +7,29 @@ import ReactECharts from 'echarts-for-react'
  * - Interactive tab switcher (e.g. Total Users / Operating Status / Projects)
  * - Coordinated legend: "• This year" (solid dark line) vs "• Last year" (dashed blue line)
  * - Clean SVG/ECharts bezier curve interpolation
+ * - Interactive point click drill-down
  */
 const EnterpriseTrendChart = ({
     tabs = ['Total Users', 'Total Projects', 'Operating Status'],
     dataByTab,
     categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
     height = 280,
+    onPointClick,
+    onItemClick,
     className = '',
 }) => {
     const [activeTab, setActiveTab] = useState(tabs[0] || 'Total Users')
+    const isInteractive = Boolean(onPointClick || onItemClick)
+
+    const onEvents = useMemo(() => {
+        if (!isInteractive) return {}
+        return {
+            click: (params) => {
+                onPointClick?.(params.name, params.value, params.seriesName)
+                onItemClick?.(params.name, params.value, params.seriesName)
+            },
+        }
+    }, [isInteractive, onPointClick, onItemClick])
 
     // Default mock data if not supplied
     const activeData = useMemo(() => {
@@ -56,7 +70,9 @@ const EnterpriseTrendChart = ({
                 const lines = params.map(
                     (p) => `${p.marker} ${p.seriesName}: <b>${p.value}k</b>`
                 )
-                return `<div class="p-1"><p class="font-semibold mb-1 text-slate-300">${title}</p>${lines.join('<br/>')}</div>`
+                return `<div class="p-1"><p class="font-semibold mb-1 text-slate-300">${title}</p>${lines.join('<br/>')}${
+                    isInteractive ? '<br/><span style="color:#94A3B8;font-size:10px;">Click point to filter</span>' : ''
+                }</div>`
             },
         },
         grid: {
@@ -93,44 +109,53 @@ const EnterpriseTrendChart = ({
                 name: 'This year',
                 type: 'line',
                 smooth: 0.45,
-                showSymbol: false,
+                showSymbol: isInteractive,
+                symbolSize: 6,
+                cursor: isInteractive ? 'pointer' : 'default',
                 data: activeData.currentSeries,
                 lineStyle: {
                     color: '#1E293B',
                     width: 2.2,
                 },
-                itemStyle: { color: '#1E293B' },
+                itemStyle: {
+                    color: '#1E293B',
+                },
             },
             {
                 name: 'Last year',
                 type: 'line',
                 smooth: 0.45,
-                showSymbol: false,
+                showSymbol: isInteractive,
+                symbolSize: 6,
+                cursor: isInteractive ? 'pointer' : 'default',
                 data: activeData.previousSeries,
                 lineStyle: {
-                    color: '#60A5FA',
-                    width: 2,
-                    type: [4, 4],
+                    color: '#7DD3FC',
+                    width: 2.2,
+                    type: 'dashed',
                 },
-                itemStyle: { color: '#60A5FA' },
+                itemStyle: {
+                    color: '#7DD3FC',
+                },
             },
         ],
-    }), [categories, activeData])
+    }), [categories, activeData, isInteractive])
 
     return (
         <div className={`rounded-[1.25rem] border border-slate-200/80 bg-white p-5 shadow-xs ${className}`}>
             {/* Header: Tabs + Legend */}
-            <div className='flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3'>
-                <div className='flex items-center gap-4 text-xs font-semibold'>
+            <div className='flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 mb-2'>
+                {/* Tabs */}
+                <div className='flex items-center gap-1 sm:gap-2'>
                     {tabs.map((tab) => (
                         <button
                             key={tab}
                             type='button'
                             onClick={() => setActiveTab(tab)}
-                            className={`transition-colors cursor-pointer ${
+                            className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer ${
                                 activeTab === tab
-                                    ? 'text-slate-900 font-bold border-b-2 border-slate-900 pb-1 -mb-3.5'
-                                    : 'text-slate-400 hover:text-slate-600'
+                                    ? 'bg-slate-900 text-white'
+                                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                             }`}
                         >
                             {tab}
@@ -138,29 +163,27 @@ const EnterpriseTrendChart = ({
                     ))}
                 </div>
 
-                <div className='flex items-center gap-3 text-xs text-slate-500'>
+                {/* Coordinated Legend */}
+                <div className='flex items-center gap-3 text-xs font-medium text-slate-600'>
                     <span className='flex items-center gap-1.5'>
-                        <span className='size-2 rounded-full bg-slate-900' />
-                        <span>This year</span>
+                        <span className='inline-block size-2 rounded-full bg-slate-900' />
+                        This year
                     </span>
                     <span className='flex items-center gap-1.5'>
-                        <span className='size-2 rounded-full bg-blue-400' />
-                        <span className='text-slate-400'>Last year</span>
+                        <span className='inline-block h-0.5 w-3 bg-[#7DD3FC] border-b border-dashed border-[#7DD3FC]' />
+                        Last year
                     </span>
                 </div>
             </div>
 
-            {/* Chart Area */}
-            <div className='mt-2'>
-                <ReactECharts
-                    option={option}
-                    style={{ height, width: '100%' }}
-                    opts={{ renderer: 'svg' }}
-                />
-            </div>
+            <ReactECharts
+                option={option}
+                onEvents={onEvents}
+                style={{ height, width: '100%', cursor: isInteractive ? 'pointer' : 'default' }}
+                opts={{ renderer: 'svg' }}
+            />
         </div>
     )
 }
 
 export default EnterpriseTrendChart
-

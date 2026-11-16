@@ -126,9 +126,12 @@ const Dashboard = () => {
 
             {/* 4 Core KPI Cards */}
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-                <div className='bg-white p-5 rounded-2xl border border-slate-100 shadow-sm'>
+                <NavLink
+                    to='/librarian/book-management/book-list'
+                    className='bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group'
+                >
                     <div className='flex items-center justify-between text-slate-500'>
-                        <span className='text-xs font-semibold uppercase tracking-wider'>Catalog Titles</span>
+                        <span className='text-xs font-semibold uppercase tracking-wider group-hover:text-indigo-600 transition-colors'>Catalog Titles</span>
                         <BookMarked size={18} className='text-[#515DEF]' />
                     </div>
                     <div className='mt-3 flex items-baseline gap-2'>
@@ -136,13 +139,16 @@ const Dashboard = () => {
                         <span className='text-xs text-slate-400'>({totalCopies.toLocaleString()} copies)</span>
                     </div>
                     <span className='text-xs text-emerald-600 font-medium block mt-1'>
-                        98.2% catalog verified
+                        98.2% catalog verified →
                     </span>
-                </div>
+                </NavLink>
 
-                <div className='bg-white p-5 rounded-2xl border border-slate-100 shadow-sm'>
+                <NavLink
+                    to='/librarian/issued-books/issued-book-list'
+                    className='bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-300 transition-all group'
+                >
                     <div className='flex items-center justify-between text-slate-500'>
-                        <span className='text-xs font-semibold uppercase tracking-wider'>Active Circulation</span>
+                        <span className='text-xs font-semibold uppercase tracking-wider group-hover:text-blue-600 transition-colors'>Active Circulation</span>
                         <Clock size={18} className='text-blue-600' />
                     </div>
                     <div className='mt-3 flex items-baseline gap-2'>
@@ -150,13 +156,17 @@ const Dashboard = () => {
                         <span className='text-xs text-slate-400'>books currently issued</span>
                     </div>
                     <span className='text-xs text-slate-500 font-medium block mt-1'>
-                        Across students & faculty
+                        Across students & faculty →
                     </span>
-                </div>
+                </NavLink>
 
-                <div className='bg-white p-5 rounded-2xl border border-slate-100 shadow-sm'>
+                <button
+                    type='button'
+                    onClick={() => setActiveTab('overdue')}
+                    className='bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-rose-300 transition-all group text-left cursor-pointer'
+                >
                     <div className='flex items-center justify-between text-slate-500'>
-                        <span className='text-xs font-semibold uppercase tracking-wider'>Overdue Returns</span>
+                        <span className='text-xs font-semibold uppercase tracking-wider group-hover:text-rose-600 transition-colors'>Overdue Returns</span>
                         <AlertCircle size={18} className='text-rose-600' />
                     </div>
                     <div className='mt-3 flex items-baseline gap-2'>
@@ -164,13 +174,16 @@ const Dashboard = () => {
                         <span className='text-xs text-rose-500'>requires attention</span>
                     </div>
                     <span className='text-xs text-rose-600 font-medium block mt-1'>
-                        Total fines pending: ₹{overdueBooks.reduce((acc, curr) => acc + (curr.lateFee || 0), 0)}
+                        Total fines pending: ₹{overdueBooks.reduce((acc, curr) => acc + (curr.lateFee || 0), 0)} →
                     </span>
-                </div>
+                </button>
 
-                <div className='bg-white p-5 rounded-2xl border border-slate-100 shadow-sm'>
+                <NavLink
+                    to='/librarian/members/member-list'
+                    className='bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all group'
+                >
                     <div className='flex items-center justify-between text-slate-500'>
-                        <span className='text-xs font-semibold uppercase tracking-wider'>Registered Members</span>
+                        <span className='text-xs font-semibold uppercase tracking-wider group-hover:text-emerald-600 transition-colors'>Registered Members</span>
                         <Users size={18} className='text-emerald-600' />
                     </div>
                     <div className='mt-3 flex items-baseline gap-2'>
@@ -178,9 +191,9 @@ const Dashboard = () => {
                         <span className='text-xs text-slate-400'>active</span>
                     </div>
                     <span className='text-xs text-slate-500 font-medium block mt-1'>
-                        1,180 Students • 70 Faculty
+                        1,180 Students • 70 Faculty →
                     </span>
-                </div>
+                </NavLink>
             </div>
 
             {/* View Switcher Tabs */}

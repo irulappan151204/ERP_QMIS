@@ -9,11 +9,11 @@ const EChartsWrapper = typeof ReactEChartsComponent === 'function'
     : (ReactEChartsComponent?.default || ReactEChartsComponent)
 
 // Error-resilient chart container
-const SafeChart = ({ option, style, className }) => {
+const SafeChart = ({ option, style, className, onEvents }) => {
     try {
         const Component = EChartsWrapper
         if (Component && typeof Component === 'function') {
-            return <Component option={option} style={style} className={className} opts={{ renderer: 'svg' }} />
+            return <Component option={option} style={style} className={className} opts={{ renderer: 'svg' }} onEvents={onEvents} />
         }
     } catch {
         /* fallback below */
@@ -40,8 +40,10 @@ import {
     CheckCircle2,
     UserPlus,
     ArrowUp,
-    ArrowDown
+    ArrowDown,
+    ArrowUpRight,
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 // Sparkline SVG component
 const Sparkline = ({ points, color = '#3B5CEB', height = 36, width = 90 }) => {
@@ -465,12 +467,18 @@ const Dashboard = () => {
             {/* 4 Stat Metric Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 {/* 1. New Enquiries */}
-                <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex items-center justify-between">
+                <Link
+                    to="/front-office/admission-enquiry"
+                    className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group"
+                >
                     <div>
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#3B5CEB] mb-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#3B5CEB] mb-2.5 group-hover:bg-[#3B5CEB] group-hover:text-white transition-colors">
                             <Users className="w-5 h-5" />
                         </div>
-                        <span className="text-xs font-medium text-gray-500">New Enquiries</span>
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-medium text-gray-500 group-hover:text-blue-600 transition-colors">New Enquiries</span>
+                            <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                        </div>
                         <div className="text-2xl font-bold text-gray-900 mt-0.5">86</div>
                         <div className="flex items-center gap-1 mt-1 text-[11px] whitespace-nowrap">
                             <span className="text-emerald-600 font-semibold flex items-center">
@@ -482,15 +490,21 @@ const Dashboard = () => {
                     <div className="pt-4">
                         <Sparkline points={[30, 42, 38, 55, 62, 58, 75, 86]} color="#3B5CEB" />
                     </div>
-                </div>
+                </Link>
 
                 {/* 2. Today's Visitors */}
-                <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex items-center justify-between">
+                <Link
+                    to="/front-office/visitors"
+                    className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group"
+                >
                     <div>
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#3B5CEB] mb-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#3B5CEB] mb-2.5 group-hover:bg-[#3B5CEB] group-hover:text-white transition-colors">
                             <UserCheck className="w-5 h-5" />
                         </div>
-                        <span className="text-xs font-medium text-gray-500">Today's Visitors</span>
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-medium text-gray-500 group-hover:text-blue-600 transition-colors">Today's Visitors</span>
+                            <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                        </div>
                         <div className="text-2xl font-bold text-gray-900 mt-0.5">47</div>
                         <div className="flex items-center gap-1 mt-1 text-[11px] whitespace-nowrap">
                             <span className="text-emerald-600 font-semibold flex items-center">
@@ -502,15 +516,21 @@ const Dashboard = () => {
                     <div className="pt-4">
                         <Sparkline points={[25, 32, 28, 38, 42, 36, 44, 47]} color="#3B5CEB" />
                     </div>
-                </div>
+                </Link>
 
                 {/* 3. Pending Documents */}
-                <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex items-center justify-between">
+                <Link
+                    to="/front-office/student-transfer"
+                    className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group"
+                >
                     <div>
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#3B5CEB] mb-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#3B5CEB] mb-2.5 group-hover:bg-[#3B5CEB] group-hover:text-white transition-colors">
                             <FileText className="w-5 h-5" />
                         </div>
-                        <span className="text-xs font-medium text-gray-500">Pending Documents</span>
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-medium text-gray-500 group-hover:text-blue-600 transition-colors">Pending Documents</span>
+                            <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                        </div>
                         <div className="text-2xl font-bold text-gray-900 mt-0.5">28</div>
                         <div className="flex items-center gap-1 mt-1 text-[11px] whitespace-nowrap">
                             <span className="text-rose-600 font-semibold flex items-center">
@@ -522,15 +542,21 @@ const Dashboard = () => {
                     <div className="pt-4">
                         <Sparkline points={[45, 40, 42, 35, 38, 32, 30, 28]} color="#8EA7FA" />
                     </div>
-                </div>
+                </Link>
 
                 {/* 4. Gate Passes Issued */}
-                <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex items-center justify-between">
+                <Link
+                    to="/front-office/gate-pass-list"
+                    className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group"
+                >
                     <div>
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#3B5CEB] mb-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#3B5CEB] mb-2.5 group-hover:bg-[#3B5CEB] group-hover:text-white transition-colors">
                             <ShieldCheck className="w-5 h-5" />
                         </div>
-                        <span className="text-xs font-medium text-gray-500">Gate Passes Issued</span>
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-medium text-gray-500 group-hover:text-blue-600 transition-colors">Gate Passes Issued</span>
+                            <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                        </div>
                         <div className="text-2xl font-bold text-gray-900 mt-0.5">121</div>
                         <div className="flex items-center gap-1 mt-1 text-[11px] whitespace-nowrap">
                             <span className="text-emerald-600 font-semibold flex items-center">
@@ -542,7 +568,7 @@ const Dashboard = () => {
                     <div className="pt-4">
                         <Sparkline points={[60, 72, 68, 85, 92, 88, 105, 121]} color="#3B5CEB" />
                     </div>
-                </div>
+                </Link>
             </div>
 
             {/* 4 Analytical Charts */}
@@ -565,7 +591,11 @@ const Dashboard = () => {
                             <option value="Monthly">Monthly</option>
                         </select>
                     </div>
-                    <SafeChart option={enquiryTrendOption} style={{ height: 150, width: '100%' }} />
+                    <SafeChart
+                        option={enquiryTrendOption}
+                        style={{ height: 150, width: '100%', cursor: 'pointer' }}
+                        onEvents={{ click: () => navigate('/front-office/admission-enquiry') }}
+                    />
                     <div className="flex items-center justify-between pt-1.5 border-t border-gray-50 text-[11px] text-gray-500">
                         <span>Period Total</span>
                         <span className="font-bold text-gray-900">86 Enquiries</span>
@@ -581,18 +611,26 @@ const Dashboard = () => {
                     <div className="flex items-center justify-between gap-1">
                         {/* Donut Canvas on Left */}
                         <div className="w-[115px] h-[150px] shrink-0">
-                            <SafeChart option={enquirySourceOption} style={{ height: 150, width: '100%' }} />
+                            <SafeChart
+                                option={enquirySourceOption}
+                                style={{ height: 150, width: '100%', cursor: 'pointer' }}
+                                onEvents={{ click: () => navigate('/front-office/admission-enquiry') }}
+                            />
                         </div>
                         {/* Clean HTML Legend on Right */}
                         <div className="flex-1 flex flex-col gap-1.5 pl-1">
                             {enquirySourceData.map((item) => (
-                                <div key={item.name} className="flex items-center justify-between gap-1 text-[11px]">
+                                <button
+                                    key={item.name}
+                                    onClick={() => navigate('/front-office/admission-enquiry')}
+                                    className="flex items-center justify-between gap-1 text-[11px] hover:text-blue-600 transition-colors text-left"
+                                >
                                     <div className="flex items-center gap-1.5 min-w-0">
                                         <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
                                         <span className="text-gray-600 truncate">{item.name}</span>
                                     </div>
                                     <span className="font-bold text-gray-900 shrink-0">{item.value}%</span>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -619,7 +657,11 @@ const Dashboard = () => {
                             <option value="Weekly">Weekly</option>
                         </select>
                     </div>
-                    <SafeChart option={visitorBarOption} style={{ height: 150, width: '100%' }} />
+                    <SafeChart
+                        option={visitorBarOption}
+                        style={{ height: 150, width: '100%', cursor: 'pointer' }}
+                        onEvents={{ click: () => navigate('/front-office/visitors') }}
+                    />
                     <div className="flex items-center justify-center gap-4 pt-1.5 border-t border-gray-50">
                         <div className="flex items-center gap-1.5">
                             <span className="w-2.5 h-2.5 rounded-sm bg-[#3B5CEB]" />
@@ -641,12 +683,20 @@ const Dashboard = () => {
                     <div className="flex items-center justify-between gap-1">
                         {/* Donut Canvas on Left */}
                         <div className="w-[115px] h-[150px] shrink-0">
-                            <SafeChart option={gatePassStatusOption} style={{ height: 150, width: '100%' }} />
+                            <SafeChart
+                                option={gatePassStatusOption}
+                                style={{ height: 150, width: '100%', cursor: 'pointer' }}
+                                onEvents={{ click: () => navigate('/front-office/gate-pass-list') }}
+                            />
                         </div>
                         {/* Clean HTML Legend on Right */}
                         <div className="flex-1 flex flex-col gap-2 pl-1">
                             {gatePassData.map((item) => (
-                                <div key={item.name} className="flex items-center justify-between gap-1 text-[11px]">
+                                <button
+                                    key={item.name}
+                                    onClick={() => navigate('/front-office/gate-pass-list')}
+                                    className="flex items-center justify-between gap-1 text-[11px] hover:text-blue-600 transition-colors text-left"
+                                >
                                     <div className="flex items-center gap-1.5 min-w-0">
                                         <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
                                         <span className="text-gray-600 truncate">{item.name}</span>
@@ -654,7 +704,7 @@ const Dashboard = () => {
                                     <span className="font-bold text-gray-900 shrink-0 text-right whitespace-nowrap">
                                         {item.value} <span className="text-gray-400 font-normal">({item.percent}%)</span>
                                     </span>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>

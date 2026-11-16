@@ -7,6 +7,7 @@ import Dropdown from '../../../../Common/CommonComponents/Dropdown';
 import ExportModal from '../../../../Common/CommonComponents/ExportModal';
 import DeleteRequestModal from '../../../../Common/CommonComponents/DeleteRequestModal';
 import EditRequestModal from '../../../../Common/CommonComponents/EditRequestModal';
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal';
 
 
 const ClassFeeDetails = () => {
@@ -16,6 +17,7 @@ const ClassFeeDetails = () => {
     const [exportModal, setExportModal] = useState(false);
     const [deleteRequestModal, setDeleteRequestModal] = useState(false);
     const [editRequestModal, setEditRequestModal] = useState(false);
+    const [selectedFee, setSelectedFee] = useState(null);
 
 
     return (
@@ -133,7 +135,20 @@ const ClassFeeDetails = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedFee({
+                                                classGrade: 'Class 12th',
+                                                yearlyFees: '₹50,000',
+                                                halfYearlyFees: '₹25,000',
+                                                quarterlyFees: '₹12,500',
+                                                monthlyFees: '₹5,000',
+                                                currency: 'INR (Indian Rupee)',
+                                                lateFees: '1% per week',
+                                                academicYear: '2026 - 2027',
+                                                status: 'Active Fee Structure',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                         <button onClick={() => setEditRequestModal(true)} className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
@@ -178,6 +193,12 @@ const ClassFeeDetails = () => {
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
 
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
+            <ViewRecordModal
+                isOpen={!!selectedFee}
+                onClose={() => setSelectedFee(null)}
+                title="Class Fee Structure Details"
+                data={selectedFee}
+            />
 
         </section>
     )

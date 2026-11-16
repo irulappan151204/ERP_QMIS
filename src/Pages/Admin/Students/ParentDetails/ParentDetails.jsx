@@ -5,12 +5,14 @@ import 'react-datepicker/dist/react-datepicker.css'
 import mo_user from "../../../../assets/images/no-profile.png"
 import ExportModal from '../../../../Common/CommonComponents/ExportModal';
 import Dropdown from '../../../../Common/CommonComponents/Dropdown'
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal';
 
 const ParentDetails = () => {
 
     const [fromDate, setFromDate] = useState(new Date());
     const [toDate, setToDate] = useState(new Date());
     const [exportModal, setExportModal] = useState(false);
+    const [selectedParent, setSelectedParent] = useState(null);
 
     return (
         <section>
@@ -102,7 +104,20 @@ const ParentDetails = () => {
                                     <Dropdown
                                         buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                     >
-                                        <button className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedParent({
+                                                parentName: 'Saravanan',
+                                                studentName: 'Sandy Selva',
+                                                admissionNumber: 'ADM-NO1845',
+                                                relationship: 'Father',
+                                                contactNumber: '+91 99440 76993',
+                                                email: 'saravanan.sandy@gmail.com',
+                                                occupation: 'Senior Engineer',
+                                                residentialAddress: 'No. 42 Gandhi Road, Anna Nagar West, Madurai',
+                                                emergencyContact: 'Mrs. Lakshmi Saravanan (+91 98421 55678)',
+                                            })}
+                                            className="w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer"
+                                        >
                                             View
                                         </button>
                                     </Dropdown>
@@ -138,6 +153,12 @@ const ParentDetails = () => {
             </div>
 
             <ExportModal exportModal={exportModal} setExportModal={setExportModal} />
+            <ViewRecordModal
+                isOpen={!!selectedParent}
+                onClose={() => setSelectedParent(null)}
+                title="Parent & Guardian Details"
+                data={selectedParent}
+            />
 
         </section>
     )

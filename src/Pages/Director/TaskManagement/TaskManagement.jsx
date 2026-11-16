@@ -22,6 +22,7 @@ const TaskManagement = () => {
     const [exportModal, setExportModal] = useState(false)
     const [editRequestModal, setEditRequestModal] = useState(false)
     const [deleteRequestModal, setDeleteRequestModal] = useState(false)
+    const [viewTask, setViewTask] = useState(null)
 
     return (
         <section>
@@ -111,7 +112,7 @@ const TaskManagement = () => {
                                     </td>
                                     <td className='px-2 py-4 text-center rounded-e-lg'>
                                         <Dropdown buttonContent={<EllipsisIcon size={16} className='text-black' />}>
-                                            <button type='button' className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>View</button>
+                                            <button type='button' onClick={() => setViewTask(task)} className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>View</button>
                                             <button type='button' onClick={() => setEditRequestModal(true)} className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>Edit</button>
                                             <button type='button' onClick={() => setDeleteRequestModal(true)} className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>Delete</button>
                                         </Dropdown>
@@ -135,6 +136,53 @@ const TaskManagement = () => {
             <ExportModal exportModal={exportModal} setExportModal={setExportModal} />
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+
+            {/* View Task Details Modal */}
+            {viewTask && (
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
+                    <div className='bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl'>
+                        <div className='flex items-center justify-between pb-3 border-b mb-4'>
+                            <h3 className='text-lg font-bold text-gray-900'>{viewTask.title}</h3>
+                            <button type='button' onClick={() => setViewTask(null)} className='text-gray-400 hover:text-gray-600'>✕</button>
+                        </div>
+                        <div className='space-y-3 text-sm'>
+                            <div className='grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-xl'>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Task ID</span>
+                                    <span className='font-semibold text-gray-900'>{viewTask.taskId}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Priority</span>
+                                    <span className='font-semibold text-amber-600'>{viewTask.priority}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Assigned Date</span>
+                                    <span className='font-medium text-gray-700'>{viewTask.assignedDate}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Due Date</span>
+                                    <span className='font-medium text-red-600'>{viewTask.dueDate}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Assigned To</span>
+                                    <span className='font-medium text-gray-800'>{Array.isArray(viewTask.assignedTo) ? viewTask.assignedTo.join(', ') : viewTask.assignedTo}</span>
+                                </div>
+                                <div>
+                                    <span className='text-xs text-gray-500 block'>Status</span>
+                                    <span className='font-semibold text-indigo-600'>{viewTask.status}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span className='text-xs text-gray-500 font-semibold block mb-1'>Task Description</span>
+                                <p className='text-gray-700 p-3 bg-gray-50 rounded-xl leading-relaxed'>{viewTask.description}</p>
+                            </div>
+                        </div>
+                        <div className='flex justify-end mt-4 pt-3 border-t'>
+                            <button type='button' onClick={() => setViewTask(null)} className='px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200'>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     )
 }

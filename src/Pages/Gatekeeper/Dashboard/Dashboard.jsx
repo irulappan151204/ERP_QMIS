@@ -187,53 +187,82 @@ export default function GatekeeperDashboard() {
             {/* 4 Dashboard KPI Cards (Strict requirement: Section 6) */}
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
                 {/* 1. Visitors Currently Inside */}
-                <div className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs flex items-center justify-between'>
+                <button
+                    type='button'
+                    onClick={() => {
+                        setActiveVisitorFilter('active')
+                        document.getElementById('visitors-section')?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                    className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between text-left cursor-pointer group'
+                >
                     <div>
-                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500'>
+                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500 group-hover:text-blue-600 transition-colors'>
                             Visitors Currently Inside
                         </p>
                         <h3 className='text-2xl font-bold text-slate-900 mt-1'>{kpis.visitorsCurrentlyInside}</h3>
-                        <p className='text-[10px] text-blue-600 font-medium mt-0.5'>Active badges on campus</p>
+                        <p className='text-[10px] text-blue-600 font-medium mt-0.5'>Active badges on campus →</p>
                     </div>
-                    <div className='rounded-xl bg-blue-50 p-3 text-blue-600'>
+                    <div className='rounded-xl bg-blue-50 p-3 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors'>
                         <Users size={22} />
                     </div>
-                </div>
+                </button>
 
                 {/* 2. Student Gate Passes Awaiting Exit */}
-                <div className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs flex items-center justify-between'>
+                <button
+                    type='button'
+                    onClick={() => {
+                        setActiveStudentFilter('actionable')
+                        document.getElementById('student-passes-section')?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                    className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all flex items-center justify-between text-left cursor-pointer group'
+                >
                     <div>
-                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500'>
+                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500 group-hover:text-emerald-600 transition-colors'>
                             Student Passes Awaiting Exit
                         </p>
                         <h3 className='text-2xl font-bold text-slate-900 mt-1'>{kpis.studentPassesAwaitingExit}</h3>
-                        <p className='text-[10px] text-emerald-600 font-medium mt-0.5'>Sanctioned &amp; Ready for Exit</p>
+                        <p className='text-[10px] text-emerald-600 font-medium mt-0.5'>Sanctioned &amp; Ready for Exit →</p>
                     </div>
-                    <div className='rounded-xl bg-emerald-50 p-3 text-emerald-600'>
+                    <div className='rounded-xl bg-emerald-50 p-3 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors'>
                         <ArrowRightLeft size={22} />
                     </div>
-                </div>
+                </button>
 
                 {/* 3. Students Currently Outside */}
-                <div className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs flex items-center justify-between'>
+                <button
+                    type='button'
+                    onClick={() => {
+                        setActiveStudentFilter('all')
+                        document.getElementById('student-passes-section')?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                    className='rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all flex items-center justify-between text-left cursor-pointer group'
+                >
                     <div>
-                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500'>
+                        <p className='text-[11px] font-semibold uppercase tracking-wider text-slate-500 group-hover:text-indigo-600 transition-colors'>
                             Students Currently Outside
                         </p>
                         <h3 className='text-2xl font-bold text-slate-900 mt-1'>{kpis.studentsCurrentlyOutside}</h3>
-                        <p className='text-[10px] text-indigo-600 font-medium mt-0.5'>Departure logged, awaiting return</p>
+                        <p className='text-[10px] text-indigo-600 font-medium mt-0.5'>Departure logged, awaiting return →</p>
                     </div>
-                    <div className='rounded-xl bg-indigo-50 p-3 text-indigo-600'>
+                    <div className='rounded-xl bg-indigo-50 p-3 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors'>
                         <Clock size={22} />
                     </div>
-                </div>
+                </button>
 
                 {/* 4. Overdue Returns */}
-                <div className={`rounded-2xl border p-4 shadow-xs flex items-center justify-between ${
-                    kpis.overdueReturns > 0
-                        ? 'border-rose-200 bg-rose-50/40'
-                        : 'border-slate-200/80 bg-white'
-                }`}>
+                <button
+                    type='button'
+                    onClick={() => {
+                        setActiveStudentFilter('all')
+                        setStudentSearch('Overdue')
+                        document.getElementById('student-passes-section')?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                    className={`rounded-2xl border p-4 shadow-xs hover:shadow-md transition-all flex items-center justify-between text-left cursor-pointer group ${
+                        kpis.overdueReturns > 0
+                            ? 'border-rose-200 bg-rose-50/40 hover:border-rose-400'
+                            : 'border-slate-200/80 bg-white hover:border-rose-300'
+                    }`}
+                >
                     <div>
                         <p className={`text-[11px] font-semibold uppercase tracking-wider ${
                             kpis.overdueReturns > 0 ? 'text-rose-700' : 'text-slate-500'
@@ -248,19 +277,19 @@ export default function GatekeeperDashboard() {
                         <p className={`text-[10px] font-medium mt-0.5 ${
                             kpis.overdueReturns > 0 ? 'text-rose-600' : 'text-slate-400'
                         }`}>
-                            {kpis.overdueReturns > 0 ? 'Immediate security attention' : 'All returns within schedule'}
+                            {kpis.overdueReturns > 0 ? 'Immediate security attention →' : 'All returns within schedule →'}
                         </p>
                     </div>
                     <div className={`rounded-xl p-3 ${
-                        kpis.overdueReturns > 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-500'
+                        kpis.overdueReturns > 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-500 group-hover:bg-rose-600 group-hover:text-white transition-colors'
                     }`}>
                         <AlertTriangle size={22} />
                     </div>
-                </div>
+                </button>
             </div>
 
             {/* SECTION 1: VISITORS REGISTER (Strict requirement: Section 6) */}
-            <div className='rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden'>
+            <div id='visitors-section' className='rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden'>
                 <div className='p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50/50'>
                     <div className='flex items-center gap-2'>
                         <div className='rounded-lg bg-blue-100 p-1.5 text-blue-700'>
@@ -401,7 +430,7 @@ export default function GatekeeperDashboard() {
             </div>
 
             {/* SECTION 2: STUDENT GATE PASSES (Strict requirement: Section 6) */}
-            <div className='rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden'>
+            <div id='student-passes-section' className='rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden'>
                 <div className='p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50/50'>
                     <div className='flex items-center gap-2'>
                         <div className='rounded-lg bg-emerald-100 p-1.5 text-emerald-700'>

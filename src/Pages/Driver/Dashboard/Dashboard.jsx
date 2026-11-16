@@ -213,30 +213,36 @@ const Dashboard = () => {
             {/* KPI Overview Tiles */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Tile 1: Route & Next Stop */}
-                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col justify-between">
+                <Link
+                    to="/driver/my-route/route-details"
+                    className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between group"
+                >
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Active Location</span>
-                        <span className="p-2 rounded-xl bg-blue-50 text-blue-600">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">Active Location</span>
+                        <span className="p-2 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                             <Navigation className="w-4 h-4" />
                         </span>
                     </div>
                     <div className="mt-2">
-                        <div className="text-sm font-bold text-slate-800 line-clamp-1">{stops[currentStopIdx]?.name || 'School Campus'}</div>
+                        <div className="text-sm font-bold text-slate-800 line-clamp-1 group-hover:text-blue-600 transition-colors">{stops[currentStopIdx]?.name || 'School Campus'}</div>
                         <div className="text-xs text-blue-600 font-medium mt-0.5">
                             {stops[currentStopIdx]?.status === 'Destination' ? 'Destination Reached' : `Stop ${currentStopIdx + 1} of ${stops.length}`}
                         </div>
                     </div>
-                    <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
                         <span>Speed: <strong className="text-slate-700">{speed} km/h</strong></span>
-                        <span>ETA: <strong className="text-slate-700">{stops[currentStopIdx]?.scheduledTime}</strong></span>
+                        <span className="text-blue-600 font-semibold group-hover:underline flex items-center gap-0.5">View Route <ChevronRight className="w-3 h-3" /></span>
                     </div>
-                </div>
+                </Link>
 
                 {/* Tile 2: Student Boarding Quick Count */}
-                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col justify-between">
+                <Link
+                    to="/driver/student-attendance"
+                    className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between group"
+                >
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Student Boarding</span>
-                        <span className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider group-hover:text-emerald-600 transition-colors">Student Boarding</span>
+                        <span className="p-2 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                             <Users className="w-4 h-4" />
                         </span>
                     </div>
@@ -248,19 +254,22 @@ const Dashboard = () => {
                             <div className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style={{ width: `${boardingPct}%` }} />
                         </div>
                     </div>
-                    <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
                         <span>Pending: <strong className="text-amber-600">{totalExpected - totalBoarded}</strong></span>
-                        <Link to="/driver/attendance-management/student-attendance" className="text-[#515DEF] font-semibold hover:underline">
-                            Full Register →
-                        </Link>
+                        <span className="text-[#515DEF] font-semibold group-hover:underline flex items-center gap-0.5">
+                            Full Register <ChevronRight className="w-3 h-3" />
+                        </span>
                     </div>
-                </div>
+                </Link>
 
                 {/* Tile 3: Vehicle Health & Inspection */}
-                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col justify-between">
+                <Link
+                    to="/driver/vehicle-management/vehicle-health-status"
+                    className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-purple-300 transition-all flex flex-col justify-between group"
+                >
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Vehicle Health</span>
-                        <span className="p-2 rounded-xl bg-purple-50 text-purple-600">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider group-hover:text-purple-600 transition-colors">Vehicle Health</span>
+                        <span className="p-2 rounded-xl bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                             <Gauge className="w-4 h-4" />
                         </span>
                     </div>
@@ -272,17 +281,20 @@ const Dashboard = () => {
                             Odometer: <strong className="text-slate-700">48,210 KM</strong>
                         </div>
                     </div>
-                    <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
                         <span>Tire: <strong className="text-slate-700">34 PSI</strong></span>
-                        <span>Battery: <strong className="text-slate-700">12.6V</strong></span>
+                        <span className="text-purple-600 font-semibold group-hover:underline flex items-center gap-0.5">Check Status <ChevronRight className="w-3 h-3" /></span>
                     </div>
-                </div>
+                </Link>
 
                 {/* Tile 4: Fuel Log & Tank */}
-                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col justify-between">
+                <Link
+                    to="/driver/fuel-request"
+                    className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-amber-300 transition-all flex flex-col justify-between group"
+                >
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Fuel Level</span>
-                        <span className="p-2 rounded-xl bg-amber-50 text-amber-600">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider group-hover:text-amber-600 transition-colors">Fuel Level</span>
+                        <span className="p-2 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors">
                             <Fuel className="w-4 h-4" />
                         </span>
                     </div>
@@ -294,13 +306,13 @@ const Dashboard = () => {
                             Range: ~380 KM remaining
                         </div>
                     </div>
-                    <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
                         <span>Voucher: <strong className="text-amber-600">1 Pending</strong></span>
-                        <Link to="/driver/fuel-request" className="text-[#515DEF] font-semibold hover:underline">
-                            Fuel History →
-                        </Link>
+                        <span className="text-[#515DEF] font-semibold group-hover:underline flex items-center gap-0.5">
+                            Fuel History <ChevronRight className="w-3 h-3" />
+                        </span>
                     </div>
-                </div>
+                </Link>
             </div>
 
             {/* Main Content Layout */}

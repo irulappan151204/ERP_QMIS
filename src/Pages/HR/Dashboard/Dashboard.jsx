@@ -96,6 +96,7 @@ const Dashboard = () => {
                     change='+3.1%'
                     isPositive={true}
                     context='Faculty, administrative & support staff'
+                    to='/hr/employees'
                 />
                 <EnterpriseKpiCard
                     title='Biometric Attendance Rate'
@@ -103,6 +104,7 @@ const Dashboard = () => {
                     change='+1.4%'
                     isPositive={true}
                     context='SilkBio-101TC automated punch ingestion'
+                    to='/hr/attendance'
                 />
                 <EnterpriseKpiCard
                     title='Pending Leave Decisions'
@@ -110,6 +112,7 @@ const Dashboard = () => {
                     change='-2'
                     isPositive={true}
                     context='4 urgent approvals required today'
+                    to='/hr/leaves'
                 />
                 <EnterpriseKpiCard
                     title='Compensation Claims'
@@ -117,6 +120,7 @@ const Dashboard = () => {
                     change='₹24.8k'
                     isPositive={false}
                     context='Submitted & awaiting HR endorsement'
+                    to='/hr/compensation'
                 />
             </div>
 
@@ -124,7 +128,18 @@ const Dashboard = () => {
             <div className='grid grid-cols-1 lg:grid-cols-5 gap-6'>
                 <div className='lg:col-span-3'>
                     <Card title='Workforce Distribution by Category'>
-                        {workforce.length ? <ReactECharts option={workforceOption} style={{ height: 260 }} opts={{ renderer: 'svg' }} /> : <Empty text='No employees found for the selected filters.' />}
+                        {workforce.length ? (
+                            <ReactECharts
+                                option={workforceOption}
+                                style={{ height: 260, cursor: 'pointer' }}
+                                opts={{ renderer: 'svg' }}
+                                onEvents={{
+                                    click: (params) => navigate(`/hr/employees?category=${encodeURIComponent(params.name)}`),
+                                }}
+                            />
+                        ) : (
+                            <Empty text='No employees found for the selected filters.' />
+                        )}
                         <div className='grid grid-cols-2 gap-2 mt-3 text-xs text-slate-500'>{workforce.map((item) => <p key={item.name} className='truncate'><span className='font-semibold text-slate-700'>{item.name}</span>: {item.count} ({item.percent}%)</p>)}</div>
                     </Card>
                 </div>
@@ -133,7 +148,14 @@ const Dashboard = () => {
                         {data.attendance.total ? (
                             <>
                                 <div className='relative'>
-                                    <ReactECharts option={attendanceOption} style={{ height: 180 }} opts={{ renderer: 'svg' }} />
+                                    <ReactECharts
+                                        option={attendanceOption}
+                                        style={{ height: 180, cursor: 'pointer' }}
+                                        opts={{ renderer: 'svg' }}
+                                        onEvents={{
+                                            click: (params) => navigate(`/hr/attendance?status=${encodeURIComponent(params.name)}`),
+                                        }}
+                                    />
                                     <p className='absolute inset-0 flex items-center justify-center text-lg font-bold text-slate-900 pointer-events-none'>{data.attendance.rate}%</p>
                                 </div>
                                 <div className='space-y-1 mt-2 text-xs'>
