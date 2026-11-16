@@ -1,0 +1,50 @@
+import React from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import ExtraClassForm from './Components/ExtraClassForm'
+
+const AddExtraClass = ({ listPath = null }) => {
+    const navigate = useNavigate()
+    const location = useLocation()
+
+    const resolvedListPath = listPath || (
+        location.pathname.startsWith('/principal')
+            ? '/principal/class/extra-class'
+            : location.pathname.startsWith('/coordinator')
+                ? '/coordinator/class/extra-class'
+                : '/teacher/class/extra-class'
+    )
+
+    const handleSave = () => {
+        toast.success('Extended class scheduled successfully')
+        navigate(resolvedListPath)
+    }
+
+    return (
+        <section>
+            <div className='bg-white rounded-2xl shadow-md p-4'>
+                <h2 className='text-xl font-semibold text-black'>Extended Class Information</h2>
+                <ExtraClassForm />
+            </div>
+
+            <div className='flex sm:justify-end justify-center gap-x-4 mt-6'>
+                <button
+                    type='button'
+                    onClick={() => navigate(resolvedListPath)}
+                    className='bg-white text-[#515DEF] text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:bg-[#515DEF] hover:text-white hover:border-[#515DEF] transition-all duration-200 cursor-pointer md:w-auto w-full'
+                >
+                    Discard Changes
+                </button>
+                <button
+                    type='button'
+                    onClick={handleSave}
+                    className='bg-[#515DEF] text-white text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer md:w-auto w-full'
+                >
+                    Save Changes
+                </button>
+            </div>
+        </section>
+    )
+}
+
+export default AddExtraClass
