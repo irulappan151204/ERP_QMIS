@@ -20,7 +20,7 @@ import {
     QrCode
 } from 'lucide-react'
 import ExportModal from '../../../Common/CommonComponents/ExportModal'
-import { useAuth } from '../../../Context/AuthContext'
+import { useAuth } from '../../../context/AuthContext'
 import { canRoleDelete } from '../../../Common/RBAC/actionPermissions'
 import {
     STATUS_OPTIONS,

@@ -6,6 +6,6 @@ export {
     getRoleLabel,
     getUsersByRole,
     getAssignableRoles,
-} from '../../Common/TaskManagement/taskManagementConfig'
+} from '../../../Common/TaskManagement/taskManagementConfig'
 
-export { getTasksAssignedByRole, getMyTasks } from '../../Common/TaskManagement/taskManagementData'
+export { getTasksAssignedByRole, getMyTasks } from '../../../Common/TaskManagement/taskManagementData'

@@ -1,1 +1,1 @@
-export * from '../../Common/MarkEntryApproval/markEntryApprovalData'
+export * from '../../../../Common/MarkEntryApproval/markEntryApprovalData'

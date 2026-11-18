@@ -1,1 +1,1 @@
-export { default } from '../../Admin/FrontOffice/AdminssionList/Components/TransportInfo'
+export { default } from '../../../Admin/FrontOffice/AdminssionList/Components/TransportInfo'
