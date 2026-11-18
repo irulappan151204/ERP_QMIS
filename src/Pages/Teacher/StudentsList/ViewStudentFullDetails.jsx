@@ -12,12 +12,15 @@ import {
     CheckCircle2,
     AlertCircle,
     UserCheck,
-    Bus
+    Bus,
+    Star,
+    Trophy
 } from 'lucide-react'
 import mo_user from '../../../assets/images/no-profile.png'
 import { getStudentFullProfileById, ATTENDANCE_RECORDS, attendanceBadgeColor } from './studentFullProfileData'
 import { hostelService } from '../../../services/modules/hostelService'
 import { academicService } from '../../../services/modules/academicService'
+import { getStudentSomHistory } from '../../../Common/StudentStarRatings/somChecklist'
 
 const Section = ({ title, icon: Icon, children }) => (
     <div className='bg-white rounded-2xl shadow-md p-6 border border-slate-100 print:shadow-none print:border-slate-300 print:p-4'>
@@ -43,6 +46,16 @@ const ViewStudentFullDetails = () => {
 
     const [hostelEnrolment, setHostelEnrolment] = useState(null)
     const [academicDossier, setAcademicDossier] = useState(null)
+    const [somHistory, setSomHistory] = useState([])
+
+    useEffect(() => {
+        if (!id) return
+        setSomHistory(getStudentSomHistory(id))
+
+        const handleSync = () => setSomHistory(getStudentSomHistory(id))
+        window.addEventListener('schoolerp-som-published', handleSync)
+        return () => window.removeEventListener('schoolerp-som-published', handleSync)
+    }, [id])
 
     useEffect(() => {
         if (!id) return
@@ -377,6 +390,50 @@ const ViewStudentFullDetails = () => {
                         <span className='px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-700'>
                             Day Commuter
                         </span>
+                    </div>
+                )}
+            </Section>
+
+            {/* Star of the Month Recognition & Honors */}
+            <Section title='Star of the Month Recognition & Monthly Accolades' icon={Trophy}>
+                {somHistory.length > 0 ? (
+                    <div className='overflow-x-auto'>
+                        <table className='w-full text-xs text-left border-collapse'>
+                            <thead className='bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider'>
+                                <tr>
+                                    <th className='px-4 py-2.5'>Period</th>
+                                    <th className='px-4 py-2.5'>Class Section</th>
+                                    <th className='px-4 py-2.5 text-center'>Rating</th>
+                                    <th className='px-4 py-2.5 text-center'>Score %</th>
+                                    <th className='px-4 py-2.5'>Award Title</th>
+                                    <th className='px-4 py-2.5'>Mentor Citation</th>
+                                    <th className='px-4 py-2.5'>Evaluated By</th>
+                                </tr>
+                            </thead>
+                            <tbody className='divide-y divide-slate-100'>
+                                {somHistory.map((rec, idx) => (
+                                    <tr key={rec.id || idx} className='hover:bg-slate-50/50'>
+                                        <td className='px-4 py-2.5 font-bold text-slate-900'>{rec.month}</td>
+                                        <td className='px-4 py-2.5 font-medium text-indigo-700'>{rec.classSection}</td>
+                                        <td className='px-4 py-2.5 text-center font-bold text-amber-600'>
+                                            {'⭐'.repeat(rec.ratingStars || 3)}
+                                        </td>
+                                        <td className='px-4 py-2.5 text-center font-bold text-slate-800'>{rec.score}%</td>
+                                        <td className='px-4 py-2.5 font-semibold text-slate-800'>
+                                            <span className='px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-900'>
+                                                {rec.awardTitle}
+                                            </span>
+                                        </td>
+                                        <td className='px-4 py-2.5 text-slate-600 max-w-[260px] truncate' title={rec.citation}>{rec.citation}</td>
+                                        <td className='px-4 py-2.5 text-slate-500 text-[11px]'>{rec.nominatedBy}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className='p-6 text-center text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200'>
+                        No Star of the Month awards published yet for this student.
                     </div>
                 )}
             </Section>

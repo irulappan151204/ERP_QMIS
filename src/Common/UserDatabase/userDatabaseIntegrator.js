@@ -750,6 +750,66 @@ export const getIntegratedStudentProfile = (studentId, selectedYear = CURRENT_AC
 
         // 10. Complete History Timeline
         completeHistory,
+
+        // 11. Star of the Month Recognition & Historical Archive
+        starOfTheMonth: (() => {
+            const records = []
+            try {
+                if (typeof localStorage !== 'undefined') {
+                    const rawHistory = localStorage.getItem('schoolerp-student-som-history-v1')
+                    if (rawHistory) {
+                        const list = JSON.parse(rawHistory)
+                        if (Array.isArray(list)) {
+                            records.push(...list.filter((r) => r.studentId === student.id || r.studentId === studentId))
+                        }
+                    }
+                    const rawSom = localStorage.getItem('schoolerp-academic-som-records-v1')
+                    if (rawSom) {
+                        const list = JSON.parse(rawSom)
+                        if (Array.isArray(list)) {
+                            list.filter((r) => r.studentId === student.id || r.studentId === studentId).forEach((r) => {
+                                if (!records.some((x) => x.id === r.id)) {
+                                    records.push(r)
+                                }
+                            })
+                        }
+                    }
+                }
+            } catch {
+                /* ignore */
+            }
+
+            // Fallback mock recognition record if brand new student
+            if (!records.length && (student.name.includes('Aarav') || student.name.includes('Diya'))) {
+                records.push({
+                    id: `ASOM-2025-031-${student.id}`,
+                    month: 'September 2025',
+                    academicYear: selectedYear,
+                    classSection: student.classSection,
+                    className: student.className,
+                    section: student.section,
+                    studentId: student.id,
+                    studentName: student.name,
+                    ratingStars: 3,
+                    score: 98,
+                    citation: 'Outstanding academic rigor, peer leadership and classroom participation.',
+                    awardTitle: 'Star of the Month (Overall Winner)',
+                    awardTier: 'Winner',
+                    status: 'Published',
+                    nominatedBy: student.classTeacher || 'Priya Menon (Class Teacher)',
+                    finalizedAt: '2025-09-30',
+                })
+            }
+
+            return {
+                latest: records.length ? records[0] : null,
+                history: records,
+                totalAwards: records.length,
+                averageStars: records.length
+                    ? Number((records.reduce((acc, r) => acc + (Number(r.ratingStars) || 3), 0) / records.length).toFixed(1))
+                    : 3.0,
+            }
+        })(),
     }
 }
 
@@ -1282,5 +1342,65 @@ export const getIntegratedTeacherProfile = (employeeId, selectedYear = CURRENT_A
 
         // 10. Complete History Timeline
         completeHistory,
+
+        // 11. Star of the Month Recognition & Historical Archive
+        starOfTheMonth: (() => {
+            const records = []
+            try {
+                if (typeof localStorage !== 'undefined') {
+                    const rawHistory = localStorage.getItem('schoolerp-student-som-history-v1')
+                    if (rawHistory) {
+                        const list = JSON.parse(rawHistory)
+                        if (Array.isArray(list)) {
+                            records.push(...list.filter((r) => r.studentId === student.id || r.studentId === studentId))
+                        }
+                    }
+                    const rawSom = localStorage.getItem('schoolerp-academic-som-records-v1')
+                    if (rawSom) {
+                        const list = JSON.parse(rawSom)
+                        if (Array.isArray(list)) {
+                            list.filter((r) => r.studentId === student.id || r.studentId === studentId).forEach((r) => {
+                                if (!records.some((x) => x.id === r.id)) {
+                                    records.push(r)
+                                }
+                            })
+                        }
+                    }
+                }
+            } catch {
+                /* ignore */
+            }
+
+            // Fallback mock recognition record if brand new student
+            if (!records.length && (student.name.includes('Aarav') || student.name.includes('Diya'))) {
+                records.push({
+                    id: `ASOM-2025-031-${student.id}`,
+                    month: 'September 2025',
+                    academicYear: selectedYear,
+                    classSection: student.classSection,
+                    className: student.className,
+                    section: student.section,
+                    studentId: student.id,
+                    studentName: student.name,
+                    ratingStars: 3,
+                    score: 98,
+                    citation: 'Outstanding academic rigor, peer leadership and classroom participation.',
+                    awardTitle: 'Star of the Month (Overall Winner)',
+                    awardTier: 'Winner',
+                    status: 'Published',
+                    nominatedBy: student.classTeacher || 'Priya Menon (Class Teacher)',
+                    finalizedAt: '2025-09-30',
+                })
+            }
+
+            return {
+                latest: records.length ? records[0] : null,
+                history: records,
+                totalAwards: records.length,
+                averageStars: records.length
+                    ? Number((records.reduce((acc, r) => acc + (Number(r.ratingStars) || 3), 0) / records.length).toFixed(1))
+                    : 3.0,
+            }
+        })(),
     }
 }

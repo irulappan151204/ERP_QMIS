@@ -26,13 +26,16 @@ import {
     Check,
     AlertCircle,
     UserCheck,
-    Edit3
+    Edit3,
+    LayoutGrid
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../context/AuthContext'
 import { getProfileLabel } from '../../Pages/Authentication/profileOptions'
 import BulkClassSectionSelector from './Components/BulkClassSectionSelector'
 import DepartmentEmployeeSelector from './Components/DepartmentEmployeeSelector'
+import StarOfTheMonthWorkspace from '../StudentStarRatings/StarOfTheMonthWorkspace'
+import { DEFAULT_SOM_CHECKLIST } from '../StudentStarRatings/somChecklist'
 import { openPrintDocument } from '../printDocument'
 import { awardsService } from '../../services/modules/awardsService'
 import {
@@ -102,8 +105,10 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
     const [serviceSoyList, setServiceSoyList] = useState([])
     const [serviceRefreshKey, setServiceRefreshKey] = useState(0)
 
-    // Nomination Modals
+    // Nomination Modals & Studio
     const [isNominateModalOpen, setIsNominateModalOpen] = useState(false)
+    const [isStudioOpen, setIsStudioOpen] = useState(false)
+    const [activeAcademicSomView, setActiveAcademicSomView] = useState('workspace')
     const [nominationClassKeys, setNominationClassKeys] = useState(['Grade 10-A'])
     const [nominationDeptIds, setNominationDeptIds] = useState(['dept-stores'])
     const [selectedCandidate, setSelectedCandidate] = useState(null)
@@ -111,13 +116,20 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
     const [customScore, setCustomScore] = useState(98)
     const [actionMessage, setActionMessage] = useState('')
 
-    // SOM Separate Marks Calculation Rubric for Academic (0 - 20 marks each = 100 max)
-    const [academicRubricScores, setAcademicRubricScores] = useState({
-        scholasticExcellence: 20,
-        punctuality: 20,
-        classroomHygiene: 20,
-        peerMentoring: 20,
-        valuesAndEthics: 20,
+    // SOM Separate Marks Calculation Rubric for Academic (12 Categories on 1-3 Integer Star Scale)
+    const [academicCategoryStars, setAcademicCategoryStars] = useState({
+        'cat-punctuality': '3',
+        'cat-participation': '3',
+        'cat-behaviour': '3',
+        'cat-grooming': '3',
+        'cat-etiquette': '3',
+        'cat-resources': '3',
+        'cat-english': '3',
+        'cat-social': '3',
+        'cat-academic': '3',
+        'cat-creativity': '3',
+        'cat-leadership': '3',
+        'cat-library': '3',
     })
 
     // SOM Separate Marks Calculation Rubric for Non-Academic (0 - 20 marks each = 100 max)
@@ -129,21 +141,37 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
         cooperationTeamwork: 20,
     })
 
-    const activeRubric = domain === 'academic' ? academicRubricScores : nonAcademicRubricScores
+    const academicCalculations = useMemo(() => {
+        const starValues = Object.values(academicCategoryStars)
+            .filter((v) => v !== 'NA' && v !== 'AB' && !Number.isNaN(Number(v)))
+            .map(Number)
+        if (!starValues.length) return { averageStars: 0, percentage: 0, stars: 1 }
+        const avg = Math.round((starValues.reduce((a, b) => a + b, 0) / starValues.length) * 100) / 100
+        const pct = Math.min(100, Math.round((avg / 3) * 100))
+        const stars = Math.min(3, Math.max(1, Math.round(avg)))
+        return { averageStars: avg, percentage: pct, stars }
+    }, [academicCategoryStars])
 
     const totalRubricScore = useMemo(() => {
-        return Object.values(activeRubric).reduce((sum, val) => sum + Number(val || 0), 0)
-    }, [activeRubric])
+        if (domain === 'academic') return academicCalculations.percentage
+        return Object.values(nonAcademicRubricScores).reduce((sum, val) => sum + Number(val || 0), 0)
+    }, [domain, academicCalculations, nonAcademicRubricScores])
 
     const rubricPercentage = useMemo(() => {
+        if (domain === 'academic') return academicCalculations.percentage
         return Math.min(100, Math.max(0, Math.round(totalRubricScore)))
-    }, [totalRubricScore])
+    }, [domain, academicCalculations, totalRubricScore])
 
     const rubricTier = useMemo(() => {
+        if (domain === 'academic') {
+            if (academicCalculations.percentage >= 85) return { label: 'Outstanding (3 Stars)', stars: 3, color: 'bg-emerald-100 text-emerald-800' }
+            if (academicCalculations.percentage >= 70) return { label: 'Good (2 Stars)', stars: 2, color: 'bg-blue-100 text-blue-800' }
+            return { label: 'Developing (1 Star)', stars: 1, color: 'bg-amber-100 text-amber-800' }
+        }
         if (rubricPercentage >= 90) return { label: 'Outstanding (3 Stars)', stars: 3, color: 'bg-emerald-100 text-emerald-800' }
         if (rubricPercentage >= 80) return { label: 'Exemplary (2 Stars)', stars: 2, color: 'bg-blue-100 text-blue-800' }
         return { label: 'Satisfactory (1 Star)', stars: 1, color: 'bg-amber-100 text-amber-800' }
-    }, [rubricPercentage])
+    }, [domain, academicCalculations, rubricPercentage])
 
     // SOY 4-Tier Candidate Audit Modal
     const [soyAuditModalOpen, setSoyAuditModalOpen] = useState(false)
@@ -251,12 +279,19 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
         setSelectedCandidate(null)
         setCitationText('')
         setCustomScore(98)
-        setAcademicRubricScores({
-            scholasticExcellence: 20,
-            punctuality: 20,
-            classroomHygiene: 20,
-            peerMentoring: 20,
-            valuesAndEthics: 20,
+        setAcademicCategoryStars({
+            'cat-punctuality': '3',
+            'cat-participation': '3',
+            'cat-behaviour': '3',
+            'cat-grooming': '3',
+            'cat-etiquette': '3',
+            'cat-resources': '3',
+            'cat-english': '3',
+            'cat-social': '3',
+            'cat-academic': '3',
+            'cat-creativity': '3',
+            'cat-leadership': '3',
+            'cat-library': '3',
         })
         setNonAcademicRubricScores({
             punctualityReliability: 20,
@@ -276,7 +311,7 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
         }
 
         const nominatedByLabel = `${authName || roleLabel} (${roleLabel})`
-        const activeRubricData = domain === 'academic' ? academicRubricScores : nonAcademicRubricScores
+        const activeRubricData = domain === 'academic' ? academicCategoryStars : nonAcademicRubricScores
 
         // 1. Submit through domain service awardsService.nominateSom
         try {
@@ -310,10 +345,11 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
                 studentId: selectedCandidate.id,
                 studentName: selectedCandidate.name,
                 gpa: selectedCandidate.gpa || 3.92,
-                score: rubricPercentage,
-                rubricMarks: totalRubricScore,
-                categoryMarks: { ...academicRubricScores },
-                ratingStars: rubricTier.stars,
+                score: academicCalculations.percentage,
+                averageStars: academicCalculations.averageStars,
+                rubricMarks: academicCalculations.percentage,
+                categoryMarks: { ...academicCategoryStars },
+                ratingStars: academicCalculations.stars,
                 citation: citationText.trim() || selectedCandidate.citation || 'Recognized for consistent academic and co-curricular excellence.',
                 status: 'Submitted for Review',
                 nominatedBy: nominatedByLabel,
@@ -321,7 +357,7 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
             }
             saveAcademicSomRecord(newRecord)
             setActionMessage(`Academic Star of the Month nomination submitted for ${newRecord.studentName} (${newRecord.classSection}).`)
-            toast.success(`Academic nomination for ${newRecord.studentName} submitted with calculated score ${totalRubricScore}/100!`)
+            toast.success(`Academic nomination for ${newRecord.studentName} submitted with calculated score ${academicCalculations.percentage}% (${academicCalculations.averageStars} ⭐)!`)
         } else {
             const newRecord = {
                 id: `NASOM-${Date.now()}`,
@@ -539,14 +575,19 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
-                    <button
-                        type="button"
-                        onClick={handleOpenNominate}
-                        className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
-                    >
-                        <Plus size={14} />
-                        <span>Nominate Star of the Month</span>
-                    </button>
+                    {domain === 'academic' && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setRecognitionType('som')
+                                setActiveAcademicSomView('workspace')
+                            }}
+                            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                        >
+                            <LayoutGrid size={14} />
+                            <span>Star of the Month</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -638,56 +679,101 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
             {/* ============================================================== */}
             {recognitionType === 'som' && (
                 <div className="space-y-6">
-                    {/* Filter Bar */}
-                    <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 flex-wrap">
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                                    Recognition Month
-                                </label>
-                                <select
-                                    value={selectedMonth}
-                                    onChange={(e) => setSelectedMonth(e.target.value)}
-                                    className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800"
+                    {/* For Academic Domain: Navigation Sub-Bar between Evaluation Matrix and Archive */}
+                    {domain === 'academic' && (
+                        <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white border border-slate-200 rounded-2xl shadow-xs">
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveAcademicSomView('workspace')}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                                        activeAcademicSomView === 'workspace'
+                                            ? 'bg-amber-500 text-white shadow-xs'
+                                            : 'text-slate-600 hover:text-slate-900 bg-slate-50 border border-slate-200'
+                                    }`}
                                 >
-                                    {RECOGNITION_MONTHS.map((m) => (
-                                        <option key={m} value={m}>{m}</option>
-                                    ))}
-                                </select>
+                                    <LayoutGrid size={15} />
+                                    <span>Interactive Evaluation Matrix</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveAcademicSomView('archive')}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                                        activeAcademicSomView === 'archive'
+                                            ? 'bg-blue-600 text-white shadow-xs'
+                                            : 'text-slate-600 hover:text-slate-900 bg-slate-50 border border-slate-200'
+                                    }`}
+                                >
+                                    <Award size={15} />
+                                    <span>Official Awards & Archive ({filteredAcademicSom.length})</span>
+                                </button>
+                            </div>
+                            <span className="text-xs text-slate-500 font-medium">
+                                Academic Evaluation Rubric: 12 Categories • Strict 1, 2, 3 Integer Star Scale
+                            </span>
+                        </div>
+                    )}
+
+                    {/* ACADEMIC WORKSPACE: Clean, scrollbar-free evaluation matrix */}
+                    {domain === 'academic' && activeAcademicSomView === 'workspace' ? (
+                        <StarOfTheMonthWorkspace
+                            onPublished={() => {
+                                setServiceRefreshKey((k) => k + 1)
+                                setActionMessage('Class Star of the Month awards published successfully and synchronized with student records.')
+                            }}
+                        />
+                    ) : (
+                        <>
+                            {/* Filter Bar */}
+                            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                    <div>
+                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                                            Recognition Month
+                                        </label>
+                                        <select
+                                            value={selectedMonth}
+                                            onChange={(e) => setSelectedMonth(e.target.value)}
+                                            className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800"
+                                        >
+                                            {RECOGNITION_MONTHS.map((m) => (
+                                                <option key={m} value={m}>{m}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                                            Workflow Stage
+                                        </label>
+                                        <select
+                                            value={somStatusFilter}
+                                            onChange={(e) => setSomStatusFilter(e.target.value)}
+                                            className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800"
+                                        >
+                                            <option value="ALL">All Stages</option>
+                                            <option value="Submitted for Review">Submitted for Review</option>
+                                            <option value="Reviewed">Reviewed & Endorsed</option>
+                                            <option value="Announced Winner">Announced Winners</option>
+                                            <option value="Published">Published</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="relative w-full sm:w-64">
+                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search candidate..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                </div>
                             </div>
 
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                                    Workflow Stage
-                                </label>
-                                <select
-                                    value={somStatusFilter}
-                                    onChange={(e) => setSomStatusFilter(e.target.value)}
-                                    className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800"
-                                >
-                                    <option value="ALL">All Stages</option>
-                                    <option value="Submitted for Review">Submitted for Review</option>
-                                    <option value="Reviewed">Reviewed & Endorsed</option>
-                                    <option value="Announced Winner">Announced Winners</option>
-                                    <option value="Published">Published</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="relative w-full sm:w-64">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input
-                                type="text"
-                                placeholder="Search candidate..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Table of Monthly Nominations & Awards */}
-                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+                            {/* Table of Monthly Nominations & Awards */}
+                            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
                         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                                 <Award size={18} className="text-blue-600" />
@@ -782,6 +868,8 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
                             </table>
                         </div>
                     </div>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -1607,106 +1695,204 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
                                         </span>
                                     </div>
 
-                                    {/* 5-Criteria Interactive Rubric Evaluation Form */}
-                                    <div className="bg-white rounded-xl p-4 border border-blue-200 space-y-3.5">
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                                            <div>
-                                                <h5 className="text-xs font-bold text-slate-900">
-                                                    Interactive 5-Criteria Evaluation Rubric ({domain === 'academic' ? 'Academic Department' : 'Non-Academic Department'}, 20 Marks Each = 100 Marks Max)
-                                                </h5>
-                                                <p className="text-[11px] text-slate-500 mt-0.5">
-                                                    {domain === 'academic'
-                                                        ? 'Rate Scholastic Rigor, Attendance, Classroom Decorum, Peer Mentoring, and Values & Ethics.'
-                                                        : 'Rate Shift Punctuality, Operational Diligence, Equipment Safety Upkeep, Turnaround Speed, and Teamwork.'}
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center gap-2 shrink-0">
-                                                <div className="text-right">
-                                                    <span className="text-xs font-bold text-blue-700 block">
-                                                        {totalRubricScore} / 100 Marks
-                                                    </span>
-                                                    <span className="text-[10px] text-slate-500 font-semibold">
-                                                        ({rubricPercentage}%)
+                                    {/* Evaluation Form: Canonical 12 Categories for Academic, 5 Rubrics for Non-Academic */}
+                                    {domain === 'academic' ? (
+                                        <div className="bg-white rounded-xl p-4 border border-blue-200 space-y-4">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                                                <div>
+                                                    <h5 className="text-xs font-bold text-slate-900">
+                                                        Canonical 12-Category Evaluation (Strict 1 / 2 / 3 Integer Star Scale)
+                                                    </h5>
+                                                    <p className="text-[11px] text-slate-500 mt-0.5">
+                                                        Select 1, 2, or 3 integer stars per category. Fractional .5 scales are not permitted.
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    <div className="text-right">
+                                                        <span className="text-xs font-extrabold text-amber-600 block">
+                                                            {academicCalculations.averageStars} / 3.0 ⭐
+                                                        </span>
+                                                        <span className="text-[10px] text-slate-500 font-semibold">
+                                                            ({academicCalculations.percentage}%)
+                                                        </span>
+                                                    </div>
+                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${rubricTier.color}`}>
+                                                        {rubricTier.label}
                                                     </span>
                                                 </div>
-                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${rubricTier.color}`}>
-                                                    {rubricTier.label}
+                                            </div>
+
+                                            {/* Bulk Marks Quick-Fill Toolbar */}
+                                            <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200">
+                                                <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                                                    <Sparkles size={12} className="text-amber-500" />
+                                                    <span>Bulk Set:</span>
                                                 </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAcademicCategoryStars(Object.fromEntries(DEFAULT_SOM_CHECKLIST.map((c) => [c.id, '3'])))}
+                                                    className="px-2 py-1 text-[11px] font-bold rounded-md bg-amber-500 hover:bg-amber-600 text-white cursor-pointer transition-colors shadow-2xs"
+                                                >
+                                                    All 3 ⭐
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAcademicCategoryStars(Object.fromEntries(DEFAULT_SOM_CHECKLIST.map((c) => [c.id, '2'])))}
+                                                    className="px-2 py-1 text-[11px] font-bold rounded-md bg-blue-600 hover:bg-blue-700 text-white cursor-pointer transition-colors shadow-2xs"
+                                                >
+                                                    All 2 ⭐
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAcademicCategoryStars(Object.fromEntries(DEFAULT_SOM_CHECKLIST.map((c) => [c.id, '1'])))}
+                                                    className="px-2 py-1 text-[11px] font-bold rounded-md bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer transition-colors shadow-2xs"
+                                                >
+                                                    All 1 ⭐
+                                                </button>
+                                            </div>
+
+                                            {/* 12 Categories Grid */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[40vh] overflow-y-auto p-1">
+                                                {DEFAULT_SOM_CHECKLIST.map((cat) => {
+                                                    const currentVal = academicCategoryStars[cat.id] || '3'
+                                                    const currentNum = Number(currentVal) || 0
+                                                    return (
+                                                        <div key={cat.id} className="p-2.5 rounded-lg border border-slate-200 bg-slate-50/60 hover:bg-slate-50 flex items-center justify-between gap-2">
+                                                            <div className="min-w-0 flex-1">
+                                                                <span className="text-xs font-bold text-slate-800 block truncate">
+                                                                    {cat.name}
+                                                                </span>
+                                                                <span className="text-[10px] text-slate-500">
+                                                                    {cat.subs?.length || 1} subparameters
+                                                                </span>
+                                                            </div>
+
+                                                            {/* Interactive Graphical Star Picker */}
+                                                            <div className="flex items-center gap-1 shrink-0">
+                                                                <div className="flex items-center gap-0.5 p-1 rounded-lg bg-white border border-slate-200">
+                                                                    {[1, 2, 3].map((starNum) => (
+                                                                        <button
+                                                                            key={starNum}
+                                                                            type="button"
+                                                                            onClick={() => setAcademicCategoryStars((prev) => ({ ...prev, [cat.id]: String(starNum) }))}
+                                                                            className="p-1 rounded cursor-pointer transition-transform hover:scale-115 active:scale-95"
+                                                                            title={`${starNum} Star${starNum > 1 ? 's' : ''}`}
+                                                                        >
+                                                                            <Star
+                                                                                size={15}
+                                                                                className={
+                                                                                    currentNum >= starNum
+                                                                                        ? 'text-amber-500 fill-amber-500'
+                                                                                        : 'text-slate-300'
+                                                                                }
+                                                                            />
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setAcademicCategoryStars((prev) => ({ ...prev, [cat.id]: currentVal === 'NA' ? '3' : 'NA' }))}
+                                                                    className={`px-1.5 py-1 text-[10px] font-bold rounded cursor-pointer ${
+                                                                        currentVal === 'NA'
+                                                                            ? 'bg-slate-700 text-white'
+                                                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                                                    }`}
+                                                                >
+                                                                    NA
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })}
                                             </div>
                                         </div>
+                                    ) : (
+                                        <div className="bg-white rounded-xl p-4 border border-blue-200 space-y-3.5">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                                                <div>
+                                                    <h5 className="text-xs font-bold text-slate-900">
+                                                        Interactive 5-Criteria Evaluation Rubric (Non-Academic Department, 20 Marks Each = 100 Marks Max)
+                                                    </h5>
+                                                    <p className="text-[11px] text-slate-500 mt-0.5">
+                                                        Rate Shift Punctuality, Operational Diligence, Equipment Safety Upkeep, Turnaround Speed, and Teamwork.
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    <div className="text-right">
+                                                        <span className="text-xs font-bold text-blue-700 block">
+                                                            {totalRubricScore} / 100 Marks
+                                                        </span>
+                                                        <span className="text-[10px] text-slate-500 font-semibold">
+                                                            ({rubricPercentage}%)
+                                                        </span>
+                                                    </div>
+                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${rubricTier.color}`}>
+                                                        {rubricTier.label}
+                                                    </span>
+                                                </div>
+                                            </div>
 
-                                        <div className="space-y-2.5">
-                                            {(domain === 'academic'
-                                                ? [
-                                                    { key: 'scholasticExcellence', label: '1. Scholastic Performance & Homework Diligence', desc: 'Consistent academic performance, quality of assignment submissions, and intellectual curiosity (Max 20 Pts)' },
-                                                    { key: 'punctuality', label: '2. Attendance & Punctuality Regularity', desc: 'On-time morning arrival, classroom presence regularity, and focused attentiveness (Max 20 Pts)' },
-                                                    { key: 'classroomHygiene', label: '3. Classroom Decorum & Learning Space Care', desc: 'Desk orderliness, personal cleanliness, and learning space care (Max 20 Pts)' },
-                                                    { key: 'peerMentoring', label: '4. Peer Collaboration & Mentoring Spirit', desc: 'Assisting peers, positive collaboration, and supportive conduct (Max 20 Pts)' },
-                                                    { key: 'valuesAndEthics', label: '5. Institutional Values, Discipline & Integrity', desc: 'Honesty, institutional discipline, respectful conduct, and moral integrity (Max 20 Pts)' },
-                                                ]
-                                                : [
+                                            <div className="space-y-2.5">
+                                                {[
                                                     { key: 'punctualityReliability', label: '1. Punctuality, Shift Regularity & Attendance Reliability', desc: 'Shift adherence, prompt morning punch-in, and reliable attendance (Max 20 Pts)' },
                                                     { key: 'operationalDiligence', label: '2. Operational Diligence & Quality of Execution', desc: 'Meticulous task execution, safety checklists adherence, and thoroughness (Max 20 Pts)' },
                                                     { key: 'equipmentUpkeepSafety', label: '3. Equipment / Asset Upkeep & Safety Compliance', desc: 'Proper maintenance of tools, vehicles, equipment, and zero hazard creation (Max 20 Pts)' },
                                                     { key: 'turnaroundSpeed', label: '4. Turnaround Time & Task Execution Speed', desc: 'Swift resolution of work orders, issue tickets, and scheduled chores (Max 20 Pts)' },
                                                     { key: 'cooperationTeamwork', label: '5. Inter-Departmental Cooperation & Resource Conservation', desc: 'Positive team coordination, material waste reduction, and helpful attitude (Max 20 Pts)' },
-                                                ]
-                                            ).map((crit) => {
-                                                const currentVal = (domain === 'academic' ? academicRubricScores[crit.key] : nonAcademicRubricScores[crit.key]) ?? 20
-                                                const updateScore = (val) => {
-                                                    const clamped = Math.min(20, Math.max(0, Number(val) || 0))
-                                                    if (domain === 'academic') {
-                                                        setAcademicRubricScores((prev) => ({ ...prev, [crit.key]: clamped }))
-                                                    } else {
+                                                ].map((crit) => {
+                                                    const currentVal = nonAcademicRubricScores[crit.key] ?? 20
+                                                    const updateScore = (val) => {
+                                                        const clamped = Math.min(20, Math.max(0, Number(val) || 0))
                                                         setNonAcademicRubricScores((prev) => ({ ...prev, [crit.key]: clamped }))
                                                     }
-                                                }
 
-                                                return (
-                                                    <div key={crit.key} className="p-2.5 rounded-lg border border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition-colors">
-                                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                                            <div>
-                                                                <span className="text-xs font-bold text-slate-800 block">
-                                                                    {crit.label}
-                                                                </span>
-                                                                <span className="text-[10px] text-slate-500">
-                                                                    {crit.desc}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex items-center gap-1.5 shrink-0">
-                                                                {[10, 15, 18, 20].map((pts) => (
-                                                                    <button
-                                                                        key={pts}
-                                                                        type="button"
-                                                                        onClick={() => updateScore(pts)}
-                                                                        className={`px-2 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                                                                            currentVal === pts
-                                                                                ? 'bg-blue-600 text-white shadow-xs scale-105'
-                                                                                : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300'
-                                                                        }`}
-                                                                        title={`${pts} / 20 Marks`}
-                                                                    >
-                                                                        {pts}
-                                                                    </button>
-                                                                ))}
-                                                                <input
-                                                                    type="number"
-                                                                    min="0"
-                                                                    max="20"
-                                                                    value={currentVal}
-                                                                    onChange={(e) => updateScore(e.target.value)}
-                                                                    className="w-14 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-md bg-white ml-1"
-                                                                />
-                                                                <span className="text-xs font-bold text-slate-700 w-10 text-right">
-                                                                    /20
-                                                                </span>
+                                                    return (
+                                                        <div key={crit.key} className="p-2.5 rounded-lg border border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition-colors">
+                                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                                                <div>
+                                                                    <span className="text-xs font-bold text-slate-800 block">
+                                                                        {crit.label}
+                                                                    </span>
+                                                                    <span className="text-[10px] text-slate-500">
+                                                                        {crit.desc}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                                    {[10, 15, 18, 20].map((pts) => (
+                                                                        <button
+                                                                            key={pts}
+                                                                            type="button"
+                                                                            onClick={() => updateScore(pts)}
+                                                                            className={`px-2 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                                                                                currentVal === pts
+                                                                                    ? 'bg-blue-600 text-white shadow-xs scale-105'
+                                                                                    : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300'
+                                                                            }`}
+                                                                            title={`${pts} / 20 Marks`}
+                                                                        >
+                                                                            {pts}
+                                                                        </button>
+                                                                    ))}
+                                                                    <input
+                                                                        type="number"
+                                                                        min="0"
+                                                                        max="20"
+                                                                        value={currentVal}
+                                                                        onChange={(e) => updateScore(e.target.value)}
+                                                                        className="w-14 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-md bg-white ml-1"
+                                                                    />
+                                                                    <span className="text-xs font-bold text-slate-700 w-10 text-right">
+                                                                        /20
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                )
-                                            })}
+                                                    )
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>

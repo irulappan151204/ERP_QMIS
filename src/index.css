@@ -260,64 +260,103 @@ textarea:disabled,
    ========================================================================== */
 
 /* Universal Legacy Color & Border Harmonization */
-[class*="text-[#515DEF]"]:not(:hover):not(:active):not([class*="hover:text-white"]:hover):not([class*="group-hover:text-white"]:hover):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]):not([class~="bg-indigo-600"]) {
+[class*="text-[#515DEF]"]:not(:hover):not(:active):not([class*="hover:text-white"]:hover):not([class*="group-hover:text-white"]:hover):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]):not([class~="bg-indigo-600"]):not(button[class*="bg-"]):not(a[class*="bg-"]) {
     color: var(--erp-indigo) !important;
 }
 
-/* Guarantee Crisp White Text on Hover for Primary and Outlined Elements */
-[class*="hover:text-white"]:hover,
-button[class*="hover:text-white"]:hover,
-a[class*="hover:text-white"]:hover,
-button[class*="hover:bg-[#515DEF]"]:hover,
-a[class*="hover:bg-[#515DEF]"]:hover,
-button[class*="hover:bg-blue-600"]:hover,
-a[class*="hover:bg-blue-600"]:hover,
-button[class*="hover:bg-indigo-600"]:hover,
-a[class*="hover:bg-indigo-600"]:hover {
-    color: #ffffff !important;
-}
-
-button[class*="hover:bg-[#515DEF]"]:hover,
-a[class*="hover:bg-[#515DEF]"]:hover {
-    background-color: var(--erp-indigo-strong) !important;
-    border-color: var(--erp-indigo-strong) !important;
-}
-
-/* Guarantee Pure White Text for Primary Solid Buttons in Normal, Hover, and Active */
+/* Guarantee Pure White Text and Icons on Primary Solid Buttons in Normal, Hover, and Active */
 button[class~="bg-[#515DEF]"],
+button[class*="bg-[#3F46C7]"],
+button[class*="bg-[#515DEF]"],
+button[class*="bg-indigo-600"],
+button.erp-btn-primary,
 a[class~="bg-[#515DEF]"],
-button[class~="bg-[#3F46C7]"],
-a[class~="bg-[#3F46C7]"] {
+a[class*="bg-[#3F46C7]"],
+a[class*="bg-[#515DEF]"],
+a[class*="bg-indigo-600"],
+a.erp-btn-primary {
     background-color: var(--erp-indigo) !important;
     border-color: var(--erp-indigo) !important;
     color: #ffffff !important;
 }
 
+button[class~="bg-[#515DEF]"] *,
+button[class*="bg-[#3F46C7]"] *,
+button[class*="bg-[#515DEF]"] *,
+button[class*="bg-indigo-600"] *,
+button.erp-btn-primary *,
+a[class~="bg-[#515DEF]"] *,
+a[class*="bg-[#3F46C7]"] *,
+a[class*="bg-[#515DEF]"] *,
+a[class*="bg-indigo-600"] *,
+a.erp-btn-primary * {
+    color: #ffffff !important;
+    fill: currentColor !important;
+}
+
+/* Hover and Active states for solid buttons and hover-filled buttons */
+button[class*="hover:bg-[#515DEF]"]:hover,
+button[class*="hover:bg-[#3F46C7]"]:hover,
+button[class*="hover:bg-indigo-600"]:hover,
+button[class*="hover:bg-blue-600"]:hover,
 button[class~="bg-[#515DEF]"]:hover,
+button[class*="bg-[#3F46C7]"]:hover,
+button.erp-btn-primary:hover,
+a[class*="hover:bg-[#515DEF]"]:hover,
+a[class*="hover:bg-[#3F46C7]"]:hover,
+a[class*="hover:bg-indigo-600"]:hover,
+a[class*="hover:bg-blue-600"]:hover,
 a[class~="bg-[#515DEF]"]:hover,
-button[class~="bg-[#3F46C7]"]:hover,
-a[class~="bg-[#3F46C7]"]:hover {
+a[class*="bg-[#3F46C7]"]:hover,
+a.erp-btn-primary:hover {
     background-color: var(--erp-indigo-strong) !important;
     border-color: var(--erp-indigo-strong) !important;
     color: #ffffff !important;
 }
 
+button[class*="hover:bg-[#515DEF]"]:hover *,
+button[class*="hover:bg-[#3F46C7]"]:hover *,
+button[class*="hover:bg-indigo-600"]:hover *,
+button[class*="hover:bg-blue-600"]:hover *,
+button[class~="bg-[#515DEF]"]:hover *,
+button[class*="bg-[#3F46C7]"]:hover *,
+button.erp-btn-primary:hover *,
+a[class*="hover:bg-[#515DEF]"]:hover *,
+a[class*="hover:bg-[#3F46C7]"]:hover *,
+a[class*="hover:bg-indigo-600"]:hover *,
+a[class*="hover:bg-blue-600"]:hover *,
+a[class~="bg-[#515DEF]"]:hover *,
+a[class*="bg-[#3F46C7]"]:hover *,
+a.erp-btn-primary:hover * {
+    color: #ffffff !important;
+    fill: currentColor !important;
+}
+
 button[class~="bg-[#515DEF]"]:active,
 a[class~="bg-[#515DEF]"]:active,
-button[class~="bg-[#3F46C7]"]:active,
-a[class~="bg-[#3F46C7]"]:active {
+button[class*="bg-[#3F46C7]"]:active,
+a[class*="bg-[#3F46C7]"]:active {
     background-color: #242B94 !important;
     border-color: #242B94 !important;
     color: #ffffff !important;
 }
 
-/* Failsafe Outline Protection: Unhovered outline buttons MUST have transparent/white background */
-button[class*="border-[#515DEF]"]:not(:hover):not(:active):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]),
-a[class*="border-[#515DEF]"]:not(:hover):not(:active):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]),
-button[class*="border-[#3F46C7]"]:not(:hover):not(:active):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]),
-a[class*="border-[#3F46C7]"]:not(:hover):not(:active):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]) {
-    background-color: transparent !important;
+/* Failsafe Outline Protection: Unhovered outline buttons MUST have clean white/transparent background with legible indigo text */
+button[class*="border-[#515DEF]"]:not(:hover):not(:active):not([class*="bg-[#515DEF]"]):not([class*="bg-[#3F46C7]"]),
+a[class*="border-[#515DEF]"]:not(:hover):not(:active):not([class*="bg-[#515DEF]"]):not([class*="bg-[#3F46C7]"]),
+button[class*="border-[#3F46C7]"]:not(:hover):not(:active):not([class*="bg-[#515DEF]"]):not([class*="bg-[#3F46C7]"]),
+a[class*="border-[#3F46C7]"]:not(:hover):not(:active):not([class*="bg-[#515DEF]"]):not([class*="bg-[#3F46C7]"]) {
+    background-color: #ffffff !important;
     color: var(--erp-indigo) !important;
+    border-color: var(--erp-indigo) !important;
+}
+
+button[class*="border-[#515DEF]"]:not(:hover):not(:active):not([class*="bg-[#515DEF]"]):not([class*="bg-[#3F46C7]"]) *,
+a[class*="border-[#515DEF]"]:not(:hover):not(:active):not([class*="bg-[#515DEF]"]):not([class*="bg-[#3F46C7]"]) *,
+button[class*="border-[#3F46C7]"]:not(:hover):not(:active):not([class*="bg-[#515DEF]"]):not([class*="bg-[#3F46C7]"]) *,
+a[class*="border-[#3F46C7]"]:not(:hover):not(:active):not([class*="bg-[#515DEF]"]):not([class*="bg-[#3F46C7]"]) * {
+    color: var(--erp-indigo) !important;
+    fill: currentColor !important;
 }
 
 /* High-Contrast Accessible Green Buttons (Approve / Resolve / Success) - Minimum 4.56:1 Contrast */

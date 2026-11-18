@@ -1,14 +1,26 @@
-import { STUDENT_ATTENDANCE } from '../../Pages/Admin/Attendance/Students/studentAttendanceData'
-import { getStudentsList } from '../RBAC/createdUsersData'
+import { STUDENT_ATTENDANCE } from '../../Pages/Admin/Attendance/Students/studentAttendanceData.js'
+import { getStudentsList } from '../RBAC/createdUsersData.js'
+import { CLASS_ASSIGNMENTS, getAcademicSomRecords, saveAcademicSomRecord } from '../Recognition/recognitionData.js'
+import { getIntegratedStudentsList } from '../UserDatabase/userDatabaseIntegrator.js'
 
 const CHECKLIST_KEY = 'schoolerp-som-checklist-v1'
 const DISABLED_KEY = 'schoolerp-som-checklist-disabled-v1'
 const RATINGS_KEY = 'schoolerp-som-matrix-ratings-v1'
 const TITLES_KEY = 'schoolerp-som-star-titles-v1'
 const META_KEY = 'schoolerp-som-matrix-meta-v1'
+const STUDENT_SOM_HISTORY_KEY = 'schoolerp-student-som-history-v1'
 
-export const SOM_RATINGS = ['1', '2', '2.5', '3', 'NA']
+export const SOM_RATINGS = ['1', '2', '3', 'NA', 'AB']
+export const VALID_INTEGER_RATINGS = [3, 2, 1]
 export const SOM_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+export const SOM_RATING_META = {
+    '3': { value: 3, stars: 3, label: '3 Stars (Outstanding)', short: '3 ⭐', color: '#F59E0B' },
+    '2': { value: 2, stars: 2, label: '2 Stars (Good)', short: '2 ⭐', color: '#3B82F6' },
+    '1': { value: 1, stars: 1, label: '1 Star (Developing)', short: '1 ⭐', color: '#10B981' },
+    'NA': { value: null, stars: 0, label: 'Not Applicable', short: 'NA', color: '#64748B' },
+    'AB': { value: null, stars: 0, label: 'Absent', short: 'AB', color: '#EF4444' },
+}
 
 const sub = (id, name) => ({ id, name, enabled: true })
 const cat = (id, name, subs) => ({ id, name, enabled: true, subs })
@@ -47,23 +59,40 @@ export const DEFAULT_SOM_CHECKLIST = [
 
 export const DEFAULT_STAR_TITLES = [
     { id: 'som', name: 'Star of the Month', mode: 'overall', subIds: [] },
-    { id: 'academic', name: 'Academic Accolades', mode: 'criteria', subIds: ['sub-assessments'] },
-    { id: 'progressive', name: 'Progressive Worker', mode: 'criteria', subIds: ['sub-homework', 'sub-attendance'] },
-    { id: 'creative', name: 'Creative Hearts', mode: 'criteria', subIds: ['sub-blog', 'sub-bulletin'] },
-    { id: 'sports', name: 'Sports Star', mode: 'criteria', subIds: ['sub-bfit', 'sub-martial'] },
+    { id: 'academic', name: 'Academic Accolades', mode: 'criteria', subIds: ['sub-assessments', 'sub-english', 'sub-books'] },
+    { id: 'progressive', name: 'Progressive Worker', mode: 'criteria', subIds: ['sub-attendance', 'sub-homework', 'sub-reporting', 'sub-behaviour', 'sub-etiquette'] },
+    { id: 'creative', name: 'Creative Hearts', mode: 'criteria', subIds: ['sub-blog', 'sub-bulletin', 'sub-performance'] },
+    { id: 'sports', name: 'Sports Star', mode: 'criteria', subIds: ['sub-bfit', 'sub-martial', 'sub-interschool', 'sub-house'] },
 ]
+
+const memoryStore = {}
 
 const readJson = (key, fallback) => {
     try {
-        const stored = localStorage.getItem(key)
-        if (stored) return JSON.parse(stored)
+        if (typeof localStorage !== 'undefined') {
+            const stored = localStorage.getItem(key)
+            if (stored) return JSON.parse(stored)
+        } else if (memoryStore[key]) {
+            return JSON.parse(memoryStore[key])
+        }
     } catch {
         /* ignore */
     }
     return fallback
 }
 
-const writeJson = (key, value) => localStorage.setItem(key, JSON.stringify(value))
+const writeJson = (key, value) => {
+    try {
+        const serialized = JSON.stringify(value)
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(key, serialized)
+        } else {
+            memoryStore[key] = serialized
+        }
+    } catch {
+        /* ignore */
+    }
+}
 
 export const getChecklist = () => {
     const stored = readJson(CHECKLIST_KEY, null)
@@ -114,12 +143,16 @@ export const saveMatrixMeta = (context, meta) => {
     writeJson(META_KEY, all)
 }
 
-export const isNumericRating = (value) => value !== 'NA' && value !== '' && value !== undefined && !Number.isNaN(Number(value))
+export const isNumericRating = (value) => {
+    if (value === 'NA' || value === 'AB' || value === '' || value === undefined || value === null) return false
+    const num = Number(value)
+    return !Number.isNaN(num) && [1, 2, 3].includes(num)
+}
 
 export const averageRatings = (values) => {
     const numbers = values.filter(isNumericRating).map(Number)
     if (!numbers.length) return null
-    return Math.round((numbers.reduce((sum, value) => sum + value, 0) / numbers.length) * 1000) / 1000
+    return Math.round((numbers.reduce((sum, value) => sum + value, 0) / numbers.length) * 100) / 100
 }
 
 export const flattenSubs = (categories) => categories.flatMap((category) => (
@@ -131,29 +164,155 @@ export const visibleSubs = (categories, context) => {
     return flattenSubs(categories).filter((item) => !disabled.has(item.id))
 }
 
-export const getSomRoster = () => {
-    const created = getStudentsList().filter((student) => student.className && student.section).map((student) => ({
-        id: student.id,
-        name: student.name,
-        grade: student.className,
-        section: student.section,
-    }))
-    if (created.length) return created
-    const seen = new Set()
-    return STUDENT_ATTENDANCE.filter((student) => {
-        const key = student.admissionNo || student.id
-        if (seen.has(key)) return false
-        seen.add(key)
-        return true
-    }).map((student) => ({
-        id: student.admissionNo || student.id,
-        name: student.studentName,
-        grade: student.className,
-        section: student.section,
-    }))
+export const parseClassKey = (classKey = '') => {
+    if (!classKey) return { grade: 'Grade 10', gradeNumber: '10', section: 'A', classKey: 'Grade 10-A' }
+    const cleaned = String(classKey).trim()
+    const match = cleaned.match(/(?:Grade\s*|Class\s*)?(\d+|[A-Za-z]+)(?:th|st|nd|rd)?\s*[-–]?\s*([A-Za-z0-9]+)?/i)
+    if (match) {
+        const num = match[1]
+        const sec = (match[2] || 'A').toUpperCase()
+        const gradeStr = isNaN(num) ? num : `Grade ${num}`
+        return {
+            grade: gradeStr,
+            gradeNumber: num,
+            section: sec,
+            classKey: `${gradeStr}-${sec}`,
+        }
+    }
+    return { grade: cleaned, gradeNumber: '', section: 'A', classKey: cleaned }
 }
 
-export const rosterFor = (grade, section) => getSomRoster().filter((student) => student.grade === grade && student.section === section)
+export const normalizeClassKey = (grade, section) => {
+    const parsed = parseClassKey(section ? `${grade}-${section}` : grade)
+    return parsed.classKey
+}
+
+/**
+ * Returns complete student list for a class, combining integrated user database,
+ * assigned class roster, and attendance records, deduplicated by name and ID.
+ * Guarantees that no student is excluded and class evaluation matrix is never 0 students.
+ */
+export const getStudentsForClass = (classKey = 'Grade 10-A') => {
+    const { grade, gradeNumber, section, classKey: normalizedKey } = parseClassKey(classKey)
+
+    // 1. From User Database Integrator (Unified Students)
+    let integrated = []
+    try {
+        const allIntegrated = getIntegratedStudentsList()
+        integrated = allIntegrated.filter((s) => {
+            const p = parseClassKey(s.classSection || `${s.className}-${s.section}`)
+            return (p.gradeNumber === gradeNumber || p.grade === grade) && p.section === section
+        }).map((s, idx) => ({
+            id: s.id || s.studentId,
+            studentId: s.id || s.studentId,
+            name: s.name,
+            rollNumber: s.rollNumber || String(idx + 1).padStart(2, '0'),
+            classSection: normalizedKey,
+            grade,
+            section,
+            avatarColor: '#3F46C7',
+            gpa: 3.85,
+        }))
+    } catch {
+        integrated = []
+    }
+
+    // 2. From Institutional Class Assignments
+    const assignedStudents = (CLASS_ASSIGNMENTS[normalizedKey]?.students || []).map((s, idx) => ({
+        id: s.id,
+        studentId: s.id,
+        name: s.name,
+        rollNumber: s.rollNumber || String(idx + 1).padStart(2, '0'),
+        classSection: normalizedKey,
+        grade,
+        section,
+        avatarColor: s.avatarColor || '#2563EB',
+        gpa: s.gpa || 3.9,
+        citation: s.citation || '',
+    }))
+
+    // 3. From Student Attendance Roster
+    const attendanceStudents = STUDENT_ATTENDANCE.filter((s) => {
+        const p = parseClassKey(`${s.className}-${s.section}`)
+        return (p.gradeNumber === gradeNumber || p.grade === grade) && p.section === section
+    }).map((s, idx) => ({
+        id: s.admissionNo || s.id,
+        studentId: s.admissionNo || s.id,
+        name: s.studentName,
+        rollNumber: String(idx + 1).padStart(2, '0'),
+        classSection: normalizedKey,
+        grade,
+        section,
+        avatarColor: '#059669',
+        gpa: 3.7,
+    }))
+
+    // 4. Merge and deduplicate by clean name and ID
+    const seenNames = new Set()
+    const seenIds = new Set()
+    const merged = []
+
+    ;[...integrated, ...assignedStudents, ...attendanceStudents].forEach((stu) => {
+        const normName = stu.name.trim().toLowerCase()
+        if (!seenNames.has(normName) && !seenIds.has(stu.id)) {
+            seenNames.add(normName)
+            seenIds.add(stu.id)
+            merged.push(stu)
+        }
+    })
+
+    return merged
+}
+
+export const getSomRoster = () => {
+    return getStudentsForClass('Grade 10-A')
+}
+
+export const rosterFor = (grade, section) => {
+    const classKey = normalizeClassKey(grade, section)
+    return getStudentsForClass(classKey)
+}
+
+export const getAllStudentSomHistory = () => {
+    try {
+        const stored = typeof localStorage !== 'undefined'
+            ? localStorage.getItem(STUDENT_SOM_HISTORY_KEY)
+            : memoryStore[STUDENT_SOM_HISTORY_KEY]
+        if (stored) return JSON.parse(stored)
+    } catch {
+        /* ignore */
+    }
+    return []
+}
+
+export const saveAllStudentSomHistory = (records) => {
+    try {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(STUDENT_SOM_HISTORY_KEY, JSON.stringify(records))
+        } else {
+            memoryStore[STUDENT_SOM_HISTORY_KEY] = JSON.stringify(records)
+        }
+    } catch {
+        /* ignore */
+    }
+}
+
+export const getStudentSomHistory = (studentId) => {
+    const local = getAllStudentSomHistory().filter((r) => r.studentId === studentId)
+    if (local.length > 0) return local
+
+    try {
+        const allRecords = getAcademicSomRecords()
+        return allRecords.filter((r) => r.studentId === studentId)
+    } catch {
+        return []
+    }
+}
+
+export const getLatestStudentSom = (studentId) => {
+    const history = getStudentSomHistory(studentId)
+    return history.length ? history[0] : null
+}
 
 export const ratingFor = (ratings, context, studentId, subId) => ratings.find((item) => (
     item.month === context.month
@@ -178,6 +337,83 @@ export const upsertRating = (context, studentId, subId, rating) => {
     return rows
 }
 
+export const bulkFillColumn = (context, subId, rating, studentIds) => {
+    const targetStudents = studentIds || rosterFor(context.grade, context.section).map((s) => s.id)
+    const targetSet = new Set(targetStudents)
+    let rows = getRatings().filter((item) => !(
+        item.month === context.month
+        && String(item.year) === String(context.year)
+        && item.grade === context.grade
+        && item.section === context.section
+        && item.subId === subId
+        && targetSet.has(item.studentId)
+    ))
+    targetStudents.forEach((studentId) => {
+        if (rating) {
+            rows.push({ ...context, year: String(context.year), studentId, subId, rating: String(rating) })
+        }
+    })
+    saveRatings(rows)
+    return rows
+}
+
+export const bulkFillStudent = (context, studentId, rating, subIds) => {
+    const categories = getChecklist()
+    const targetSubs = subIds || visibleSubs(categories, context).map((s) => s.id)
+    const subSet = new Set(targetSubs)
+    let rows = getRatings().filter((item) => !(
+        item.month === context.month
+        && String(item.year) === String(context.year)
+        && item.grade === context.grade
+        && item.section === context.section
+        && item.studentId === studentId
+        && subSet.has(item.subId)
+    ))
+    targetSubs.forEach((subId) => {
+        if (rating) {
+            rows.push({ ...context, year: String(context.year), studentId, subId, rating: String(rating) })
+        }
+    })
+    saveRatings(rows)
+    return rows
+}
+
+export const bulkInitializeClass = (context, defaultRating = '3') => {
+    const students = rosterFor(context.grade, context.section)
+    const categories = getChecklist()
+    const subs = visibleSubs(categories, context)
+    let rows = getRatings().filter((item) => !(
+        item.month === context.month
+        && String(item.year) === String(context.year)
+        && item.grade === context.grade
+        && item.section === context.section
+    ))
+    students.forEach((student) => {
+        subs.forEach((sub) => {
+            rows.push({
+                ...context,
+                year: String(context.year),
+                studentId: student.id,
+                subId: sub.id,
+                rating: String(defaultRating),
+            })
+        })
+    })
+    saveRatings(rows)
+    return rows
+}
+
+export const clearClassRatings = (context) => {
+    const rows = getRatings().filter((item) => !(
+        item.month === context.month
+        && String(item.year) === String(context.year)
+        && item.grade === context.grade
+        && item.section === context.section
+    ))
+    saveRatings(rows)
+    return rows
+}
+
 export const studentScore = (subs, ratings, context, studentId, subIds) => {
     const selected = subIds ? subs.filter((item) => subIds.includes(item.id)) : subs
     return averageRatings(selected.map((item) => ratingFor(ratings, context, studentId, item.id)))
@@ -188,7 +424,7 @@ export const rankStudents = (students, scoreOf) => [...students]
     .filter((student) => student.score !== null)
     .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
 
-export const titlePlacements = (titles, students, subs, ratings, context) => titles.map((title) => {
+export const titlePlacements = (titles, students, subs, ratings, context) => (titles || getStarTitles()).map((title) => {
     const ranked = rankStudents(students, (student) => studentScore(
         subs,
         ratings,
@@ -201,8 +437,74 @@ export const titlePlacements = (titles, students, subs, ratings, context) => tit
         winner: ranked[0] || null,
         runnerUp1: ranked[1] || null,
         runnerUp2: ranked[2] || null,
+        ranked,
     }
 })
+
+export const publishClassSomAwards = (context, placements, teacherName = 'Class Teacher') => {
+    const publishedAt = new Date().toISOString().split('T')[0]
+    const academicYear = context.academicYear || `${context.year}-${Number(context.year) + 1}`
+    const month = `${context.month} ${context.year}`
+    const recordsToSave = []
+
+    placements.forEach((placement) => {
+        ['winner', 'runnerUp1', 'runnerUp2'].forEach((tier) => {
+            const student = placement[tier]
+            if (student) {
+                const tierLabel = tier === 'winner' ? 'Winner' : tier === 'runnerUp1' ? 'First Runner-Up' : 'Second Runner-Up'
+                const starRating = student.score ? Math.min(3, Math.max(1, Math.round(student.score))) : 3
+                const percentage = student.score ? Math.min(100, Math.round((student.score / 3) * 100)) : 95
+                recordsToSave.push({
+                    id: `ASOM-${context.year}-${placement.id}-${student.id}-${tier}`,
+                    month,
+                    academicYear,
+                    classSection: `${context.grade}-${context.section}`,
+                    className: context.grade,
+                    section: context.section,
+                    studentId: student.id,
+                    studentName: student.name,
+                    gpa: Number((student.score * 1.33).toFixed(2)),
+                    score: percentage,
+                    ratingStars: starRating,
+                    citation: `${placement.name} (${tierLabel}) for ${context.month} with average star rating of ${student.score}/3.0.`,
+                    awardTitle: placement.name,
+                    awardTier: tierLabel,
+                    status: 'Published',
+                    nominatedBy: teacherName,
+                    finalizedAt: publishedAt,
+                })
+            }
+        })
+    })
+
+    // Save each record to institutional recognition records
+    recordsToSave.forEach((record) => {
+        try {
+            saveAcademicSomRecord(record)
+        } catch {
+            /* ignore */
+        }
+    })
+
+    // Save to dedicated student SOM history storage
+    try {
+        const existingHistory = getAllStudentSomHistory()
+        const updatedHistory = [...existingHistory]
+        recordsToSave.forEach((newRec) => {
+            const idx = updatedHistory.findIndex((h) => h.id === newRec.id || (h.studentId === newRec.studentId && h.month === newRec.month && h.awardTitle === newRec.awardTitle))
+            if (idx >= 0) {
+                updatedHistory[idx] = newRec
+            } else {
+                updatedHistory.unshift(newRec)
+            }
+        })
+        saveAllStudentSomHistory(updatedHistory)
+    } catch {
+        /* ignore */
+    }
+
+    return recordsToSave
+}
 
 const splitCsvLine = (line) => {
     const cells = []

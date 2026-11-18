@@ -65,10 +65,17 @@ const ViewStudentPage = ({ routeBase = '/front-office/student-management' }) => 
     const [selectedYear, setSelectedYear] = useState(CURRENT_ACADEMIC_YEAR)
     const [viewReceiptModal, setViewReceiptModal] = useState(null)
     const [historyFilterType, setHistoryFilterType] = useState('All')
+    const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+    useEffect(() => {
+        const handleSync = () => setRefreshTrigger((k) => k + 1)
+        window.addEventListener('schoolerp-som-published', handleSync)
+        return () => window.removeEventListener('schoolerp-som-published', handleSync)
+    }, [])
 
     const student = useMemo(() => {
         return getIntegratedStudentProfile(id, selectedYear)
-    }, [id, selectedYear])
+    }, [id, selectedYear, refreshTrigger])
 
     if (!student) {
         return (
@@ -305,6 +312,53 @@ const ViewStudentPage = ({ routeBase = '/front-office/student-management' }) => 
                             </div>
                         </div>
                     </div>
+
+                    {/* Star of the Month Recognition Card */}
+                    <div className='bg-gradient-to-r from-amber-50/80 via-amber-100/40 to-white rounded-2xl border border-amber-200 shadow-xs p-6'>
+                        <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+                            <div className='flex items-center gap-3'>
+                                <div className='p-3 bg-amber-500 text-white rounded-2xl shadow-xs'>
+                                    <Trophy size={24} />
+                                </div>
+                                <div>
+                                    <div className='flex items-center gap-2'>
+                                        <h2 className='text-base font-bold text-slate-900'>Star of the Month Recognition</h2>
+                                        <span className='px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white uppercase tracking-wider'>
+                                            {student.starOfTheMonth?.latest?.awardTier || 'Recognized'}
+                                        </span>
+                                    </div>
+                                    <p className='text-xs text-slate-600 mt-0.5'>
+                                        {student.starOfTheMonth?.latest
+                                            ? `${student.starOfTheMonth.latest.awardTitle} · ${student.starOfTheMonth.latest.month}`
+                                            : 'Continuous academic and behavioral monthly evaluation.'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className='flex items-center gap-2'>
+                                <div className='px-4 py-2 bg-white rounded-xl border border-amber-200 text-center shadow-2xs'>
+                                    <div className='text-[10px] font-bold uppercase text-slate-500'>Rating</div>
+                                    <div className='text-base font-extrabold text-amber-600'>
+                                        {'⭐'.repeat(student.starOfTheMonth?.latest?.ratingStars || 3)}
+                                    </div>
+                                </div>
+                                <div className='px-4 py-2 bg-white rounded-xl border border-amber-200 text-center shadow-2xs'>
+                                    <div className='text-[10px] font-bold uppercase text-slate-500'>Monthly Score</div>
+                                    <div className='text-base font-extrabold text-slate-900'>
+                                        {student.starOfTheMonth?.latest?.score || 98}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {student.starOfTheMonth?.latest?.citation && (
+                            <div className='mt-4 p-3.5 bg-white/90 rounded-xl border border-amber-200 text-xs text-slate-700 flex items-start gap-2'>
+                                <span className='font-bold text-amber-900 shrink-0'>Teacher Citation:</span>
+                                <span>"{student.starOfTheMonth.latest.citation}"</span>
+                                <span className='text-slate-400 ml-auto shrink-0'>— {student.starOfTheMonth.latest.nominatedBy}</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 
@@ -520,6 +574,67 @@ const ViewStudentPage = ({ routeBase = '/front-office/student-management' }) => 
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+
+                    {/* Star of the Month Awards & Historical Archive */}
+                    <div className='bg-white rounded-2xl border border-slate-200 shadow-xs p-6'>
+                        <div className='flex items-center justify-between mb-4'>
+                            <div>
+                                <h2 className='text-base font-bold text-slate-900 flex items-center gap-2'>
+                                    <Trophy size={18} className='text-amber-500' />
+                                    <span>Star of the Month Awards & Evaluation History</span>
+                                </h2>
+                                <p className='text-xs text-slate-500 mt-0.5'>Official monthly awards evaluated by the class teacher and verified by leadership.</p>
+                            </div>
+                            <span className='px-3 py-1 rounded-full text-xs font-bold bg-amber-50 border border-amber-200 text-amber-800'>
+                                {student.starOfTheMonth?.totalAwards || 0} Recognition Accolades
+                            </span>
+                        </div>
+
+                        {student.starOfTheMonth?.history?.length > 0 ? (
+                            <div className='overflow-x-auto'>
+                                <table className='w-full text-sm text-left'>
+                                    <thead className='text-xs uppercase bg-slate-100 text-slate-700 font-semibold'>
+                                        <tr>
+                                            <th className='px-4 py-3'>Period / Month</th>
+                                            <th className='px-4 py-3'>Class Section</th>
+                                            <th className='px-4 py-3 text-center'>Rating Stars</th>
+                                            <th className='px-4 py-3 text-center'>Score %</th>
+                                            <th className='px-4 py-3'>Award Title & Accolade</th>
+                                            <th className='px-4 py-3'>Teacher Citation</th>
+                                            <th className='px-4 py-3'>Evaluated By</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className='divide-y divide-slate-100 text-xs'>
+                                        {student.starOfTheMonth.history.map((rec, idx) => (
+                                            <tr key={rec.id || idx} className='hover:bg-slate-50'>
+                                                <td className='px-4 py-3 font-semibold text-slate-900'>{rec.month}</td>
+                                                <td className='px-4 py-3 font-medium text-indigo-700'>{rec.classSection}</td>
+                                                <td className='px-4 py-3 text-center font-bold text-amber-600'>
+                                                    {'⭐'.repeat(rec.ratingStars || 3)}
+                                                </td>
+                                                <td className='px-4 py-3 text-center font-bold text-slate-900'>
+                                                    {rec.score}%
+                                                </td>
+                                                <td className='px-4 py-3 font-semibold text-slate-800'>
+                                                    <span className='px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-900'>
+                                                        {rec.awardTitle}
+                                                    </span>
+                                                </td>
+                                                <td className='px-4 py-3 text-slate-600 max-w-[280px] truncate' title={rec.citation}>
+                                                    {rec.citation || '—'}
+                                                </td>
+                                                <td className='px-4 py-3 text-slate-500 text-[11px]'>{rec.nominatedBy || 'Class Teacher'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className='text-center py-8 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200'>
+                                No monthly recognition records published yet for this academic year.
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

@@ -18,11 +18,22 @@ import { formatGradeSection } from '../../Pages/Student/studentPortalConfig'
 import { getStudentResultSummary } from '../MarkEntryApproval/markEntryApprovalData'
 import { EnterpriseKpiCard, StatusBadge } from '../ui'
 import { getStudentGuardianDashboardData } from './studentGuardianDashboardData'
+import { getLatestStudentSom } from '../StudentStarRatings/somChecklist'
+import { Star, Trophy } from 'lucide-react'
 
 const StudentGuardianDashboard = () => {
     const { activeStudent, isParentPortal, routePrefix } = useActiveStudent()
+    const [refreshKey, setRefreshKey] = React.useState(0)
+
+    React.useEffect(() => {
+        const handleSync = () => setRefreshKey((k) => k + 1)
+        window.addEventListener('schoolerp-som-published', handleSync)
+        return () => window.removeEventListener('schoolerp-som-published', handleSync)
+    }, [])
+
     const dashboard = getStudentGuardianDashboardData(routePrefix)
     const resultSummary = activeStudent?.id ? getStudentResultSummary(activeStudent.id) : null
+    const somRecord = activeStudent?.id ? getLatestStudentSom(activeStudent.id) : null
 
     if (!dashboard) return null
 
@@ -195,6 +206,59 @@ const StudentGuardianDashboard = () => {
                         <span className='mt-1 text-[11px] text-purple-600 font-semibold'>97.8% Biometric →</span>
                     </NavLink>
                 </div>
+            </div>
+
+            {/* Star of the Month Official Accolade Banner */}
+            <div className='rounded-[1.25rem] border border-amber-200/90 bg-gradient-to-r from-amber-50/90 via-amber-100/40 to-white p-5 shadow-xs'>
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+                    <div className='flex items-center gap-3'>
+                        <div className='p-2.5 rounded-xl bg-amber-500 text-white shadow-2xs'>
+                            <Trophy size={20} />
+                        </div>
+                        <div>
+                            <div className='flex items-center gap-2'>
+                                <h3 className='text-sm font-bold text-slate-900'>
+                                    Star of the Month Recognition
+                                </h3>
+                                <span className='px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white uppercase'>
+                                    {somRecord?.awardTier || 'Award Winner'}
+                                </span>
+                            </div>
+                            <p className='text-xs text-slate-600 mt-0.5'>
+                                {somRecord ? `${somRecord.awardTitle} (${somRecord.month})` : 'September 2025 · Academic & Conduct Excellence'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className='flex items-center gap-2'>
+                        <div className='px-3 py-1.5 bg-white rounded-xl border border-amber-200 text-center shadow-2xs'>
+                            <div className='text-[10px] font-bold uppercase text-slate-400'>Rating</div>
+                            <div className='text-sm font-extrabold text-amber-600'>
+                                {'⭐'.repeat(somRecord?.ratingStars || 3)}
+                            </div>
+                        </div>
+                        <div className='px-3 py-1.5 bg-white rounded-xl border border-amber-200 text-center shadow-2xs'>
+                            <div className='text-[10px] font-bold uppercase text-slate-400'>Score</div>
+                            <div className='text-sm font-extrabold text-slate-900'>
+                                {somRecord?.score || 98}%
+                            </div>
+                        </div>
+                        <NavLink
+                            to='/student/star-ratings/view-ratings'
+                            className='inline-flex items-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-2 text-xs font-semibold shadow-xs transition-colors'
+                        >
+                            <span>View Full Star Ratings</span>
+                            <ArrowRight size={13} />
+                        </NavLink>
+                    </div>
+                </div>
+
+                {somRecord?.citation && (
+                    <div className='mt-3 p-3 bg-white/80 rounded-xl border border-amber-200/70 text-xs text-slate-700'>
+                        <span className='font-bold text-amber-900'>Teacher Citation: </span>
+                        <span>"{somRecord.citation}"</span>
+                    </div>
+                )}
             </div>
             <div className='grid gap-6 lg:grid-cols-3'>
                 <div className='lg:col-span-2 rounded-[1.25rem] border border-slate-200/80 bg-white p-5 shadow-xs'>
