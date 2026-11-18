@@ -87,14 +87,14 @@ const CommonSidebar = ({ sidebarHidden, toggleSidebar, portalMeta }) => {
     // Auto open menus containing active child link
     useEffect(() => {
         const newOpenMenus = {}
-        sidebarLinks.forEach((link) => {
-            if (link.subLinks) {
+        ;(sidebarLinks || []).filter(Boolean).forEach((link) => {
+            if (link?.subLinks) {
                 const isActive = link.subLinks.some(
                     (sub) =>
-                        location.pathname === sub.to ||
-                        location.pathname.startsWith(`${sub.to}/`)
+                        sub && (location.pathname === sub.to ||
+                        location.pathname.startsWith(`${sub.to}/`))
                 )
-                if (isActive) {
+                if (isActive && link.id) {
                     newOpenMenus[link.id] = true
                 }
             }
@@ -256,8 +256,8 @@ const CommonSidebar = ({ sidebarHidden, toggleSidebar, portalMeta }) => {
 
                 {/* 2. MODULE GROUPS AND LINKS */}
                 <ul className='flex flex-col gap-y-2' ref={flyoutRef}>
-                    {navPrefs.groups.map((group) => {
-                        const groupItems = (group.moduleIds || [])
+                    {(navPrefs.groups || []).filter(Boolean).map((group, index) => {
+                        const groupItems = (group?.moduleIds || [])
                             .map((id) => moduleMap.get(id))
                             .filter(Boolean)
 
@@ -266,11 +266,11 @@ const CommonSidebar = ({ sidebarHidden, toggleSidebar, portalMeta }) => {
                         }
 
                         return (
-                            <li key={group.id} className='rounded-xl'>
+                            <li key={group?.id || group?.label || `nav-group-${index}`} className='rounded-xl'>
                                 {/* Group Header */}
                                 {!sidebarHidden && (
                                     <div className='flex items-center justify-between px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wider text-white/40'>
-                                        <span className='truncate'>{group.label}</span>
+                                        <span className='truncate'>{group?.label || 'Modules'}</span>
                                     </div>
                                 )}
 

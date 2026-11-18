@@ -4,6 +4,7 @@ import { CalendarRange, BadgePercent, CircleCheck, Download, Calendar, XCircle, 
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import AttendanceCalendar from './AttendanceCalendar'
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal'
 
 const attendanceStats = {
     percentage: 75,
@@ -37,6 +38,7 @@ const recentStatusStyles = {
 
 const StudentAttendanceDetails = () => {
     const [selectMonth, setSelectMonth] = useState(new Date())
+    const [reportModalOpen, setReportModalOpen] = useState(false)
 
     const attendanceChartOption = useMemo(() => ({
         series: [{
@@ -248,13 +250,32 @@ const StudentAttendanceDetails = () => {
                                 </div>
                             ))}
                         </div>
-                        <button type='button' className='flex justify-center items-center gap-1.5 text-base font-medium text-[#515DEF] text-center underline-offset-8 underline decoration-[#515DEF] mt-6 hover:opacity-80 transition-opacity cursor-pointer'>
+                        <button
+                            type='button'
+                            onClick={() => setReportModalOpen(true)}
+                            className='flex justify-center items-center gap-1.5 text-base font-medium text-[#515DEF] text-center underline-offset-8 underline decoration-[#515DEF] mt-6 hover:opacity-80 transition-opacity cursor-pointer'
+                        >
                             View Full Report
                             <ArrowRight className='w-4 h-4' />
                         </button>
                     </div>
                 </div>
             </div>
+
+            <ViewRecordModal
+                isOpen={reportModalOpen}
+                onClose={() => setReportModalOpen(false)}
+                data={{
+                    overallPercentage: `${attendanceStats.percentage}%`,
+                    totalClassesConducted: attendanceStats.totalClasses,
+                    classesAttended: attendanceStats.classesAttended,
+                    classesMissed: attendanceStats.classesMissed,
+                    minimumRequiredAttendance: `${attendanceStats.minimumRequired}%`,
+                    complianceStatus: attendanceStats.percentage >= attendanceStats.minimumRequired ? 'Compliant' : 'Shortage Warning',
+                    subjectBreakdown: subjectWiseAttendance.map((s) => `${s.subject}: ${s.present}/${s.total} (${s.percentage}%)`).join(' | ')
+                }}
+                title='Complete Student Attendance Dossier'
+            />
         </div>
     )
 }

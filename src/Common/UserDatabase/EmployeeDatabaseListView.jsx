@@ -13,6 +13,8 @@ import {
     UserX,
 } from 'lucide-react'
 import ExportModal from '../CommonComponents/ExportModal'
+import { Button } from '../ui'
+import { inputClass, selectClass } from '../ui/formStyles'
 import {
     getIntegratedTeachersList,
     DEFAULT_ACADEMIC_YEARS,
@@ -25,7 +27,6 @@ const statusBadgeClasses = {
     Active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     Resigned: 'bg-amber-50 text-amber-700 border-amber-200',
     Inactive: 'bg-slate-100 text-slate-700 border-slate-300',
-    Probation: 'bg-blue-50 text-blue-700 border-blue-200',
 }
 
 const EmployeeDatabaseListView = ({
@@ -49,19 +50,22 @@ const EmployeeDatabaseListView = ({
         return getIntegratedTeachersList({
             search,
             academicYear,
-            department: departmentFilter,
+            department: fixedDepartmentFilter || departmentFilter,
             employmentStatus,
         })
-    }, [search, academicYear, departmentFilter, employmentStatus])
+    }, [search, academicYear, departmentFilter, fixedDepartmentFilter, employmentStatus])
 
-    // Quick Stats
+    // Metrics
     const totalTeachers = teachers.length
     const activeCount = useMemo(() => teachers.filter((t) => t.currentStatus === 'Active').length, [teachers])
-    const teachingCount = useMemo(() => teachers.filter((t) => t.department === 'Academics & Teaching').length, [teachers])
-    const otherDeptCount = totalTeachers - teachingCount
+    const teachingCount = useMemo(
+        () => teachers.filter((t) => t.department && t.department.toLowerCase().includes('teaching')).length,
+        [teachers]
+    )
+    const otherDeptCount = useMemo(() => totalTeachers - teachingCount, [totalTeachers, teachingCount])
 
     // Pagination
-    const totalPages = Math.max(1, Math.ceil(teachers.length / itemsPerPage))
+    const totalPages = Math.ceil(teachers.length / itemsPerPage) || 1
     const paginatedTeachers = useMemo(() => {
         const start = (currentPage - 1) * itemsPerPage
         return teachers.slice(start, start + itemsPerPage)
@@ -84,21 +88,20 @@ const EmployeeDatabaseListView = ({
                     <p className='text-sm text-slate-500 mt-0.5'>{subtitle}</p>
                 </div>
                 <div className='flex items-center gap-2'>
-                    <button
-                        type='button'
+                    <Button
+                        variant='secondary'
+                        icon={<Download size={15} />}
                         onClick={() => setExportModal(true)}
-                        className='inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 shadow-sm transition-colors cursor-pointer'
                     >
-                        <Download size={16} />
                         Export
-                    </button>
+                    </Button>
                 </div>
             </div>
 
             {/* Quick KPI Count Strip */}
             <div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
-                <div className='bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3'>
-                    <div className='p-2 bg-indigo-50 text-indigo-600 rounded-lg'>
+                <div className='bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3'>
+                    <div className='p-2 bg-indigo-50 text-indigo-600 rounded-xl'>
                         <Users size={18} />
                     </div>
                     <div>
@@ -106,8 +109,8 @@ const EmployeeDatabaseListView = ({
                         <div className='text-lg font-bold text-slate-900'>{totalTeachers}</div>
                     </div>
                 </div>
-                <div className='bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3'>
-                    <div className='p-2 bg-emerald-50 text-emerald-600 rounded-lg'>
+                <div className='bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3'>
+                    <div className='p-2 bg-emerald-50 text-emerald-600 rounded-xl'>
                         <UserCheck size={18} />
                     </div>
                     <div>
@@ -115,8 +118,8 @@ const EmployeeDatabaseListView = ({
                         <div className='text-lg font-bold text-emerald-700'>{activeCount}</div>
                     </div>
                 </div>
-                <div className='bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3'>
-                    <div className='p-2 bg-blue-50 text-blue-600 rounded-lg'>
+                <div className='bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3'>
+                    <div className='p-2 bg-blue-50 text-blue-600 rounded-xl'>
                         <Briefcase size={18} />
                     </div>
                     <div>
@@ -124,8 +127,8 @@ const EmployeeDatabaseListView = ({
                         <div className='text-lg font-bold text-blue-700'>{teachingCount}</div>
                     </div>
                 </div>
-                <div className='bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3'>
-                    <div className='p-2 bg-purple-50 text-purple-600 rounded-lg'>
+                <div className='bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3'>
+                    <div className='p-2 bg-purple-50 text-purple-600 rounded-xl'>
                         <UserX size={18} />
                     </div>
                     <div>
@@ -136,11 +139,11 @@ const EmployeeDatabaseListView = ({
             </div>
 
             {/* Filter Control Bar */}
-            <div className='bg-white rounded-2xl shadow-xs border border-slate-200 p-4'>
+            <div className='bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4'>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3'>
                     {/* Search */}
                     <div className='lg:col-span-2'>
-                        <label className='block text-xs font-semibold text-slate-600 uppercase mb-1'>Search Teacher</label>
+                        <label className='block text-xs font-semibold text-slate-700 uppercase mb-1 tracking-wider'>Search Teacher</label>
                         <div className='relative'>
                             <input
                                 type='text'
@@ -150,7 +153,7 @@ const EmployeeDatabaseListView = ({
                                     setCurrentPage(1)
                                 }}
                                 placeholder='Search by Name, Employee ID, or Designation...'
-                                className='w-full text-sm text-slate-800 border border-slate-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none'
+                                className={`${inputClass} pl-9`}
                             />
                             <Search size={16} className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none' />
                         </div>
@@ -158,14 +161,14 @@ const EmployeeDatabaseListView = ({
 
                     {/* Academic Year */}
                     <div>
-                        <label className='block text-xs font-semibold text-slate-600 uppercase mb-1'>Academic Year</label>
+                        <label className='block text-xs font-semibold text-slate-700 uppercase mb-1 tracking-wider'>Academic Year</label>
                         <select
                             value={academicYear}
                             onChange={(e) => {
                                 setAcademicYear(e.target.value)
                                 setCurrentPage(1)
                             }}
-                            className='w-full text-sm text-slate-800 border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white'
+                            className={selectClass}
                         >
                             {DEFAULT_ACADEMIC_YEARS.map((yr) => (
                                 <option key={yr} value={yr}>
@@ -178,7 +181,7 @@ const EmployeeDatabaseListView = ({
                     {/* Department */}
                     {showDepartmentFilter ? (
                         <div>
-                            <label className='block text-xs font-semibold text-slate-600 uppercase mb-1'>Department</label>
+                            <label className='block text-xs font-semibold text-slate-700 uppercase mb-1 tracking-wider'>Department</label>
                             <select
                                 value={departmentFilter}
                                 onChange={(e) => {
@@ -186,7 +189,7 @@ const EmployeeDatabaseListView = ({
                                     setCurrentPage(1)
                                 }}
                                 disabled={Boolean(fixedDepartmentFilter)}
-                                className='w-full text-sm text-slate-800 border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white disabled:bg-slate-50'
+                                className={selectClass}
                             >
                                 <option value=''>All Departments</option>
                                 {TEACHER_DEPARTMENTS.map((dept) => (
@@ -198,8 +201,8 @@ const EmployeeDatabaseListView = ({
                         </div>
                     ) : (
                         <div>
-                            <label className='block text-xs font-semibold text-slate-600 uppercase mb-1'>Scope</label>
-                            <div className='px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg border border-slate-200 font-medium'>
+                            <label className='block text-xs font-semibold text-slate-700 uppercase mb-1 tracking-wider'>Scope</label>
+                            <div className='px-3 py-2 text-xs bg-slate-50/70 text-slate-700 rounded-xl border border-slate-200/80 font-medium'>
                                 {fixedDepartmentFilter || 'Teaching Faculty'}
                             </div>
                         </div>
@@ -207,7 +210,7 @@ const EmployeeDatabaseListView = ({
 
                     {/* Employment Status & Clear */}
                     <div>
-                        <label className='block text-xs font-semibold text-slate-600 uppercase mb-1'>Employment Status</label>
+                        <label className='block text-xs font-semibold text-slate-700 uppercase mb-1 tracking-wider'>Employment Status</label>
                         <div className='flex gap-1.5'>
                             <select
                                 value={employmentStatus}
@@ -215,31 +218,30 @@ const EmployeeDatabaseListView = ({
                                     setEmploymentStatus(e.target.value)
                                     setCurrentPage(1)
                                 }}
-                                className='w-full text-sm text-slate-800 border border-slate-300 rounded-lg px-2 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white'
+                                className={selectClass}
                             >
                                 <option value=''>All Statuses</option>
                                 <option value='Active'>Active</option>
                                 <option value='Resigned'>Resigned</option>
                                 <option value='Inactive'>Inactive</option>
                             </select>
-                            <button
-                                type='button'
+                            <Button
+                                variant='secondary'
+                                size='icon'
                                 onClick={handleClearFilters}
                                 title='Reset Filters'
-                                className='px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-300 transition-colors cursor-pointer flex items-center justify-center shrink-0'
-                            >
-                                <RotateCcw size={15} />
-                            </button>
+                                icon={<RotateCcw size={15} />}
+                            />
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Compact Teacher Directory Table */}
-            <div className='bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden'>
+            <div className='bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden'>
                 <div className='overflow-x-auto'>
                     <table className='w-full text-sm text-left'>
-                        <thead className='text-xs uppercase bg-slate-100 text-slate-700 font-semibold border-b border-slate-200'>
+                        <thead className='text-[11px] uppercase bg-slate-50/90 text-slate-600 font-semibold border-b border-slate-200/80 tracking-wider'>
                             <tr>
                                 <th scope='col' className='px-4 py-3 text-center w-14'>Profile Photo</th>
                                 <th scope='col' className='px-4 py-3'>Name</th>
@@ -261,7 +263,7 @@ const EmployeeDatabaseListView = ({
                                 </tr>
                             ) : (
                                 paginatedTeachers.map((teacher) => (
-                                    <tr key={teacher.id} className='hover:bg-slate-50 transition-colors'>
+                                    <tr key={teacher.id} className='hover:bg-slate-50/80 transition-colors'>
                                         {/* Profile Photo */}
                                         <td className='px-4 py-3 text-center'>
                                             <img
@@ -329,7 +331,7 @@ const EmployeeDatabaseListView = ({
                                         <td className='px-4 py-3 text-right'>
                                             <Link
                                                 to={`${routeBase}/view/${teacher.id}`}
-                                                className='inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors cursor-pointer'
+                                                className='inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#3F46C7] bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors cursor-pointer'
                                             >
                                                 <Eye size={14} />
                                                 View Profile
@@ -343,7 +345,7 @@ const EmployeeDatabaseListView = ({
                 </div>
 
                 {/* Table Footer with Pagination */}
-                <div className='flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-slate-200 bg-slate-50'>
+                <div className='flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-slate-200/80 bg-slate-50/70'>
                     <div className='text-xs text-slate-600'>
                         Showing <span className='font-semibold'>{teachers.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to{' '}
                         <span className='font-semibold'>{Math.min(currentPage * itemsPerPage, teachers.length)}</span> of{' '}
@@ -351,25 +353,23 @@ const EmployeeDatabaseListView = ({
                     </div>
                     {totalPages > 1 && (
                         <div className='flex items-center gap-1.5'>
-                            <button
-                                type='button'
+                            <Button
+                                variant='secondary'
+                                size='icon-sm'
                                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className='p-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed'
-                            >
-                                <ChevronLeft size={16} />
-                            </button>
+                                icon={<ChevronLeft size={16} />}
+                            />
                             <span className='px-3 py-1 text-xs font-semibold text-slate-700'>
                                 Page {currentPage} of {totalPages}
                             </span>
-                            <button
-                                type='button'
+                            <Button
+                                variant='secondary'
+                                size='icon-sm'
                                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className='p-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed'
-                            >
-                                <ChevronRight size={16} />
-                            </button>
+                                icon={<ChevronRight size={16} />}
+                            />
                         </div>
                     )}
                 </div>

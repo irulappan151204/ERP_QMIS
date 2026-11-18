@@ -40,10 +40,11 @@ const Onboarding = () => {
     const current = records.find((item) => item.id === selected) || records[0]
 
     const updateItem = (label, status) => {
+        if (!current?.checklist) return
         const checklist = current.checklist.map((item) => (item.label === label ? { ...item, status } : item))
         const done = checklist.filter((item) => item.status === 'Completed').length
         const overallStatus = done === checklist.length ? 'Completed' : checklist.some((item) => item.status === 'Blocked') ? 'Blocked' : 'In Progress'
-        saveOnboarding(getOnboarding().map((item) => (item.id === current.id ? { ...item, checklist, overallStatus } : item)))
+        saveOnboarding(getOnboarding().map((item) => (item.id === current?.id ? { ...item, checklist, overallStatus } : item)))
     }
 
     const saveObservation = (event) => {
@@ -106,9 +107,9 @@ const Onboarding = () => {
             <PageIntro text='Onboarding, joiner details, observations, and shadow mentoring share the same employee.' />
             {mode === 'checklist' && current && (
                 <div className='bg-white rounded-2xl shadow-md p-4 mt-6'>
-                    <div className='flex flex-wrap gap-2 mb-4'>{records.map((item) => <button key={item.id} type='button' className={`text-sm px-3 py-1 rounded-md cursor-pointer ${current.id === item.id ? 'bg-[#515DEF] text-white' : 'border border-[#515DEF] text-[#515DEF]'}`} onClick={() => setSelected(item.id)}>{employeeName(item.employeeId)} · {completionOf(item)}%</button>)}</div>
+                    <div className='flex flex-wrap gap-2 mb-4'>{records.map((item) => <button key={item.id} type='button' className={`text-sm px-3 py-1 rounded-md cursor-pointer ${current?.id === item.id ? 'bg-[#515DEF] text-white' : 'border border-[#515DEF] text-[#515DEF]'}`} onClick={() => setSelected(item.id)}>{employeeName(item.employeeId)} · {completionOf(item)}%</button>)}</div>
                     <p className='text-sm mb-3'><Badge value={current.overallStatus} /> Joining {current.joiningDate}</p>
-                    <div className='space-y-2'>{current.checklist.map((item) => (
+                    <div className='space-y-2'>{(current.checklist || []).map((item) => (
                         <div key={item.label} className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#f2f4f7] py-2'>
                             <span className='text-sm'>{item.label}</span>
                             <select className='text-sm border border-[#D9D9D9] rounded-md px-2 py-1' value={item.status} onChange={(e) => updateItem(item.label, e.target.value)}>{STATUSES.map((status) => <option key={status}>{status}</option>)}</select>
@@ -123,7 +124,7 @@ const Onboarding = () => {
             )}
             {mode === 'observations' && (
                 <>
-                    <TableWrap title='New Joinee Observation' action={<PrimaryButton onClick={() => setForm({ template: 'Admin', employeeId: employees[0].id, reviewDate: '2026-09-24', status: 'In Progress', appreciation: '', improvement: '', remarks: '' })}>Add Observation</PrimaryButton>}>
+                    <TableWrap title='New Joinee Observation' action={<PrimaryButton onClick={() => setForm({ template: 'Admin', employeeId: employees[0]?.id || '', reviewDate: '2026-09-24', status: 'In Progress', appreciation: '', improvement: '', remarks: '' })}>Add Observation</PrimaryButton>}>
                         <DataTable caption='New joinee observation register' rows={observations} columns={observationColumns} rowKey='id' emptyTitle='No observations found' emptyDescription='Create an observation for a new joiner when reviewers are assigned.' />
                     </TableWrap>
                     {form && <Modal title={`${form.template} observation`} onClose={() => setForm(null)} wide>
@@ -143,7 +144,7 @@ const Onboarding = () => {
             )}
             {mode === 'shadow' && (
                 <>
-                    <TableWrap title='Shadow Mentor' action={<PrimaryButton onClick={() => setForm({ employeeId: employees[0].id, mentorId: employees[1].id, startDate: '2026-09-24', endDate: '2026-10-08', duration: '15 days', schoolEthos: 2, adaptability: 2, acceptance: 2, menteeResponse: '', practicalDifficulties: '', bestQualities: '', generalComments: '', mentorRemarks: '', reviewerRemarks: '', status: 'In Progress' })}>Add Record</PrimaryButton>}>
+                    <TableWrap title='Shadow Mentor' action={<PrimaryButton onClick={() => setForm({ employeeId: employees[0]?.id || '', mentorId: employees[1]?.id || employees[0]?.id || '', startDate: '2026-09-24', endDate: '2026-10-08', duration: '15 days', schoolEthos: 2, adaptability: 2, acceptance: 2, menteeResponse: '', practicalDifficulties: '', bestQualities: '', generalComments: '', mentorRemarks: '', reviewerRemarks: '', status: 'In Progress' })}>Add Record</PrimaryButton>}>
                         <DataTable caption='Shadow mentor register' rows={shadows} columns={shadowColumns} rowKey='id' emptyTitle='No shadow mentor records found' emptyDescription='Assign a mentor to a new recruit to start this workflow.' renderActions={(item) => <button type='button' className='min-h-9 rounded-md border border-[#515DEF] px-3 text-xs font-semibold text-[#515DEF] hover:bg-[#F1F2FF]' onClick={() => setForm(item)}>Edit</button>} />
                     </TableWrap>
                     {form && <Modal title='Shadow mentor' onClose={() => setForm(null)} wide>

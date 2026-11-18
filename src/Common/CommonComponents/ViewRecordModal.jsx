@@ -1,23 +1,24 @@
 import React from 'react'
 import { X, Eye, Printer } from 'lucide-react'
 
-export default function ViewRecordModal({ isOpen, onClose, title = 'Record Details', data = {} }) {
-    if (!isOpen || !data) return null
+export default function ViewRecordModal({ isOpen, onClose, title = 'Record Details', data, record }) {
+    const rawData = data || record
+    if (!isOpen || !rawData) return null
 
-    const entries = Array.isArray(data)
-        ? data
-        : Object.entries(data || {}).map(([key, val]) => ({
+    const entries = Array.isArray(rawData)
+        ? rawData
+        : Object.entries(rawData || {}).map(([key, val]) => ({
             label: key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase()),
             value: typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val ?? '—'),
         }))
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in">
-            <div className="w-full max-w-xl rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-100 animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in">
+            <div className="w-full max-w-xl rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
                     <div className="flex items-center gap-2.5">
-                        <div className="size-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                        <div className="size-9 rounded-xl bg-indigo-50 text-[var(--erp-indigo)] flex items-center justify-center">
                             <Eye size={18} />
                         </div>
                         <div>
@@ -63,7 +64,7 @@ export default function ViewRecordModal({ isOpen, onClose, title = 'Record Detai
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 rounded-xl bg-[#515DEF] text-white text-xs font-bold hover:bg-[#434ecb] transition shadow-xs cursor-pointer"
+                        className="px-4 py-2 rounded-xl bg-[#3F46C7] text-white text-xs font-semibold hover:bg-[#3038A8] transition shadow-xs cursor-pointer"
                     >
                         Close
                     </button>

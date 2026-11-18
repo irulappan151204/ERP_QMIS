@@ -293,8 +293,8 @@ export const fileRoomService = {
     }
 
     const trimmed = newFileName.trim();
-    const filesCollection = mockAdapter.stores['fileroom_files'] || [];
-    const file = filesCollection.find((f) => String(f.id) === String(id) || f.fileRefNo === id);
+    const filesCollection = (mockAdapter.stores['fileroom_files'] || []).filter(Boolean);
+    const file = filesCollection.find((f) => f && (String(f.id) === String(id) || f.fileRefNo === id));
     if (!file) {
       return createErrorResponse(`File ${id} not found.`);
     }
@@ -305,9 +305,9 @@ export const fileRoomService = {
     mockAdapter.persistStore('fileroom_files');
 
     // Also sync active checkout register rows if any
-    const outwardCollection = mockAdapter.stores['fileroom_outward'] || [];
+    const outwardCollection = (mockAdapter.stores['fileroom_outward'] || []).filter(Boolean);
     outwardCollection.forEach((item) => {
-      if (String(item.fileId) === String(file.id) || item.fileRefNo === file.fileRefNo) {
+      if (item && (String(item.fileId) === String(file.id) || item.fileRefNo === file.fileRefNo)) {
         item.fileName = trimmed;
       }
     });
@@ -421,8 +421,8 @@ export const fileRoomService = {
         res.data.issueRecord.departmentHeadApprovalStatus = checkoutPayload.departmentHeadApprovalStatus;
         mockAdapter.persistStore('fileroom_outward');
 
-        const files = mockAdapter.stores['fileroom_files'] || [];
-        const fileObj = files.find((f) => String(f.id) === String(data.fileId));
+        const files = (mockAdapter.stores['fileroom_files'] || []).filter(Boolean);
+        const fileObj = files.find((f) => f && String(f.id) === String(data.fileId));
         if (fileObj) {
           fileObj.currentLocationStatus = 'Dispatched / Non-Returnable';
           mockAdapter.persistStore('fileroom_files');
@@ -572,7 +572,7 @@ export const fileRoomService = {
   async updateAccessRequest(id, updateData = {}) {
     ensureStores();
     const requests = mockAdapter.stores['fileroom_access_requests'] || [];
-    const index = requests.findIndex((r) => String(r.id) === String(id));
+    const index = requests.findIndex((r) => r && String(r.id) === String(id));
     if (index === -1) {
       return createErrorResponse(`Access request ${id} not found.`);
     }
@@ -624,8 +624,8 @@ export const fileRoomService = {
     ensureStores();
     const payload = { ...disposalData };
     if (payload.fileId || payload.fileRefNo) {
-      const targetFile = (mockAdapter.stores['fileroom_files'] || []).find(
-        (f) => (payload.fileId && String(f.id) === String(payload.fileId)) || (payload.fileRefNo && f.fileRefNo === payload.fileRefNo)
+      const targetFile = (mockAdapter.stores['fileroom_files'] || []).filter(Boolean).find(
+        (f) => f && ((payload.fileId && String(f.id) === String(payload.fileId)) || (payload.fileRefNo && f.fileRefNo === payload.fileRefNo))
       );
       if (targetFile) {
         if (!payload.fileRefNo) payload.fileRefNo = targetFile.fileRefNo;
@@ -683,9 +683,9 @@ export const fileRoomService = {
     mockAdapter.persistStore('fileroom_disposals');
 
     // Update corresponding file status in fileroom_files
-    const files = mockAdapter.stores['fileroom_files'] || [];
+    const files = (mockAdapter.stores['fileroom_files'] || []).filter(Boolean);
     const targetFile = files.find(
-      (f) => String(f.id) === String(newDisposal.fileId) || f.fileRefNo === newDisposal.fileRefNo
+      (f) => f && (String(f.id) === String(newDisposal.fileId) || f.fileRefNo === newDisposal.fileRefNo)
     );
     if (targetFile) {
       targetFile.currentLocationStatus =
@@ -710,9 +710,9 @@ export const fileRoomService = {
 
   async getDisposalCertificate(disposalId) {
     ensureStores();
-    const disposals = mockAdapter.stores['fileroom_disposals'] || [];
+    const disposals = (mockAdapter.stores['fileroom_disposals'] || []).filter(Boolean);
     const item = disposals.find(
-      (d) => String(d.id) === String(disposalId) || d.certificateNumber === disposalId
+      (d) => d && (String(d.id) === String(disposalId) || d.certificateNumber === disposalId)
     );
     if (!item) {
       return createErrorResponse(`Disposal certificate ${disposalId} not found.`);

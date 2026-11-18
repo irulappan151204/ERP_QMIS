@@ -22,8 +22,8 @@ const OrderModal = ({ orderModal, setOrderModal }) => {
                             <div className='flex justify-center items-center mb-4'>
                                 <CircleCheck size={70} strokeWidth={1.5} className='text-[#4CAF50]' />
                             </div>
-                            <h3 className='text-xl font-medium text-[#77767A]'>Order Saved</h3>
-                            <p className='text-base text-[#77767A] font-medium mt-2'>
+                            <h3 className='text-xl font-bold text-slate-900'>Order Saved</h3>
+                            <p className='text-sm text-slate-600 font-medium mt-1'>
                                 The order has been placed successfully.
                             </p>
 
@@ -31,7 +31,7 @@ const OrderModal = ({ orderModal, setOrderModal }) => {
                                 <button
                                     type='button'
                                     onClick={() => setOrderModal(false)}
-                                    className='bg-white text-[#77767A] text-sm text-center px-4 py-2.5 rounded-md border border-[#77767A] hover:bg-[#515DEF] hover:text-white hover:border-[#515DEF] transition-all duration-200 cursor-pointer w-full'
+                                    className='bg-white text-slate-700 text-sm font-semibold text-center px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200 cursor-pointer w-full'
                                 >
                                     Add Another
                                 </button>

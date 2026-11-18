@@ -12,7 +12,7 @@ import {
     statusBadgeColor,
     updateAdminUser,
 } from './adminUsersData'
-import { ConfirmAction, IntegrationNotice } from '../../../Common/ui'
+import { Button, ConfirmAction, IntegrationNotice } from '../../../Common/ui'
 import { summarizePermissionChanges } from '../../../Common/ui/governance'
 
 const Field = ({ label, value }) => (
@@ -78,14 +78,13 @@ const ViewAdminUser = () => {
     if (!user) {
         return (
             <section className='space-y-6'>
-                <button
-                    type='button'
+                <Button
+                    variant='secondary'
                     onClick={() => navigate(ROUTE_BASE)}
-                    className='inline-flex items-center gap-2 text-sm text-[#515DEF] border border-[#515DEF] rounded-md px-4 py-2 hover:bg-[#515DEF] hover:text-white transition-colors cursor-pointer'
+                    icon={<ArrowLeft size={16} />}
                 >
-                    <ArrowLeft size={18} />
                     Back to list
-                </button>
+                </Button>
                 <div className='bg-white rounded-2xl shadow-md p-8 text-center text-[#667085]'>
                     Administrator user not found.
                 </div>
@@ -103,14 +102,13 @@ const ViewAdminUser = () => {
 
     return (
         <section className='space-y-6'>
-            <button
-                type='button'
+            <Button
+                variant='secondary'
                 onClick={() => navigate(ROUTE_BASE)}
-                className='inline-flex items-center gap-2 text-sm text-[#515DEF] border border-[#515DEF] rounded-md px-4 py-2 hover:bg-[#515DEF] hover:text-white transition-colors cursor-pointer'
+                icon={<ArrowLeft size={16} />}
             >
-                <ArrowLeft size={18} />
                 Back to list
-            </button>
+            </Button>
 
             <div className='bg-white rounded-2xl shadow-md p-4'>
                 <div className='flex flex-wrap items-center gap-3'>
@@ -244,15 +242,14 @@ const ViewAdminUser = () => {
 
             {isEditing && (
                 <div className='flex sm:justify-end justify-center'>
-                    <button
-                        type='button'
+                    <Button
+                        variant='primary'
                         onClick={() => setConfirmOpen(true)}
                         disabled={!permissionChanges.changedCount && !statusChanged}
-                        className='bg-[#515DEF] text-white text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer inline-flex items-center justify-center gap-2'
+                        icon={<Save size={16} />}
                     >
-                        <Save size={16} />
                         Save Permissions
-                    </button>
+                    </Button>
                 </div>
             )}
 

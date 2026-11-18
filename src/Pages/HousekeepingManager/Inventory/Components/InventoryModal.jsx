@@ -15,10 +15,10 @@ const InventoryModal = ({ inventoryModal, setInventoryModal }) => (
                         <div className='flex justify-center items-center mb-4'>
                             <CircleCheck size={70} strokeWidth={1.5} className='text-[#4CAF50]' />
                         </div>
-                        <h3 className='text-xl font-medium text-[#77767A]'>Product Saved</h3>
-                        <p className='text-base text-[#77767A] font-medium mt-2'>The inventory product has been added successfully.</p>
+                        <h3 className='text-xl font-bold text-slate-900'>Product Saved</h3>
+                        <p className='text-sm text-slate-600 font-medium mt-1'>The inventory product has been added successfully.</p>
                         <div className='flex gap-x-4 mt-10'>
-                            <button type='button' onClick={() => setInventoryModal(false)} className='bg-white text-[#77767A] text-sm text-center px-4 py-2.5 rounded-md border border-[#77767A] hover:bg-[#515DEF] hover:text-white hover:border-[#515DEF] transition-all duration-200 cursor-pointer w-full'>Add Another</button>
+                            <button type='button' onClick={() => setInventoryModal(false)} className='bg-white text-slate-700 text-sm font-semibold text-center px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200 cursor-pointer w-full'>Add Another</button>
                             <NavLink to="/housekeeping-manager/inventory" className='bg-[#515DEF] text-white text-sm text-center px-4 py-2.5 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer w-full'>Back to List</NavLink>
                         </div>
                     </div>

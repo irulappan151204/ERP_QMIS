@@ -8,6 +8,7 @@ import Dropdown from '../../../../Common/CommonComponents/Dropdown'
 import ExportModal from '../../../../Common/CommonComponents/ExportModal'
 import EditRequestModal from '../../../../Common/CommonComponents/EditRequestModal'
 import DeleteRequestModal from '../../../../Common/CommonComponents/DeleteRequestModal'
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal'
 import { CATALOG_BOOKS } from '../../libraryData'
 
 const BookList = () => {
@@ -19,6 +20,7 @@ const BookList = () => {
     const [exportModal, setExportModal] = useState(false)
     const [editRequestModal, setEditRequestModal] = useState(false)
     const [deleteRequestModal, setDeleteRequestModal] = useState(false)
+    const [selectedBookForView, setSelectedBookForView] = useState(null)
 
     const categories = useMemo(() => {
         return [...new Set(books.map((b) => b.category).filter(Boolean))]
@@ -197,7 +199,11 @@ const BookList = () => {
                                             <Dropdown
                                                 buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                             >
-                                                <button type='button' className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => setSelectedBookForView(book)}
+                                                    className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'
+                                                >
                                                     View
                                                 </button>
                                                 <button type='button' onClick={() => setEditRequestModal(true)} className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>
@@ -238,6 +244,12 @@ const BookList = () => {
             <ExportModal exportModal={exportModal} setExportModal={setExportModal} />
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+            <ViewRecordModal
+                isOpen={Boolean(selectedBookForView)}
+                onClose={() => setSelectedBookForView(null)}
+                data={selectedBookForView}
+                title={selectedBookForView?.title ? `${selectedBookForView.title} - Book Details` : 'Book Details'}
+            />
         </section>
     )
 }

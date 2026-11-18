@@ -165,7 +165,7 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
     const [statusFilter, setStatusFilter] = useState('All')
 
     const currentSuite = ROLE_REPORT_SUITES[selectedSuiteKey] || ROLE_REPORT_SUITES.administrative
-    const activeReport = currentSuite.reports.find((r) => r.id === selectedReportId) || currentSuite.reports[0]
+    const activeReport = (currentSuite?.reports || []).find((r) => r && r.id === selectedReportId) || currentSuite?.reports?.[0] || { id: 'default', name: 'General Report', columns: [] }
 
     // Filtered data
     const filteredRows = useMemo(() => {
@@ -385,8 +385,8 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
 
             {/* Sub-report selector tabs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {currentSuite.reports.map((rep) => {
-                    const isSelected = rep.id === activeReport.id
+                {(currentSuite?.reports || []).map((rep) => {
+                    const isSelected = rep.id === activeReport?.id
                     return (
                         <button
                             key={rep.id}

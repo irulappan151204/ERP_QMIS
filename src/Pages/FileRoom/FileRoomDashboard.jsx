@@ -177,7 +177,7 @@ const FileRoomDashboard = () => {
             {/* KPI Cards */}
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4'>
                 <Link
-                    to="/file-room/files"
+                    to="/file-room/documents"
                     className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-teal-300 transition-all flex items-center justify-between group'
                 >
                     <div>
@@ -191,7 +191,7 @@ const FileRoomDashboard = () => {
                 </Link>
 
                 <Link
-                    to="/file-room/files"
+                    to="/file-room/documents"
                     className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all flex items-center justify-between group'
                 >
                     <div>
@@ -205,7 +205,7 @@ const FileRoomDashboard = () => {
                 </Link>
 
                 <Link
-                    to="/file-room/outward-loans"
+                    to="/file-room/checkout-register"
                     className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group'
                 >
                     <div>
@@ -233,7 +233,7 @@ const FileRoomDashboard = () => {
                 </Link>
 
                 <Link
-                    to="/file-room/outward-loans"
+                    to="/file-room/checkout-register"
                     className='bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md hover:border-rose-300 transition-all flex items-center justify-between group'
                 >
                     <div>

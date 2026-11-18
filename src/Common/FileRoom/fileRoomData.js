@@ -176,25 +176,25 @@ export const getPhysicalFiles = () => {
             const raw = localStorage.getItem(FILE_MASTER_STORAGE_KEY)
             if (raw) {
                 const parsed = JSON.parse(raw)
-                if (Array.isArray(parsed) && parsed.length > 0) return parsed
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed.filter(Boolean)
             }
         }
     } catch {
         /* ignore */
     }
     if (_memoryFiles && Array.isArray(_memoryFiles) && _memoryFiles.length > 0) {
-        return _memoryFiles
+        return _memoryFiles.filter(Boolean)
     }
     _memoryFiles = [...INITIAL_FILES]
     savePhysicalFiles(_memoryFiles)
-    return _memoryFiles
+    return _memoryFiles.filter(Boolean)
 }
 
 export const savePhysicalFiles = (files) => {
-    _memoryFiles = files
+    _memoryFiles = (files || []).filter(Boolean)
     try {
         if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(FILE_MASTER_STORAGE_KEY, JSON.stringify(files))
+            localStorage.setItem(FILE_MASTER_STORAGE_KEY, JSON.stringify(_memoryFiles))
         }
     } catch {
         /* ignore */
@@ -207,25 +207,25 @@ export const getFileInwardRecords = () => {
             const raw = localStorage.getItem(FILE_INWARD_STORAGE_KEY)
             if (raw) {
                 const parsed = JSON.parse(raw)
-                if (Array.isArray(parsed) && parsed.length > 0) return parsed
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed.filter(Boolean)
             }
         }
     } catch {
         /* ignore */
     }
     if (_memoryInward && Array.isArray(_memoryInward) && _memoryInward.length > 0) {
-        return _memoryInward
+        return _memoryInward.filter(Boolean)
     }
     _memoryInward = [...INITIAL_INWARD_RECORDS]
     saveFileInwardRecords(_memoryInward)
-    return _memoryInward
+    return _memoryInward.filter(Boolean)
 }
 
 export const saveFileInwardRecords = (records) => {
-    _memoryInward = records
+    _memoryInward = (records || []).filter(Boolean)
     try {
         if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(FILE_INWARD_STORAGE_KEY, JSON.stringify(records))
+            localStorage.setItem(FILE_INWARD_STORAGE_KEY, JSON.stringify(_memoryInward))
         }
     } catch {
         /* ignore */
@@ -238,25 +238,25 @@ export const getFileOutwardRecords = () => {
             const raw = localStorage.getItem(FILE_OUTWARD_STORAGE_KEY)
             if (raw) {
                 const parsed = JSON.parse(raw)
-                if (Array.isArray(parsed) && parsed.length > 0) return evaluateOverdueFiles(parsed)
+                if (Array.isArray(parsed) && parsed.length > 0) return evaluateOverdueFiles(parsed.filter(Boolean))
             }
         }
     } catch {
         /* ignore */
     }
     if (_memoryOutward && Array.isArray(_memoryOutward) && _memoryOutward.length > 0) {
-        return evaluateOverdueFiles(_memoryOutward)
+        return evaluateOverdueFiles(_memoryOutward.filter(Boolean))
     }
     _memoryOutward = [...INITIAL_OUTWARD_RECORDS]
     saveFileOutwardRecords(_memoryOutward)
-    return evaluateOverdueFiles(_memoryOutward)
+    return evaluateOverdueFiles(_memoryOutward.filter(Boolean))
 }
 
 const evaluateOverdueFiles = (records) => {
     if (!Array.isArray(records)) return []
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    return records.map((r) => {
+    return records.filter(Boolean).map((r) => {
         if (r && r.status === 'Issued' && r.expectedReturnDate) {
             try {
                 let expDate = null
@@ -289,10 +289,10 @@ const evaluateOverdueFiles = (records) => {
 }
 
 export const saveFileOutwardRecords = (records) => {
-    _memoryOutward = records
+    _memoryOutward = (records || []).filter(Boolean)
     try {
         if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(FILE_OUTWARD_STORAGE_KEY, JSON.stringify(records))
+            localStorage.setItem(FILE_OUTWARD_STORAGE_KEY, JSON.stringify(_memoryOutward))
         }
     } catch {
         /* ignore */
@@ -393,24 +393,31 @@ export const logFileInward = ({
  */
 export const issuePhysicalFile = ({
     fileId,
+    fileNumber,
     requestedById,
     requestedByName,
+    issuedToEmployeeId,
+    issuedToEmployeeName,
+    issuedToDepartment,
     department,
     approvedBy = 'HOD / Department Head',
     issuedByCustodian = 'Meenakshi Sundaram',
     purpose,
-    expectedReturnDate
+    expectedReturnDate,
+    directorApprovalObtained
 }) => {
     const files = getPhysicalFiles()
-    const targetFile = files.find((f) => f.id === fileId)
+    const targetLookup = fileId || fileNumber
+    const targetFile = files.find((f) => f && (f.id === targetLookup || f.fileNumber === targetLookup || f.barcode === targetLookup || f.fileRefNo === targetLookup))
     if (!targetFile) throw new Error('File not found in archive repository.')
 
-    if (targetFile.currentLocationStatus !== 'In File Room') {
-        throw new Error(`File is currently unavailable (Status: ${targetFile.currentLocationStatus}). Currently held by ${targetFile.heldByUserName || 'another borrower'}.`)
+    if (targetFile.currentStatus === 'Checked Out' || targetFile.currentLocationStatus === 'Checked Out / Issued' || targetFile.currentLocationStatus === 'Checked Out') {
+        throw new Error(`File is currently unavailable (Status: Checked Out). Currently held by ${targetFile.heldByUserName || 'another borrower'}.`)
     }
 
     // Confidentiality Check
-    if (targetFile.confidentiality.includes('Strictly Confidential') && !approvedBy.toLowerCase().includes('director') && !approvedBy.toLowerCase().includes('md')) {
+    const isStrictlyConfidential = (targetFile.confidentialityLevel === 'Strictly Confidential') || (targetFile.confidentiality && targetFile.confidentiality.includes('Strictly Confidential'))
+    if (isStrictlyConfidential && !directorApprovalObtained && !approvedBy.toLowerCase().includes('director') && !approvedBy.toLowerCase().includes('md')) {
         throw new Error('Strictly Confidential files require explicit Managing Director (MD) sign-off before release.')
     }
 
@@ -419,18 +426,26 @@ export const issuePhysicalFile = ({
     const issueId = `ISS-FILE-${String(nextSeq).padStart(3, '0')}`
 
     const nowStr = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    const finalBorrowerId = requestedById || issuedToEmployeeId || 'EMP-STAFF-001'
+    const finalBorrowerName = requestedByName || issuedToEmployeeName || 'Faculty / Staff Member'
+    const finalDept = department || issuedToDepartment || targetFile.department || 'Administration'
 
     const newOutward = {
         id: issueId,
-        fileId: targetFile.id,
-        fileName: targetFile.fileName,
-        requestedById,
-        requestedByName,
-        department,
+        fileId: targetFile.id || targetFile.fileNumber,
+        fileNumber: targetFile.fileNumber || targetFile.id,
+        fileName: targetFile.title || targetFile.fileName,
+        fileTitle: targetFile.title || targetFile.fileName,
+        requestedById: finalBorrowerId,
+        requestedByName: finalBorrowerName,
+        issuedToEmployeeName: finalBorrowerName,
+        issuedToDepartment: finalDept,
+        department: finalDept,
         approvedBy,
         issuedByCustodian,
+        issueDate: nowStr,
         issueDateTime: nowStr,
-        purpose,
+        purpose: purpose || 'Official Verification',
         expectedReturnDate: expectedReturnDate || new Date(Date.now() + 3 * 86400000).toLocaleDateString('en-GB'),
         actualReturnDate: null,
         receivingAcknowledgmentSigned: true,
@@ -443,34 +458,35 @@ export const issuePhysicalFile = ({
 
     // Update File Master
     targetFile.currentLocationStatus = 'Checked Out / Issued'
-    targetFile.heldByUserId = requestedById
-    targetFile.heldByUserName = requestedByName
-    targetFile.heldByUserDept = department
+    targetFile.currentStatus = 'Checked Out'
+    targetFile.heldByUserId = finalBorrowerId
+    targetFile.heldByUserName = finalBorrowerName
+    targetFile.heldByUserDept = finalDept
     targetFile.lastMovementDate = new Date().toLocaleDateString('en-GB')
 
     savePhysicalFiles(files)
 
     recordAuditLog({
-        actorId: requestedById,
-        actorName: requestedByName,
+        actorId: finalBorrowerId,
+        actorName: finalBorrowerName,
         module: 'File Room',
         action: 'ISSUE_PHYSICAL_FILE',
-        entityId: fileId,
+        entityId: targetFile.id || targetFile.fileNumber,
         previousState: 'In File Room',
         newState: 'Checked Out / Issued',
-        remarks: `Issued to ${requestedByName} (${department}) by ${issuedByCustodian}. Expected return: ${newOutward.expectedReturnDate}`
+        remarks: `Issued to ${finalBorrowerName} (${finalDept}) by ${issuedByCustodian}. Expected return: ${newOutward.expectedReturnDate}`
     })
 
     dispatchNotification({
-        recipientId: requestedById,
+        recipientId: finalBorrowerId,
         title: 'Physical File Issued from Archive',
-        message: `File '${targetFile.fileName}' issued to your custody. Due for return on ${newOutward.expectedReturnDate}.`,
+        message: `File '${targetFile.title || targetFile.fileName}' issued to your custody. Due for return on ${newOutward.expectedReturnDate}.`,
         link: '/file-room?tab=outward',
         priority: 'Normal',
         type: 'FILE_ROOM'
     })
 
-    return { targetFile, newOutward }
+    return { targetFile, newOutward, outwardRecord: newOutward, file: targetFile }
 }
 
 /**
@@ -478,27 +494,31 @@ export const issuePhysicalFile = ({
  */
 export const returnPhysicalFile = ({
     issueId,
+    outwardRecordId,
     custodianName = 'Meenakshi Sundaram',
     returnCondition = 'Good',
+    conditionOnReturn = 'Intact',
     remarks = 'Physical documents verified against page index. Restocked in designated rack.'
 }) => {
     const outwards = getFileOutwardRecords()
-    const targetOutward = outwards.find((o) => o.id === issueId)
+    const targetLookup = issueId || outwardRecordId
+    const targetOutward = outwards.find((o) => o && (o.id === targetLookup || o.fileNumber === targetLookup))
     if (!targetOutward) throw new Error('Outward issue record not found.')
 
     const files = getPhysicalFiles()
-    const targetFile = files.find((f) => f.id === targetOutward.fileId)
+    const targetFile = files.find((f) => f && (f.id === targetOutward.fileId || f.fileNumber === targetOutward.fileNumber || f.fileNumber === targetOutward.fileId))
     if (!targetFile) throw new Error('Referenced file record not found in repository.')
 
     const nowStr = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 
     targetOutward.actualReturnDate = nowStr
-    targetOutward.returnCondition = returnCondition
+    targetOutward.returnCondition = conditionOnReturn || returnCondition
     targetOutward.status = 'Returned'
     saveFileOutwardRecords(outwards)
 
     // Update File Master
     targetFile.currentLocationStatus = 'In File Room'
+    targetFile.currentStatus = 'Available in File Room'
     targetFile.heldByUserId = null
     targetFile.heldByUserName = null
     targetFile.heldByUserDept = null
@@ -510,20 +530,20 @@ export const returnPhysicalFile = ({
         actorRole: 'librarian',
         module: 'File Room',
         action: 'RETURN_PHYSICAL_FILE',
-        entityId: targetFile.id,
+        entityId: targetFile.id || targetFile.fileNumber,
         previousState: 'Checked Out / Issued',
         newState: 'In File Room',
-        remarks: `File '${targetFile.fileName}' returned by ${targetOutward.requestedByName}. Inspected by ${custodianName}. Condition: ${returnCondition}.`
+        remarks: `File '${targetFile.title || targetFile.fileName}' returned by ${targetOutward.requestedByName || targetOutward.issuedToEmployeeName}. Inspected by ${custodianName}. Condition: ${conditionOnReturn || returnCondition}.`
     })
 
     dispatchNotification({
-        recipientId: targetOutward.requestedById,
+        recipientId: targetOutward.requestedById || targetOutward.issuedToEmployeeId,
         title: 'Physical File Return Confirmed',
-        message: `Your return of file '${targetFile.fileName}' has been verified and restocked in File Room archive.`,
+        message: `Your return of file '${targetFile.title || targetFile.fileName}' has been verified and restocked in File Room archive.`,
         link: '/file-room?tab=master',
         type: 'FILE_ROOM'
     })
 
-    return { targetFile, targetOutward }
+    return { targetFile, targetOutward, outwardRecord: targetOutward, file: targetFile }
 }
 

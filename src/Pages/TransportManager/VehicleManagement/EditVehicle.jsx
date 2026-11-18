@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import VehicleDetailsForm from './Components/VehicleDetailsForm'
 import { getVehicleById } from './vehicleManagementData'
+import { Button } from '../../../Common/ui'
 
 const EditVehicle = () => {
     const navigate = useNavigate()
@@ -21,13 +22,12 @@ const EditVehicle = () => {
                     Vehicle not found or could not be loaded.
                 </div>
                 <div className='flex sm:justify-end justify-center gap-x-4 mt-6'>
-                    <button
-                        type='button'
+                    <Button
+                        variant='primary'
                         onClick={() => navigate('/transport-manager/vehicle-management')}
-                        className='bg-[#515DEF] text-white text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer md:w-auto w-full'
                     >
                         Back to list
-                    </button>
+                    </Button>
                 </div>
             </section>
         )
@@ -42,20 +42,18 @@ const EditVehicle = () => {
             </div>
 
             <div className='flex sm:justify-end justify-center gap-x-4 mt-6'>
-                <button
-                    type='button'
+                <Button
+                    variant='secondary'
                     onClick={() => navigate('/transport-manager/vehicle-management')}
-                    className='bg-white text-[#515DEF] text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:bg-[#515DEF] hover:text-white hover:border-[#515DEF] transition-all duration-200 cursor-pointer md:w-auto w-full'
                 >
                     Discard Changes
-                </button>
-                <button
-                    type='button'
+                </Button>
+                <Button
+                    variant='primary'
                     onClick={handleSave}
-                    className='bg-[#515DEF] text-white text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer md:w-auto w-full'
                 >
                     Save Changes
-                </button>
+                </Button>
             </div>
         </section>
     )

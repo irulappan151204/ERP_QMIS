@@ -19,9 +19,8 @@ import {
 import Dropdown from '../CommonComponents/Dropdown'
 import ExportModal from '../CommonComponents/ExportModal'
 import DeleteRequestModal from '../CommonComponents/DeleteRequestModal'
-
-const filterInputClass =
-    'text-sm font-normal text-[#808080] border border-[#D9D9D9] rounded-md px-2 py-2 w-full bg-white'
+import { Button } from '../ui'
+import { inputClass, selectClass, labelClass } from '../ui/formStyles'
 
 const StudentAllocationList = ({
     mode,
@@ -75,7 +74,7 @@ const StudentAllocationList = ({
             {filters.status ? (
                 <>
                     {' '}
-                    <span className='text-[#515DEF]'>( Filtered: Status: {filters.status} )</span>
+                    <span className='text-indigo-600 font-semibold'>( Filtered: Status: {filters.status} )</span>
                 </>
             ) : null}
         </>
@@ -89,9 +88,9 @@ const StudentAllocationList = ({
         isApprover && record.allocationStatus === 'Pending Approval'
 
     return (
-        <section>
-            <div className='bg-white rounded-2xl shadow-md p-4'>
-                <p className='text-sm text-[#667085] mb-4'>
+        <section className='space-y-6'>
+            <div className='bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5'>
+                <p className='text-xs text-slate-500 mb-4'>
                     {routePrefix === '/principal'
                         ? 'Pending students are allocated by the Principal. Choose a class and section to complete allocation.'
                         : isApprover
@@ -104,48 +103,48 @@ const StudentAllocationList = ({
                         onClick={() => updateFilter('status', filters.status === 'Pending Approval' ? '' : 'Pending Approval')}
                         className={`mb-4 text-left w-full sm:w-auto rounded-xl border px-4 py-3 transition-all cursor-pointer ${
                             filters.status === 'Pending Approval'
-                                ? 'border-[#515DEF] bg-[#515DEF08] ring-2 ring-[#515DEF]'
-                                : 'border-[#E4E7EC] hover:border-[#515DEF]'
+                                ? 'border-[#3F46C7] bg-indigo-50/50 ring-2 ring-[#3F46C7]'
+                                : 'border-slate-200 hover:border-[#3F46C7]'
                         }`}
                     >
-                        <p className='text-sm font-medium text-[#808080]'>Pending approvals</p>
-                        <p className='text-2xl font-bold text-[#0C1E5B] mt-1'>{pendingApprovalCount}</p>
-                        <p className='text-xs text-[#515DEF] mt-1'>
+                        <p className='text-xs font-medium text-slate-500'>Pending approvals</p>
+                        <p className='text-2xl font-bold text-slate-900 mt-0.5'>{pendingApprovalCount}</p>
+                        <p className='text-xs font-semibold text-[#3F46C7] mt-0.5'>
                             {filters.status === 'Pending Approval' ? 'Filter active — click to clear' : 'Click to filter pending'}
                         </p>
                     </button>
                 ) : null}
-                <div className='flex justify-between md:items-center sm:items-stretch md:flex-row sm:flex-col flex-col gap-y-4'>
-                    <button
-                        type='button'
+                <div className='flex justify-between md:items-center sm:items-stretch md:flex-row sm:flex-col flex-col gap-4'>
+                    <Button
+                        variant='secondary'
+                        size='sm'
                         onClick={clearFilters}
-                        className='bg-[#515DEF] text-white uppercase text-sm px-6 py-1.5 border border-[#515DEF] rounded-lg hover:opacity-90 transition-all duration-200 cursor-pointer'
                     >
                         Clear Filters
-                    </button>
-                    <select className={`${filterInputClass} md:max-w-xs sm:max-w-full`}>
+                    </Button>
+                    <select className={`w-full md:max-w-xs sm:max-w-full ${selectClass}`}>
                         <option value=''>From Beginning</option>
                     </select>
                 </div>
-                <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:mt-8 mt-2'>
-                    <div className='flex flex-col gap-y-2'>
-                        <label htmlFor='search' className='text-base font-medium text-[#808080]'>Search</label>
+                <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4'>
+                    <div className='flex flex-col'>
+                        <label htmlFor='search' className={labelClass}>Search</label>
                         <input
                             id='search'
                             type='text'
                             value={filters.search}
                             onChange={(e) => updateFilter('search', e.target.value)}
                             placeholder='Student, roll no, admission no...'
-                            className={filterInputClass}
+                            className={inputClass}
                         />
                     </div>
-                    <div className='flex flex-col gap-y-2'>
-                        <label htmlFor='status' className='text-base font-medium text-[#808080]'>Status</label>
+                    <div className='flex flex-col'>
+                        <label htmlFor='status' className={labelClass}>Status</label>
                         <select
                             id='status'
                             value={filters.status}
                             onChange={(e) => updateFilter('status', e.target.value)}
-                            className={filterInputClass}
+                            className={selectClass}
                         >
                             <option value=''>All</option>
                             {ALLOCATION_STATUSES.map((status) => (
@@ -153,8 +152,8 @@ const StudentAllocationList = ({
                             ))}
                         </select>
                     </div>
-                    <div className='flex flex-col gap-y-2'>
-                        <label className='text-base font-medium text-[#808080]'>From</label>
+                    <div className='flex flex-col'>
+                        <label className={labelClass}>From</label>
                         <div className='relative w-full'>
                             <DatePicker
                                 selected={filters.fromDate}
@@ -162,13 +161,13 @@ const StudentAllocationList = ({
                                 isClearable
                                 showMonthYearDropdown
                                 scrollableMonthYearDropdown
-                                className='w-full text-sm text-[#808080] border border-[#D9D9D9] rounded-md px-3 py-2 pr-10 focus:outline-none'
+                                className={inputClass}
                             />
-                            <Calendar size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-[#808080] pointer-events-none' />
+                            <Calendar size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none' />
                         </div>
                     </div>
-                    <div className='flex flex-col gap-y-2'>
-                        <label className='text-base font-medium text-[#808080]'>To</label>
+                    <div className='flex flex-col'>
+                        <label className={labelClass}>To</label>
                         <div className='relative'>
                             <DatePicker
                                 selected={filters.toDate}
@@ -176,60 +175,59 @@ const StudentAllocationList = ({
                                 isClearable
                                 showMonthYearDropdown
                                 scrollableMonthYearDropdown
-                                className='w-full text-sm text-[#808080] border border-[#D9D9D9] rounded-md px-3 py-2 pr-10 focus:outline-none'
+                                className={inputClass}
                             />
-                            <Calendar size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-[#808080] pointer-events-none' />
+                            <Calendar size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none' />
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className='bg-white rounded-2xl shadow-md p-4 mt-8'>
+            <div className='bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5'>
                 <div className='flex justify-between items-center sm:flex-row flex-col gap-y-2 mb-4'>
-                    <h2 className='text-xl font-medium text-black'>
+                    <h2 className='text-lg font-bold text-slate-900'>
                         {isApprover ? 'Student Allocation Approval' : 'Student Allocation'}
                     </h2>
-                    <button
-                        type='button'
+                    <Button
+                        variant='secondary'
+                        icon={<Download size={15} />}
                         onClick={() => setExportModal(true)}
-                        className='bg-[#515DEF] text-white text-sm px-4 py-2 rounded-md hover:opacity-90 transition-all duration-200 cursor-pointer flex items-center gap-x-2'
                     >
-                        <Download size={16} />
                         Export
-                    </button>
+                    </Button>
                 </div>
-                <div className='flex gap-x-2 items-center my-2'>
-                    <select className='px-2 py-1.5 bg-white text-[#515DEF] border border-[#515DEF] rounded-md'>
+                <div className='flex gap-x-2 items-center my-3'>
+                    <select className='px-2.5 py-1 text-xs font-semibold bg-white text-slate-700 border border-slate-200 rounded-lg'>
                         <option value='10'>10</option>
                         <option value='20'>20</option>
                         <option value='30'>30</option>
                     </select>
-                    <span className='text-sm font-normal text-[#515DEF]'>Entries Per Page</span>
+                    <span className='text-xs font-medium text-slate-500'>Entries Per Page</span>
                 </div>
-                <div className='relative overflow-x-auto'>
+                <div className='relative overflow-x-auto rounded-xl border border-slate-200/80'>
                     <table className='w-full text-sm text-left'>
-                        <thead className='text-xs bg-[#EDEEF5] whitespace-nowrap rounded-lg'>
+                        <thead className='text-[11px] bg-slate-50/90 text-slate-600 font-semibold uppercase tracking-wider whitespace-nowrap border-b border-slate-200/80'>
                             <tr>
-                                <th className='px-2 py-3.5 text-[#0C1E5B] font-medium uppercase rounded-s-lg'>Profile</th>
-                                <th className='px-2 py-3.5 text-[#0C1E5B] font-medium uppercase'>Student</th>
-                                <th className='px-2 py-3.5 text-[#0C1E5B] font-medium uppercase'>Roll No</th>
-                                <th className='px-2 py-3.5 text-[#0C1E5B] font-medium uppercase'>Class</th>
-                                <th className='px-2 py-3.5 text-[#0C1E5B] font-medium uppercase'>Class Section</th>
-                                <th className='px-2 py-3.5 text-[#0C1E5B] font-medium uppercase'>Admission Number</th>
+                                <th className='px-4 py-3'>Profile</th>
+                                <th className='px-4 py-3'>Student</th>
+                                <th className='px-4 py-3'>Roll No</th>
+                                <th className='px-4 py-3'>Class</th>
+                                <th className='px-4 py-3'>Class Section</th>
+                                <th className='px-4 py-3'>Admission Number</th>
                                 {isApprover ? (
                                     <>
-                                        <th className='px-2 py-3.5 text-[#0C1E5B] font-medium uppercase'>Submitted By</th>
-                                        <th className='px-2 py-3.5 text-[#0C1E5B] font-medium uppercase'>Submitted At</th>
+                                        <th className='px-4 py-3'>Submitted By</th>
+                                        <th className='px-4 py-3'>Submitted At</th>
                                     </>
                                 ) : null}
-                                <th className='px-2 py-3.5 text-[#0C1E5B] font-medium uppercase'>Status</th>
-                                <th className='px-2 py-3.5 text-[#0C1E5B] font-medium uppercase rounded-e-lg'>Actions</th>
+                                <th className='px-4 py-3'>Status</th>
+                                <th className='px-4 py-3 text-center'>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className='divide-y divide-slate-100'>
                             {filteredRecords.length === 0 ? (
                                 <tr>
-                                    <td colSpan={isApprover ? 11 : 9} className='px-2 py-8 text-center text-[#667085]'>
+                                    <td colSpan={isApprover ? 11 : 9} className='px-4 py-12 text-center text-slate-500'>
                                         {records.length === 0 && !isApprover
                                             ? 'No enrolled students found. Enroll students from the Admission List first.'
                                             : isApprover && filters.status === 'Pending Approval'
@@ -239,45 +237,45 @@ const StudentAllocationList = ({
                                 </tr>
                             ) : (
                                 filteredRecords.map((record) => (
-                                    <tr key={record.id} className='border-b text-[#667085] border-[#f2f4f7] hover:bg-[#f2f4f7]'>
-                                        <td className='px-2 py-4 rounded-s-lg'>
+                                    <tr key={record.id} className='hover:bg-slate-50/80 text-slate-700 transition-colors'>
+                                        <td className='px-4 py-3.5'>
                                             <img
                                                 src={getAllocationProfileImage(record)}
                                                 alt=''
-                                                className='w-9 h-9 object-cover mx-auto rounded-full'
+                                                className='w-9 h-9 object-cover rounded-full ring-1 ring-slate-200'
                                             />
                                         </td>
-                                        <td className='px-2 py-4 font-medium text-[#1E1E1E]'>{record.studentName}</td>
-                                        <td className='px-2 py-4'>{getAllocationDisplayRollNo(record)}</td>
-                                        <td className='px-2 py-4'>{getAllocationDisplayClass(record)}</td>
-                                        <td className='px-2 py-4'>{getAllocationDisplaySection(record)}</td>
-                                        <td className='px-2 py-4'>{record.admissionNumber}</td>
+                                        <td className='px-4 py-3.5 font-medium text-slate-900'>{record.studentName}</td>
+                                        <td className='px-4 py-3.5'>{getAllocationDisplayRollNo(record)}</td>
+                                        <td className='px-4 py-3.5'>{getAllocationDisplayClass(record)}</td>
+                                        <td className='px-4 py-3.5'>{getAllocationDisplaySection(record)}</td>
+                                        <td className='px-4 py-3.5 font-mono text-xs'>{record.admissionNumber}</td>
                                         {isApprover ? (
                                             <>
-                                                <td className='px-2 py-4 whitespace-nowrap'>
+                                                <td className='px-4 py-3.5 whitespace-nowrap'>
                                                     {record.submittedBy ? (
                                                         <>
-                                                            <span className='block text-[#1E1E1E]'>{record.submittedBy}</span>
-                                                            <span className='text-xs text-[#808080]'>{record.submittedByRole}</span>
+                                                            <span className='block text-slate-900 font-medium'>{record.submittedBy}</span>
+                                                            <span className='text-xs text-slate-500'>{record.submittedByRole}</span>
                                                         </>
                                                     ) : (
                                                         '—'
                                                     )}
                                                 </td>
-                                                <td className='px-2 py-4 whitespace-nowrap'>{record.submittedAt || '—'}</td>
+                                                <td className='px-4 py-3.5 whitespace-nowrap text-xs text-slate-500'>{record.submittedAt || '—'}</td>
                                             </>
                                         ) : null}
-                                        <td className='px-2 py-4'>
-                                            <span className={`px-2 py-1 rounded-lg text-xs font-semibold whitespace-nowrap ${allocationStatusColor[record.allocationStatus]}`}>
+                                        <td className='px-4 py-3.5'>
+                                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${allocationStatusColor[record.allocationStatus]}`}>
                                                 {record.allocationStatus}
                                             </span>
                                         </td>
-                                        <td className='px-2 py-4 text-center rounded-e-lg'>
-                                            <Dropdown buttonContent={<EllipsisIcon size={16} className='text-black' />}>
+                                        <td className='px-4 py-3.5 text-center'>
+                                            <Dropdown buttonContent={<EllipsisIcon size={16} className='text-slate-600' />}>
                                                 {canAllocate(record) ? (
                                                     <NavLink
                                                         to={`${listPath}/allocate/${record.id}`}
-                                                        className='block w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'
+                                                        className='block w-full text-left p-2 hover:bg-slate-100 text-slate-700 text-xs font-medium rounded-lg cursor-pointer'
                                                     >
                                                         Allocate
                                                     </NavLink>
@@ -285,7 +283,7 @@ const StudentAllocationList = ({
                                                 {canReview(record) ? (
                                                     <NavLink
                                                         to={`${listPath}/review/${record.id}`}
-                                                        className='block w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'
+                                                        className='block w-full text-left p-2 hover:bg-slate-100 text-slate-700 text-xs font-medium rounded-lg cursor-pointer'
                                                     >
                                                         Review
                                                     </NavLink>
@@ -293,7 +291,7 @@ const StudentAllocationList = ({
                                                 {(isApprover && !canReview(record)) || (!isApprover && !canAllocate(record)) ? (
                                                     <NavLink
                                                         to={`${listPath}/${isApprover ? 'review' : 'allocate'}/${record.id}`}
-                                                        className='block w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'
+                                                        className='block w-full text-left p-2 hover:bg-slate-100 text-slate-700 text-xs font-medium rounded-lg cursor-pointer'
                                                     >
                                                         View
                                                     </NavLink>
@@ -301,7 +299,7 @@ const StudentAllocationList = ({
                                                 <button
                                                     type='button'
                                                     onClick={() => setDeleteRequestModal(true)}
-                                                    className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'
+                                                    className='w-full text-left p-2 hover:bg-rose-50 text-rose-700 text-xs font-medium rounded-lg cursor-pointer'
                                                 >
                                                     Delete
                                                 </button>
@@ -313,22 +311,28 @@ const StudentAllocationList = ({
                         </tbody>
                     </table>
                 </div>
-            </div>
 
-            <div className='flex justify-between items-center px-4 mt-4'>
-                <p className='text-sm font-medium text-[#515DEF]'>
-                    Showing 1 to {filteredRecords.length} of {filteredRecords.length} entries
-                </p>
-                <div className='flex gap-x-2'>
-                    <button type='button' className='size-8 flex justify-center items-center p-2 bg-white text-[#515DEF] border border-[#E2E8F0] hover:bg-[#515DEF] hover:text-white rounded-full cursor-pointer'>
-                        <ChevronLeft size={16} />
-                    </button>
-                    <button type='button' className='size-8 flex justify-center items-center p-2 bg-[#515DEF] text-white border border-[#515DEF] rounded-full cursor-pointer'>
-                        1
-                    </button>
-                    <button type='button' className='size-8 flex justify-center items-center p-2 bg-white text-[#515DEF] border border-[#E2E8F0] hover:bg-[#515DEF] hover:text-white rounded-full cursor-pointer'>
-                        <ChevronRight size={16} />
-                    </button>
+                <div className='flex justify-between items-center px-2 mt-4'>
+                    <p className='text-xs font-medium text-slate-500'>
+                        Showing 1 to {filteredRecords.length} of {filteredRecords.length} entries
+                    </p>
+                    <div className='flex items-center gap-1.5'>
+                        <Button
+                            variant='secondary'
+                            size='icon-sm'
+                            icon={<ChevronLeft size={16} />}
+                            disabled
+                        />
+                        <span className='px-2.5 py-1 text-xs font-bold text-white bg-[#3F46C7] rounded-lg shadow-2xs'>
+                            1
+                        </span>
+                        <Button
+                            variant='secondary'
+                            size='icon-sm'
+                            icon={<ChevronRight size={16} />}
+                            disabled
+                        />
+                    </div>
                 </div>
             </div>
 

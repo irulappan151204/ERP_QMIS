@@ -8,6 +8,7 @@ import {
     raiseDepartmentTicket,
 } from '../../DepartmentTicketing/departmentTicketingData'
 import { ENTERPRISE_EMPLOYEES } from '../../AttendanceAndLeave/attendanceLeaveData'
+import { Button } from '../../ui'
 
 const inputClass =
     'w-full rounded-lg border border-[var(--erp-line-strong)] bg-white px-3 py-2 text-xs text-[var(--erp-ink)] focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -120,15 +121,15 @@ const RaiseTicketModal = () => {
 
     return (
         <>
-            <button
-                type='button'
+            <Button
+                variant='outline'
+                size='sm'
                 onClick={() => setIsOpen(true)}
-                className='inline-flex items-center gap-1.5 rounded-lg border border-[#515DEF] bg-[#515DEF]/10 px-2.5 py-1.5 text-xs font-semibold text-[#515DEF] hover:bg-[#515DEF] hover:text-white transition-colors cursor-pointer sm:px-3 sm:py-2'
+                icon={<LifeBuoy size={16} />}
                 title='Raise a Department Support Ticket'
             >
-                <LifeBuoy size={16} />
                 <span className='hidden md:inline'>Raise Ticket</span>
-            </button>
+            </Button>
 
             {isOpen && (
                 <div
@@ -306,20 +307,20 @@ const RaiseTicketModal = () => {
                             </div>
 
                             <div className='flex items-center justify-end gap-2 border-t border-slate-200 pt-4'>
-                                <button
-                                    type='button'
+                                <Button
+                                    variant='secondary'
                                     onClick={() => setIsOpen(false)}
-                                    className='rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer'
                                 >
                                     Cancel
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type='submit'
-                                    disabled={isSubmitting}
-                                    className='rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-xs cursor-pointer'
+                                    variant='primary'
+                                    loading={isSubmitting}
+                                    loadingText='Routing Ticket…'
                                 >
-                                    {isSubmitting ? 'Routing Ticket…' : 'Submit & Route Ticket'}
-                                </button>
+                                    Submit & Route Ticket
+                                </Button>
                             </div>
                         </form>
                     </div>

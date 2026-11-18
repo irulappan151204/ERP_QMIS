@@ -1,8 +1,9 @@
-﻿import React from 'react'
+import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, User, Car, Briefcase, FileText, Bus } from 'lucide-react'
 import mo_user from '../../assets/images/no-profile.png'
 import { getDriverById, getDriverDisplayName, statusBadgeColor } from './driversData'
+import { Button } from '../ui'
 
 const Section = ({ title, icon: Icon, children }) => (
     <div className='bg-white rounded-2xl shadow-sm border border-[#EEF0F6] overflow-hidden'>
@@ -31,14 +32,13 @@ const ViewDriver = ({ basePath }) => {
     if (!driver) {
         return (
             <section className='space-y-6'>
-                <button
-                    type='button'
+                <Button
+                    variant='secondary'
                     onClick={() => navigate(basePath)}
-                    className='inline-flex items-center gap-2 text-sm text-[#515DEF] border border-[#515DEF] rounded-md px-4 py-2 hover:bg-[#515DEF] hover:text-white transition-colors cursor-pointer'
+                    icon={<ArrowLeft size={16} />}
                 >
-                    <ArrowLeft size={18} />
                     Back to list
-                </button>
+                </Button>
                 <div className='bg-white rounded-2xl shadow-md p-8 text-center text-[#667085]'>
                     Driver not found or could not be loaded.
                 </div>
@@ -50,14 +50,13 @@ const ViewDriver = ({ basePath }) => {
 
     return (
         <section className='space-y-6'>
-            <button
-                type='button'
+            <Button
+                variant='secondary'
                 onClick={() => navigate(basePath)}
-                className='inline-flex items-center gap-2 text-sm text-[#515DEF] border border-[#515DEF] rounded-md px-4 py-2 hover:bg-[#515DEF] hover:text-white transition-colors cursor-pointer'
+                icon={<ArrowLeft size={16} />}
             >
-                <ArrowLeft size={18} />
                 Back to list
-            </button>
+            </Button>
 
             <div className='relative overflow-hidden rounded-2xl shadow-md bg-linear-to-br from-[#515DEF] via-[#6366F1] to-[#7C3AED] p-6 sm:p-8'>
                 <div className='absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3' />

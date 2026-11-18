@@ -17,6 +17,7 @@ import {
 import { getActivityConfig, getActivityRoutes } from './activityConfigs'
 import { getClassSelectOptions } from '../RBAC/academicsCatalogData'
 import MdApprovalSubmitModal from './MdApprovalSubmitModal'
+import { Button } from '../ui'
 
 const emptyForm = (personField) => ({
     eventName: '',
@@ -67,13 +68,13 @@ export default function AddActivityForm({ roleKey, activityType, mode = 'add' })
         return (
             <section className='bg-white rounded-2xl shadow-md p-6'>
                 <p className='text-[#667085]'>Activity not found.</p>
-                <button
-                    type='button'
+                <Button
+                    variant='secondary'
                     onClick={() => navigate(routes.list)}
-                    className='mt-4 text-sm text-[#515DEF] hover:underline cursor-pointer'
+                    className='mt-4'
                 >
                     Back to list
-                </button>
+                </Button>
             </section>
         )
     }
@@ -255,20 +256,18 @@ export default function AddActivityForm({ roleKey, activityType, mode = 'add' })
             </div>
 
             <div className='flex sm:justify-end justify-center gap-x-4 mt-6'>
-                <button
-                    type='button'
+                <Button
+                    variant='secondary'
                     onClick={() => navigate(routes.list)}
-                    className='bg-white text-[#515DEF] text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:bg-[#515DEF] hover:text-white hover:border-[#515DEF] transition-all duration-200 cursor-pointer md:w-auto w-full'
                 >
                     Discard Changes
-                </button>
-                <button
-                    type='button'
+                </Button>
+                <Button
+                    variant='primary'
                     onClick={handleSubmit}
-                    className='bg-[#515DEF] text-white text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer md:w-auto w-full'
                 >
                     {isEdit ? 'Save Changes' : roleKey === 'admin' ? 'Submit for Super Admin Approval' : 'Save Changes'}
-                </button>
+                </Button>
             </div>
 
             <MdApprovalSubmitModal

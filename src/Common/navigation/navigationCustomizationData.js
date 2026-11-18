@@ -56,8 +56,10 @@ export const getNavigationPreferences = (role, email, baseLinks = []) => {
         return defaultPrefs
     }
 
+    const cleanStoredGroups = storedPrefs.groups.filter(Boolean)
+
     // Safety check: ensure stored groups actually belong to this role's items
-    const allStoredIds = storedPrefs.groups.flatMap((g) => g.moduleIds || [])
+    const allStoredIds = cleanStoredGroups.flatMap((g) => g?.moduleIds || [])
     const matchingCount = allStoredIds.filter((id) => itemMap.has(String(id))).length
     if (allStoredIds.length > 0 && matchingCount === 0) {
         try {
@@ -75,7 +77,7 @@ export const getNavigationPreferences = (role, email, baseLinks = []) => {
 
     // Reconcile groups
     const assignedIds = new Set()
-    const reconciledGroups = storedPrefs.groups.map((group) => {
+    const reconciledGroups = cleanStoredGroups.map((group) => {
         const validModuleIds = (group.moduleIds || []).filter((id) => {
             const sid = String(id)
             if (itemMap.has(sid) && !assignedIds.has(sid)) {

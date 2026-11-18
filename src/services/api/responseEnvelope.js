@@ -88,7 +88,7 @@ export function paginateResults(items = [], options = {}) {
     sortOrder = 'asc',
   } = options;
 
-  let filtered = [...items];
+  let filtered = (items || []).filter(Boolean);
 
   // 1. Custom filter predicate
   if (typeof filter === 'function') {
@@ -116,8 +116,11 @@ export function paginateResults(items = [], options = {}) {
   if (sortBy) {
     const isAsc = sortOrder.toLowerCase() !== 'desc';
     filtered.sort((a, b) => {
-      let valA = typeof sortBy === 'function' ? sortBy(a) : a[sortBy];
-      let valB = typeof sortBy === 'function' ? sortBy(b) : b[sortBy];
+      if (!a && !b) return 0;
+      if (!a) return 1;
+      if (!b) return -1;
+      let valA = typeof sortBy === 'function' ? sortBy(a) : (a ? a[sortBy] : undefined);
+      let valB = typeof sortBy === 'function' ? sortBy(b) : (b ? b[sortBy] : undefined);
 
       if (valA === valB) return 0;
       if (valA === undefined || valA === null) return 1;

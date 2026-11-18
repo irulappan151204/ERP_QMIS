@@ -639,7 +639,7 @@ const MarkEntryPage = ({ submittedByRole = 'Teacher' }) => {
                                         type='button'
                                         disabled
                                         title='Secure spreadsheet import is not connected'
-                                        className='flex items-center gap-x-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-400 opacity-65 cursor-not-allowed'
+                                        className='flex items-center gap-x-2 rounded-lg border border-slate-300 bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 cursor-not-allowed'
                                     >
                                         <Upload size={14} />
                                         Import unavailable
@@ -648,7 +648,7 @@ const MarkEntryPage = ({ submittedByRole = 'Teacher' }) => {
                                         type='button'
                                         disabled
                                         title='Assessment export service is not connected'
-                                        className='flex items-center gap-x-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-400 opacity-65 cursor-not-allowed'
+                                        className='flex items-center gap-x-2 rounded-lg border border-slate-300 bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 cursor-not-allowed'
                                     >
                                         <Download size={14} />
                                         Export unavailable

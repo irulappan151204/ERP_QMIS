@@ -5,6 +5,7 @@ import Dropdown from '../CommonComponents/Dropdown'
 import ExportModal from '../CommonComponents/ExportModal'
 import EditRequestModal from '../CommonComponents/EditRequestModal'
 import DeleteRequestModal from '../CommonComponents/DeleteRequestModal'
+import ViewRecordModal from '../CommonComponents/ViewRecordModal'
 import StarRatingDisplay from './Components/StarRatingDisplay'
 import { useStarRatingsRouteBase } from './useStarRatingsRouteBase'
 import {
@@ -31,6 +32,7 @@ const StarRatings = ({ view = 'som' }) => {
     const [exportModal, setExportModal] = useState(false)
     const [editRequestModal, setEditRequestModal] = useState(false)
     const [deleteRequestModal, setDeleteRequestModal] = useState(false)
+    const [selectedRatingForView, setSelectedRatingForView] = useState(null)
 
     const somRatings = useMemo(() => {
         return getSomRatings().filter((item) => {
@@ -314,7 +316,11 @@ const StarRatings = ({ view = 'som' }) => {
                                             <td className='px-2 py-4'>{entry.ratedByRole}</td>
                                             <td className='px-2 py-4 text-center rounded-e-lg'>
                                                 <Dropdown buttonContent={<EllipsisIcon size={16} className='text-black' />}>
-                                                    <button type='button' className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>
+                                                    <button
+                                                        type='button'
+                                                        onClick={() => setSelectedRatingForView(entry)}
+                                                        className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'
+                                                    >
                                                         View
                                                     </button>
                                                     <button
@@ -406,6 +412,12 @@ const StarRatings = ({ view = 'som' }) => {
             <ExportModal exportModal={exportModal} setExportModal={setExportModal} />
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+            <ViewRecordModal
+                isOpen={Boolean(selectedRatingForView)}
+                onClose={() => setSelectedRatingForView(null)}
+                data={selectedRatingForView}
+                title={selectedRatingForView?.studentName ? `${selectedRatingForView.studentName} - Star Rating Details` : 'Star Rating Details'}
+            />
         </section>
     )
 }

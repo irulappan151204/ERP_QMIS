@@ -21,7 +21,7 @@ export default function Dropdown({ buttonContent, children }) {
             {/* Button */}
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-md text-sm px-4 py-2.5 cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl text-xs font-semibold px-3.5 py-2 cursor-pointer transition-colors"
             >
                 {buttonContent}
             </button>
@@ -31,13 +31,13 @@ export default function Dropdown({ buttonContent, children }) {
                 <>
                     {/* Mobile Overlay */}
                     <div
-                        className="fixed inset-0 bg-black/30 z-40 sm:hidden"
+                        className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-40 sm:hidden"
                         onClick={() => setOpen(false)}
                     />
 
                     <div
-                        className="absolute z-50 right-0 w-34 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-2">
-                        <div className="text-sm flex flex-col gap-1">
+                        className="absolute z-50 right-0 w-36 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg p-1.5 animate-in fade-in zoom-in-95">
+                        <div className="text-xs flex flex-col gap-0.5">
                             {children}
                         </div>
                     </div>

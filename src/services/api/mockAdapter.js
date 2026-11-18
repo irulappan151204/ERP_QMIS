@@ -47,7 +47,11 @@ class MockAdapter {
       try {
         const stored = window.localStorage.getItem(STORAGE_PREFIX + key);
         if (stored) {
-          return JSON.parse(stored);
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            return parsed.filter(Boolean);
+          }
+          return parsed;
         }
       } catch (err) {
         console.warn(`[MockAdapter] Failed to read localStorage key ${key}:`, err);
@@ -315,15 +319,15 @@ class MockAdapter {
     // 2. Purchase Order Approval -> Automatic Finance Accounts Payable Voucher
     this.registerRoute('POST', '/api/v1/purchase/pos/:id/approve', ({ params, data }) => {
       const poId = params.id;
-      const po = this.stores['purchase_pos'].find((p) => p.id === poId);
+      const po = (this.stores['purchase_pos'] || []).filter(Boolean).find((p) => p && p.id === poId);
       if (!po) {
         return createErrorResponse(`Purchase order ${poId} not found.`);
       }
 
       // Idempotency: return existing liability voucher if already approved
       if (po.status === 'Approved') {
-        const existingVoucher = (this.stores['purchase_liabilities'] || []).find(
-          (v) => v.poId === po.id || v.id === po.linkedFinanceLiabilityVoucherId
+        const existingVoucher = (this.stores['purchase_liabilities'] || []).filter(Boolean).find(
+          (v) => v && (v.poId === po.id || v.id === po.linkedFinanceLiabilityVoucherId)
         );
         return createSuccessResponse({
           purchaseOrder: po,
@@ -363,7 +367,7 @@ class MockAdapter {
     // 3. CCTV Footage Multi-Tier Approval
     this.registerRoute('POST', '/api/v1/cctv/requests/:id/approve-tier', ({ params, data }) => {
       const requestId = params.id;
-      const req = this.stores['cctv_requests'].find((r) => r.id === requestId);
+      const req = (this.stores['cctv_requests'] || []).filter(Boolean).find((r) => r && r.id === requestId);
       if (!req) return createErrorResponse(`CCTV Request ${requestId} not found.`);
 
       const { role, approved, remarks, reviewerName, reopen } = data || {};
@@ -449,7 +453,7 @@ class MockAdapter {
     // 4. File Room Checkout with Confidentiality Verification
     this.registerRoute('POST', '/api/v1/fileroom/checkout', ({ data }) => {
       const { fileId, requestedById, requestedByName, department, purpose, expectedReturnDate, approvalRole } = data || {};
-      const file = this.stores['fileroom_files'].find((f) => f.id === fileId);
+      const file = (this.stores['fileroom_files'] || []).filter(Boolean).find((f) => f && f.id === fileId);
       if (!file) return createErrorResponse(`File ${fileId} not found.`);
 
       if (file.currentLocationStatus === 'Checked Out / Issued') {
@@ -501,10 +505,10 @@ class MockAdapter {
     // 5. File Room Return
     this.registerRoute('POST', '/api/v1/fileroom/return/:id', ({ params, data }) => {
       const issueId = params.id;
-      const issue = this.stores['fileroom_outward'].find((i) => i.id === issueId);
+      const issue = (this.stores['fileroom_outward'] || []).filter(Boolean).find((i) => i && i.id === issueId);
       if (!issue) return createErrorResponse(`Checkout record ${issueId} not found.`);
 
-      const file = this.stores['fileroom_files'].find((f) => f.id === issue.fileId);
+      const file = (this.stores['fileroom_files'] || []).filter(Boolean).find((f) => f && f.id === issue.fileId);
       if (file) {
         file.currentLocationStatus = 'In File Room';
         file.heldByUserId = null;
@@ -696,7 +700,7 @@ class MockAdapter {
 
     if (method.toUpperCase() === 'GET') {
       if (id) {
-        const item = collection.find((x) => String(x.id) === String(id));
+        const item = collection.find((x) => x && String(x.id) === String(id));
         return item
           ? createSuccessResponse(item)
           : createErrorResponse(`Item ${id} not found in ${storeKey}`);
@@ -733,7 +737,7 @@ class MockAdapter {
 
     if (method.toUpperCase() === 'PUT' || method.toUpperCase() === 'PATCH') {
       if (!id) return createErrorResponse(`ID required for ${method} on ${storeKey}`);
-      const index = collection.findIndex((x) => String(x.id) === String(id));
+      const index = collection.findIndex((x) => x && String(x.id) === String(id));
       if (index === -1) return createErrorResponse(`Item ${id} not found in ${storeKey}`);
 
       const updatedItem = {
@@ -748,7 +752,7 @@ class MockAdapter {
 
     if (method.toUpperCase() === 'DELETE') {
       if (!id) return createErrorResponse(`ID required for DELETE on ${storeKey}`);
-      const index = collection.findIndex((x) => String(x.id) === String(id));
+      const index = collection.findIndex((x) => x && String(x.id) === String(id));
       if (index === -1) return createErrorResponse(`Item ${id} not found in ${storeKey}`);
 
       const removed = collection.splice(index, 1)[0];

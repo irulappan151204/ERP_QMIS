@@ -82,9 +82,10 @@ const FileRoomCheckoutRegister = () => {
                 setInwardList(inwardRes.data)
             }
             if (filesRes.success && Array.isArray(filesRes.data)) {
-                setAvailableFiles(filesRes.data.filter((f) => f.currentLocationStatus !== 'Checked Out / Issued'))
-                if (filesRes.data.length > 0 && !issueForm.fileId) {
-                    setIssueForm((prev) => ({ ...prev, fileId: filesRes.data[0].id }))
+                const cleanFiles = (filesRes.data || []).filter(Boolean).filter((f) => f.currentLocationStatus !== 'Checked Out / Issued')
+                setAvailableFiles(cleanFiles)
+                if (cleanFiles.length > 0 && !issueForm.fileId) {
+                    setIssueForm((prev) => ({ ...prev, fileId: cleanFiles[0]?.id || cleanFiles[0]?.fileRefNo || '' }))
                 }
             }
         } catch (err) {
@@ -619,9 +620,9 @@ const FileRoomCheckoutRegister = () => {
                                     onChange={(e) => setIssueForm({ ...issueForm, fileId: e.target.value })}
                                     className='w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 bg-white'
                                 >
-                                    {availableFiles.map((f) => (
-                                        <option key={f.id} value={f.id}>
-                                            {f.fileRefNo} — {f.fileName} ({f.confidentiality})
+                                    {(availableFiles || []).filter(Boolean).map((f) => (
+                                        <option key={f.id || f.fileRefNo} value={f.id || f.fileRefNo}>
+                                            {f.fileRefNo || f.id} — {f.fileName || f.title || 'Untitled'} ({f.confidentiality || f.confidentialityLevel || 'Normal'})
                                         </option>
                                     ))}
                                 </select>

@@ -29,11 +29,11 @@ import { getStudentResultSummary } from '../../../Common/MarkEntryApproval/markE
 const StudentProfileView = () => {
     const { activeStudent, isParentPortal, routePrefix } = useActiveStudent()
     const [activeTab, setActiveTab] = useState('overview')
-    const resultSummary = getStudentResultSummary(activeStudent.id)
+    const resultSummary = activeStudent?.id ? getStudentResultSummary(activeStudent.id) : null
 
     // Siblings enrolled in the same school (per ERP Doc Section 4.2 & Decision 8.5)
     const siblings = Object.values(PARENT_CHILD_PROFILES).filter(
-        (child) => child.id !== activeStudent.id,
+        (child) => child && activeStudent?.id && child.id !== activeStudent.id,
     )
 
     const tabs = [
@@ -45,6 +45,20 @@ const StudentProfileView = () => {
         { id: 'fees', label: 'Fees & Concessions', icon: CreditCard },
         { id: 'transport', label: 'Transportation', icon: Bus },
     ]
+
+    if (!activeStudent) {
+        return (
+            <div className='p-8 max-w-md mx-auto text-center bg-white border border-slate-200 rounded-3xl shadow-sm space-y-3 font-inter'>
+                <p className='text-sm font-bold text-slate-900'>No active student profile selected.</p>
+                <p className='text-xs text-slate-500'>Please select a child profile to view complete records.</p>
+                {isParentPortal && (
+                    <NavLink to='/parent/select-child' className='inline-block px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700'>
+                        Select Child
+                    </NavLink>
+                )}
+            </div>
+        )
+    }
 
     return (
         <section className='space-y-6 pb-8 font-inter'>

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import ViewRecordModal from '../CommonComponents/ViewRecordModal'
 import {
     Folder,
     FolderCheck,
@@ -98,6 +99,7 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
     const [activeTab, setActiveTab] = useState(targetTab)
     const [actionMessage, setActionMessage] = useState('')
     const [refreshKey, setRefreshKey] = useState(0)
+    const [viewingFileRecord, setViewingFileRecord] = useState(null)
 
     const notify = (msg) => {
         setActionMessage(msg)
@@ -329,7 +331,7 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
                 purpose: issueFormData.purpose,
                 directorApprovalObtained: issueFormData.directorApprovalObtained
             })
-            notify(`Physical file ${selectedFileForIssue.fileNumber} issued under Outward Slip ${result.outwardRecord.id}!`)
+            notify(`Physical file ${selectedFileForIssue.fileNumber} issued under Outward Slip ${result?.outwardRecord?.id || result?.newOutward?.id || 'OUT-001'}!`)
             setIsIssueModalOpen(false)
             setSelectedFileForIssue(null)
             setRefreshKey((k) => k + 1)
@@ -723,26 +725,36 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
                                                 </span>
                                             </td>
                                             <td className='py-3 px-4 text-right'>
-                                                {f.currentStatus === 'Available in File Room' && (
+                                                <div className='flex items-center justify-end gap-1.5'>
                                                     <button
-                                                        onClick={() => {
-                                                            setSelectedFileForIssue(f)
-                                                            setIssueFormData((prev) => ({
-                                                                ...prev,
-                                                                directorApprovalObtained: f.confidentialityLevel !== 'Strictly Confidential'
-                                                            }))
-                                                            setIsIssueModalOpen(true)
-                                                        }}
-                                                        className='rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-blue-700'
+                                                        type='button'
+                                                        onClick={() => setViewingFileRecord(f)}
+                                                        className='inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs'
+                                                        title='View Complete File Record'
                                                     >
-                                                        Issue File →
+                                                        <Eye size={12} className='text-blue-600' /> View
                                                     </button>
-                                                )}
-                                                {f.currentStatus === 'Checked Out' && (
-                                                    <span className='text-[11px] text-amber-700 font-medium'>
-                                                        Checked Out
-                                                    </span>
-                                                )}
+                                                    {f.currentStatus === 'Available in File Room' && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedFileForIssue(f)
+                                                                setIssueFormData((prev) => ({
+                                                                    ...prev,
+                                                                    directorApprovalObtained: f.confidentialityLevel !== 'Strictly Confidential'
+                                                                }))
+                                                                setIsIssueModalOpen(true)
+                                                            }}
+                                                            className='rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-blue-700'
+                                                        >
+                                                            Issue File →
+                                                        </button>
+                                                    )}
+                                                    {f.currentStatus === 'Checked Out' && (
+                                                        <span className='text-[11px] text-amber-700 font-medium px-2 py-1 bg-amber-50 rounded-lg border border-amber-200'>
+                                                            Checked Out
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -785,6 +797,7 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
                                         <th className='py-3 px-4'>Mode & Tracking</th>
                                         <th className='py-3 px-4'>Assigned Storage Rack</th>
                                         <th className='py-3 px-4'>Docketed By</th>
+                                        <th className='py-3 px-4 text-right'>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody className='divide-y divide-slate-100 text-slate-700'>
@@ -805,6 +818,16 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
                                                 {inw.storageCoordinates.rackNumber} / {inw.storageCoordinates.shelfLevel}
                                             </td>
                                             <td className='py-3 px-4 text-slate-500'>{inw.receivedByEmployeeName}</td>
+                                            <td className='py-3 px-4 text-right'>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => setViewingFileRecord(inw)}
+                                                    className='inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs'
+                                                    title='View Inward Docket'
+                                                >
+                                                    <Eye size={12} className='text-blue-600' /> View
+                                                </button>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -870,17 +893,27 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
                                                 </span>
                                             </td>
                                             <td className='py-3 px-4 text-right'>
-                                                {out.status !== 'Returned' && (
+                                                <div className='flex items-center justify-end gap-1.5'>
                                                     <button
-                                                        onClick={() => {
-                                                            setSelectedRecordForReturn(out)
-                                                            setIsReturnModalOpen(true)
-                                                        }}
-                                                        className='rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-emerald-700'
+                                                        type='button'
+                                                        onClick={() => setViewingFileRecord(out)}
+                                                        className='inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs'
+                                                        title='View Custody Slip'
                                                     >
-                                                        Receive Back
+                                                        <Eye size={12} className='text-blue-600' /> View
                                                     </button>
-                                                )}
+                                                    {out.status !== 'Returned' && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedRecordForReturn(out)
+                                                                setIsReturnModalOpen(true)
+                                                            }}
+                                                            className='rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-emerald-700'
+                                                        >
+                                                            Receive Back
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -1282,6 +1315,14 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
                     </div>
                 </div>
             )}
+
+            {/* Modal: View Record Details */}
+            <ViewRecordModal
+                isOpen={Boolean(viewingFileRecord)}
+                onClose={() => setViewingFileRecord(null)}
+                record={viewingFileRecord}
+                title={viewingFileRecord?.title || viewingFileRecord?.fileTitle || viewingFileRecord?.fileNumber || 'Physical Record Details'}
+            />
         </div>
     )
 }

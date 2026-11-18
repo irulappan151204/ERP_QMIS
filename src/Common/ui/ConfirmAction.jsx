@@ -1,5 +1,6 @@
 import { CircleAlert } from 'lucide-react'
 import Dialog from './Dialog'
+import Button from './Button'
 
 const ConfirmAction = ({
     open,
@@ -24,22 +25,22 @@ const ConfirmAction = ({
         closeOnEscape={!busy}
         footer={(
             <>
-                <button
-                    type='button'
+                <Button
+                    variant='secondary'
                     onClick={() => onClose?.('cancel')}
                     disabled={busy}
-                    className='min-h-10 rounded-lg border border-[var(--erp-line-strong)] bg-white px-4 text-sm font-semibold text-[var(--erp-ink)] hover:bg-[var(--erp-canvas)]'
                 >
                     {cancelLabel}
-                </button>
-                <button
-                    type='button'
+                </Button>
+                <Button
+                    variant={tone === 'danger' ? 'danger' : 'primary'}
                     onClick={onConfirm}
                     disabled={busy || confirmDisabled}
-                    className={`min-h-10 rounded-lg px-4 text-sm font-semibold text-white disabled:opacity-60 ${tone === 'danger' ? 'bg-[var(--erp-red)]' : 'bg-[var(--erp-indigo)]'}`}
+                    loading={busy}
+                    loadingText='Working…'
                 >
-                    {busy ? 'Working…' : confirmLabel}
-                </button>
+                    {confirmLabel}
+                </Button>
             </>
         )}
     >

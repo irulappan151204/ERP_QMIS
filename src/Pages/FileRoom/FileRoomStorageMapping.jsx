@@ -51,8 +51,9 @@ const FileRoomStorageMapping = () => {
 
     // Calculate occupancy per rack
     const rackStats = useMemo(() => {
+        const cleanFiles = (files || []).filter(Boolean)
         return RACKS_CONFIG.map((rack) => {
-            const count = files.filter((f) => f.storageLocation?.cupboardRack === rack.id).length
+            const count = cleanFiles.filter((f) => f && f.storageLocation?.cupboardRack === rack.id).length
             const percentage = Math.min(100, Math.round((count / rack.capacity) * 100))
             return {
                 ...rack,
@@ -65,10 +66,11 @@ const FileRoomStorageMapping = () => {
     // Get available shelves in selected rack
     const availableShelves = useMemo(() => {
         const shelves = new Set()
-        files
-            .filter((f) => f.storageLocation?.cupboardRack === selectedRack)
+        ;(files || [])
+            .filter(Boolean)
+            .filter((f) => f && f.storageLocation?.cupboardRack === selectedRack)
             .forEach((f) => {
-                if (f.storageLocation?.shelfLevel) {
+                if (f?.storageLocation?.shelfLevel) {
                     shelves.add(f.storageLocation.shelfLevel)
                 }
             })

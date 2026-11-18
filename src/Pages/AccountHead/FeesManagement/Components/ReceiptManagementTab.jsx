@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useFinance } from '../../financeDomain/FinanceContext'
 import { formatCurrency } from '../../financeDomain/financeHelpers'
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal'
 import {
     RECEIPT_ACTIVITY_LOG,
     RECEIPT_CLASSES,
@@ -65,6 +66,7 @@ const Panel = ({ title, action, children, className = '' }) => (
 const ReceiptManagementTab = () => {
     const [paymentPeriod, setPaymentPeriod] = useState('Monthly')
     const [reprintRequests, setReprintRequests] = useState(REPRINT_REQUESTS)
+    const [viewAllRequestsModal, setViewAllRequestsModal] = useState(false)
     const { receipts, students } = useFinance()
 
     const handleApproveReprint = (reprintId) => {
@@ -353,7 +355,11 @@ const ReceiptManagementTab = () => {
                 <Panel
                     title='Reprint Requests'
                     action={(
-                        <button type='button' className='text-sm font-medium text-[#515DEF] hover:opacity-80 cursor-pointer'>
+                        <button
+                            type='button'
+                            onClick={() => setViewAllRequestsModal(true)}
+                            className='text-sm font-medium text-[#515DEF] hover:opacity-80 cursor-pointer'
+                        >
                             View All Requests
                         </button>
                     )}
@@ -424,6 +430,18 @@ const ReceiptManagementTab = () => {
                 </Panel>
             </div>
 
+            <ViewRecordModal
+                isOpen={viewAllRequestsModal}
+                onClose={() => setViewAllRequestsModal(false)}
+                data={reprintRequests.map((r) => ({
+                    requestId: r.id,
+                    receiptNo: r.receiptNo,
+                    reason: r.reason,
+                    status: r.status,
+                    requestedBy: r.requestedBy || 'Front Office / Cashier'
+                }))}
+                title='All Fee Receipt Reprint Requests'
+            />
         </div>
     )
 }

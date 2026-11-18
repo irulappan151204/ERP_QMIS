@@ -848,7 +848,7 @@ function OverviewSection({
 // MY ATTENDANCE VIEW (Employee Monthly Records)
 // -------------------------------------------------------------
 function MyAttendanceView({ currentEmployee, attendanceRecords, onRequestRegularization }) {
-    const myRecords = attendanceRecords.filter((r) => r.employeeId === currentEmployee.id)
+    const myRecords = (attendanceRecords || []).filter((r) => r && r.employeeId === currentEmployee?.id)
 
     return (
         <div className="space-y-4 text-xs">
@@ -919,7 +919,7 @@ function MyAttendanceView({ currentEmployee, attendanceRecords, onRequestRegular
 function MyLeaveView({ currentEmployee, employeeBalance, myLeaveRequests, onApply, onCancelRequest, activeRole }) {
     const isParent = activeRole === 'parent'
     const [subSection, setSubSection] = useState('applications') // 'applications' | 'ledger'
-    const ledger = getLeaveLedger(currentEmployee.id)
+    const ledger = currentEmployee?.id ? getLeaveLedger(currentEmployee.id) : []
 
     return (
         <div className="space-y-6 text-xs">
@@ -932,8 +932,8 @@ function MyLeaveView({ currentEmployee, employeeBalance, myLeaveRequests, onAppl
                         </h2>
                         <p className="text-slate-500 text-[11px]">
                             {isParent
-                                ? `Student: ${currentEmployee.name} • Directed to Assigned Class Teacher`
-                                : `Academic Year: ${CURRENT_ACADEMIC_YEAR} (${currentEmployee.category} Policy)`}
+                                ? `Student: ${currentEmployee?.name || 'Student'} • Directed to Assigned Class Teacher`
+                                : `Academic Year: ${CURRENT_ACADEMIC_YEAR} (${currentEmployee?.category || 'General'} Policy)`}
                         </p>
                     </div>
                     <button
@@ -1830,9 +1830,9 @@ function LeavePoliciesSection({ hrPolicies, onEditPolicyCategory, onRunCarryForw
 // APPLY LEAVE & PERMISSION MODAL (Statutory Leave & Short Absence)
 // -------------------------------------------------------------
 function ApplyLeaveModal({ currentEmployee, employeeBalance, isHR, onClose, onSuccess }) {
-    const [selectedEmpId, setSelectedEmpId] = useState(currentEmployee.id)
-    const emp = ENTERPRISE_EMPLOYEES.find(e => e.id === selectedEmpId) || currentEmployee
-    const balance = calculateEmployeeLeaveBalance(emp.id)
+    const [selectedEmpId, setSelectedEmpId] = useState(currentEmployee?.id || ENTERPRISE_EMPLOYEES[0]?.id || 'EMP-001')
+    const emp = ENTERPRISE_EMPLOYEES.find(e => e.id === selectedEmpId) || currentEmployee || ENTERPRISE_EMPLOYEES[0]
+    const balance = emp?.id ? calculateEmployeeLeaveBalance(emp.id) : employeeBalance
 
     // Request Type: 'LEAVE' | 'PERMISSION'
     const [requestType, setRequestType] = useState('LEAVE')
@@ -2855,10 +2855,10 @@ function AttendanceCorrectionModal({ record, currentEmployee, isManagement, perf
             onSuccess(record ? 'Attendance record override saved with audit history.' : 'Manual attendance marked successfully.')
         } else {
             submitAttendanceRegularization({
-                employeeId: currentEmployee.id,
-                employeeName: currentEmployee.name,
-                department: currentEmployee.department,
-                designation: currentEmployee.designation,
+                employeeId: currentEmployee?.id || 'EMP-001',
+                employeeName: currentEmployee?.name || 'Staff Member',
+                department: currentEmployee?.department || 'Administration',
+                designation: currentEmployee?.designation || 'Staff',
                 attendanceDate: record?.date || new Date().toLocaleDateString('en-GB').replace(/\//g, '-'),
                 requestType: 'MISSING_PUNCH',
                 requestedInTime: inTime,
@@ -2881,10 +2881,10 @@ function AttendanceCorrectionModal({ record, currentEmployee, isManagement, perf
                         </h3>
                         <p className="text-[11px] text-slate-500">
                             {record
-                                ? `${record.employeeName} (${record.date})`
+                                ? `${record.employeeName || 'Employee'} (${record.date})`
                                 : isManagement
                                 ? 'Select staff member and enter manual attendance parameters'
-                                : currentEmployee.name}
+                                : currentEmployee?.name || 'Staff Member'}
                         </p>
                     </div>
                     <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">

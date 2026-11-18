@@ -17,10 +17,10 @@ const AddTcRequest = () => {
     const handleSubmit = (event) => {
         event.preventDefault()
         const created = createTcRequest({
-            studentId: activeStudent.id,
-            studentName: activeStudent.name,
-            classSection: activeStudent.classSection,
-            admissionNumber: activeStudent.admissionNumber,
+            studentId: activeStudent?.id || 'STU-001',
+            studentName: activeStudent?.name || 'Student',
+            classSection: activeStudent?.classSection || '10-A',
+            admissionNumber: activeStudent?.admissionNumber || activeStudent?.id || 'ADM-001',
             reason,
             transferTo,
             lastDateOfAttendance,

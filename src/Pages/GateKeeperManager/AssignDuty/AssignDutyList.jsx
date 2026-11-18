@@ -8,6 +8,7 @@ import Dropdown from '../../../Common/CommonComponents/Dropdown'
 import ExportModal from '../../../Common/CommonComponents/ExportModal'
 import EditRequestModal from '../../../Common/CommonComponents/EditRequestModal'
 import DeleteRequestModal from '../../../Common/CommonComponents/DeleteRequestModal'
+import ViewRecordModal from '../../../Common/CommonComponents/ViewRecordModal'
 import { DUTIES_STORAGE_KEY, DEFAULT_GATEKEEPER_DUTIES, loadDuties } from './assignDutyData'
 
 export { DUTIES_STORAGE_KEY, DEFAULT_GATEKEEPER_DUTIES, loadDuties }
@@ -27,6 +28,7 @@ const AssignDutyList = () => {
     const [exportModal, setExportModal] = useState(false)
     const [editRequestModal, setEditRequestModal] = useState(false)
     const [deleteRequestModal, setDeleteRequestModal] = useState(false)
+    const [selectedDutyForView, setSelectedDutyForView] = useState(null)
 
     const handleStatusChange = (dutyId, newStatus) => {
         const updated = duties.map((d) => {
@@ -211,7 +213,11 @@ const AssignDutyList = () => {
                                         <Dropdown
                                             buttonContent={<EllipsisIcon size={16} className='text-black' />}
                                         >
-                                            <button className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>
+                                            <button
+                                                type='button'
+                                                onClick={() => setSelectedDutyForView(duty)}
+                                                className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'
+                                            >
                                                 View
                                             </button>
                                             <button onClick={() => setEditRequestModal(true)} className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'>
@@ -256,6 +262,12 @@ const AssignDutyList = () => {
             <ExportModal exportModal={exportModal} setExportModal={setExportModal} />
             <EditRequestModal editRequestModal={editRequestModal} setEditRequestModal={setEditRequestModal} />
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+            <ViewRecordModal
+                isOpen={Boolean(selectedDutyForView)}
+                onClose={() => setSelectedDutyForView(null)}
+                data={selectedDutyForView}
+                title={selectedDutyForView?.dutyId ? `Security Duty - ${selectedDutyForView.dutyId}` : 'Duty Assignment Details'}
+            />
         </section>
     )
 }

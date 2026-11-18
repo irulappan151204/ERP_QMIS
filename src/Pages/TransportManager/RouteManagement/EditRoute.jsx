@@ -4,6 +4,7 @@ import { toast } from 'react-toastify'
 import RouteDetailsForm from './Components/RouteDetailsForm'
 import StopDetailsForm from './Components/StopDetailsForm'
 import { getRouteById } from './routeManagementData'
+import { Button } from '../../../Common/ui'
 
 const EditRoute = () => {
     const navigate = useNavigate()
@@ -22,13 +23,12 @@ const EditRoute = () => {
                     Route not found or could not be loaded.
                 </div>
                 <div className='flex sm:justify-end justify-center gap-x-4 mt-6'>
-                    <button
-                        type='button'
+                    <Button
+                        variant='primary'
                         onClick={() => navigate('/transport-manager/route-management')}
-                        className='bg-[#515DEF] text-white text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer md:w-auto w-full'
                     >
                         Back to list
-                    </button>
+                    </Button>
                 </div>
             </section>
         )
@@ -50,20 +50,18 @@ const EditRoute = () => {
             </div>
 
             <div className='flex sm:justify-end justify-center gap-x-4 mt-6'>
-                <button
-                    type='button'
+                <Button
+                    variant='secondary'
                     onClick={() => navigate('/transport-manager/route-management')}
-                    className='bg-white text-[#515DEF] text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:bg-[#515DEF] hover:text-white hover:border-[#515DEF] transition-all duration-200 cursor-pointer md:w-auto w-full'
                 >
                     Discard Changes
-                </button>
-                <button
-                    type='button'
+                </Button>
+                <Button
+                    variant='primary'
                     onClick={handleSave}
-                    className='bg-[#515DEF] text-white text-sm text-center px-12 py-2 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer md:w-auto w-full'
                 >
                     Save Changes
-                </button>
+                </Button>
             </div>
         </section>
     )

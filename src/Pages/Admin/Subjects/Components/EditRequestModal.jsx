@@ -23,11 +23,11 @@ const EditRequestModal = ({ editRequestModal, setEditRequestModal }) => {
                             <div className='flex justify-center items-center mb-4'>
                                 <CircleAlert size={70} strokeWidth={1.5} className='text-[#515DEF]' />
                             </div>
-                            <h3 className='text-xl font-medium text-[#77767A]'>Send Edit Request?</h3>
-                            <p className='text-base text-[#77767A] font-medium mt-2'>Do you want to send this edit request to the Super Admin for approval?</p>
+                            <h3 className='text-xl font-bold text-slate-900'>Send Edit Request?</h3>
+                            <p className='text-sm text-slate-600 font-medium mt-1'>Do you want to send this edit request to the Super Admin for approval?</p>
 
                             <div className='flex gap-x-4 mt-10'>
-                                <button onClick={() => setEditRequestModal(false)} className='bg-white text-[#77767A] text-sm text-center px-4 py-2.5 rounded-md border border-[#77767A] hover:bg-[#515DEF] hover:text-white hover:border-[#515DEF] transition-all duration-200 cursor-pointer w-full'>
+                                <button onClick={() => setEditRequestModal(false)} className='bg-white text-slate-700 text-sm font-semibold text-center px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200 cursor-pointer w-full'>
                                     Cancel
                                 </button>
                                 <button className='bg-[#515DEF] text-white text-sm text-center px-4 py-2.5 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer w-full'>

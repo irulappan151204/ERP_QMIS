@@ -36,6 +36,7 @@ import { getProfileLabel } from '../../Authentication/profileOptions'
 import { getExits, saveExits, nextId } from '../../HR/domain/hrStore'
 import { getAllTcRequests, createTcRequest } from '../../../Common/TcRequest/tcRequestData'
 import { ENTERPRISE_EMPLOYEES } from '../../../Common/AttendanceAndLeave/attendanceLeaveData'
+import ViewRecordModal from '../../../Common/CommonComponents/ViewRecordModal'
 
 const TABS = [
     { id: 'personal', label: 'Personal Information', icon: User },
@@ -73,6 +74,7 @@ const MyProfilePage = () => {
     const [activeTab, setActiveTab] = useState('personal')
     const [savedSuccess, setSavedSuccess] = useState(false)
     const [twoFactorEnabled, setTwoFactorEnabled] = useState(true)
+    const [viewingDocument, setViewingDocument] = useState(null)
 
     // Form states
     const [personalInfo, setPersonalInfo] = useState({
@@ -510,7 +512,11 @@ const MyProfilePage = () => {
                                         <p className='font-semibold text-slate-800'>{doc.title}</p>
                                         <p className='text-slate-400 mt-0.5'>{doc.file}</p>
                                     </div>
-                                    <button type='button' className='text-blue-600 font-semibold hover:underline'>
+                                    <button
+                                        type='button'
+                                        onClick={() => setViewingDocument(doc)}
+                                        className='text-blue-600 font-semibold hover:underline cursor-pointer'
+                                    >
                                         View
                                     </button>
                                 </div>
@@ -838,6 +844,13 @@ const MyProfilePage = () => {
                     </div>
                 )}
             </div>
+
+            <ViewRecordModal
+                isOpen={Boolean(viewingDocument)}
+                onClose={() => setViewingDocument(null)}
+                data={viewingDocument}
+                title={viewingDocument?.title ? `${viewingDocument.title} - Document Verification` : 'Employee Document Details'}
+            />
         </div>
     )
 }

@@ -100,8 +100,9 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 [tabindex]:not([tabindex='-1']):focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--erp-focus) 38%, transparent);
-    outline-offset: 2px;
+    outline: 2px solid var(--erp-indigo) !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 3px rgba(63, 70, 199, 0.2) !important;
 }
 
 button:disabled,
@@ -110,6 +111,7 @@ select:disabled,
 textarea:disabled,
 [aria-disabled='true'] {
     cursor: not-allowed;
+    opacity: 0.65;
 }
 
 ::selection {
@@ -251,3 +253,410 @@ textarea:disabled,
         outline: 2px solid CanvasText;
     }
 }
+
+/* ==========================================================================
+   Modern ERP UI Theme Harmonization & Token Unification
+   Maps legacy arbitrary Tailwind styling to modern design standards seamlessly.
+   ========================================================================== */
+
+/* Universal Legacy Color & Border Harmonization */
+[class*="text-[#515DEF]"]:not(:hover):not(:active):not([class*="hover:text-white"]:hover):not([class*="group-hover:text-white"]:hover):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]):not([class~="bg-indigo-600"]) {
+    color: var(--erp-indigo) !important;
+}
+
+/* Guarantee Crisp White Text on Hover for Primary and Outlined Elements */
+[class*="hover:text-white"]:hover,
+button[class*="hover:text-white"]:hover,
+a[class*="hover:text-white"]:hover,
+button[class*="hover:bg-[#515DEF]"]:hover,
+a[class*="hover:bg-[#515DEF]"]:hover,
+button[class*="hover:bg-blue-600"]:hover,
+a[class*="hover:bg-blue-600"]:hover,
+button[class*="hover:bg-indigo-600"]:hover,
+a[class*="hover:bg-indigo-600"]:hover {
+    color: #ffffff !important;
+}
+
+button[class*="hover:bg-[#515DEF]"]:hover,
+a[class*="hover:bg-[#515DEF]"]:hover {
+    background-color: var(--erp-indigo-strong) !important;
+    border-color: var(--erp-indigo-strong) !important;
+}
+
+/* Guarantee Pure White Text for Primary Solid Buttons in Normal, Hover, and Active */
+button[class~="bg-[#515DEF]"],
+a[class~="bg-[#515DEF]"],
+button[class~="bg-[#3F46C7]"],
+a[class~="bg-[#3F46C7]"] {
+    background-color: var(--erp-indigo) !important;
+    border-color: var(--erp-indigo) !important;
+    color: #ffffff !important;
+}
+
+button[class~="bg-[#515DEF]"]:hover,
+a[class~="bg-[#515DEF]"]:hover,
+button[class~="bg-[#3F46C7]"]:hover,
+a[class~="bg-[#3F46C7]"]:hover {
+    background-color: var(--erp-indigo-strong) !important;
+    border-color: var(--erp-indigo-strong) !important;
+    color: #ffffff !important;
+}
+
+button[class~="bg-[#515DEF]"]:active,
+a[class~="bg-[#515DEF]"]:active,
+button[class~="bg-[#3F46C7]"]:active,
+a[class~="bg-[#3F46C7]"]:active {
+    background-color: #242B94 !important;
+    border-color: #242B94 !important;
+    color: #ffffff !important;
+}
+
+/* Failsafe Outline Protection: Unhovered outline buttons MUST have transparent/white background */
+button[class*="border-[#515DEF]"]:not(:hover):not(:active):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]),
+a[class*="border-[#515DEF]"]:not(:hover):not(:active):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]),
+button[class*="border-[#3F46C7]"]:not(:hover):not(:active):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]),
+a[class*="border-[#3F46C7]"]:not(:hover):not(:active):not([class~="bg-[#515DEF]"]):not([class~="bg-[#3F46C7]"]) {
+    background-color: transparent !important;
+    color: var(--erp-indigo) !important;
+}
+
+/* High-Contrast Accessible Green Buttons (Approve / Resolve / Success) - Minimum 4.56:1 Contrast */
+button[class~="bg-[#4CAF50]"],
+a[class~="bg-[#4CAF50]"],
+button[class~="bg-[#34C759]"],
+a[class~="bg-[#34C759]"] {
+    background-color: #059669 !important; /* Emerald 600 */
+    border-color: #059669 !important;
+    color: #ffffff !important;
+}
+
+button[class~="bg-[#4CAF50]"]:hover,
+a[class~="bg-[#4CAF50]"]:hover,
+button[class~="bg-[#34C759]"]:hover,
+a[class~="bg-[#34C759]"]:hover {
+    background-color: #047857 !important; /* Emerald 700 */
+    border-color: #047857 !important;
+    color: #ffffff !important;
+}
+
+button[class*="hover:bg-[#4CAF50]"]:hover,
+a[class*="hover:bg-[#4CAF50]"]:hover {
+    background-color: #047857 !important;
+    border-color: #047857 !important;
+    color: #ffffff !important;
+}
+
+/* High-Contrast Accessible Danger Buttons (Reject / Delete) - Minimum 4.56:1 Contrast */
+button[class~="bg-[#FF0000]"],
+a[class~="bg-[#FF0000]"] {
+    background-color: #E11D48 !important; /* Rose 600 */
+    border-color: #E11D48 !important;
+    color: #ffffff !important;
+}
+
+button[class~="bg-[#FF0000]"]:hover,
+a[class~="bg-[#FF0000]"]:hover {
+    background-color: #BE123C !important; /* Rose 700 */
+    border-color: #BE123C !important;
+    color: #ffffff !important;
+}
+
+button[class*="hover:bg-[#FF0000]"]:hover,
+a[class*="hover:bg-[#FF0000]"]:hover {
+    background-color: #BE123C !important;
+    border-color: #BE123C !important;
+    color: #ffffff !important;
+}
+
+/* Outline Danger Buttons */
+button[class*="text-[#FF0000]"]:not(:hover),
+a[class*="text-[#FF0000]"]:not(:hover) {
+    color: #E11D48 !important;
+    border-color: #E11D48 !important;
+}
+
+/* Secondary Button Contrast Harmonization (#77767A -> slate-700) */
+[class*="text-[#77767A]"]:not(:hover):not([class*="hover:text-white"]:hover) {
+    color: var(--erp-slate) !important;
+}
+
+[class*="border-[#77767A]"] {
+    border-color: var(--erp-line) !important;
+}
+
+/* Pagination Number Buttons Harmonization */
+button[class*="bg-[#EDEDF5]"] {
+    background-color: #EEF2F6 !important;
+    color: var(--erp-indigo) !important;
+    border-color: var(--erp-line) !important;
+    font-weight: 600 !important;
+}
+
+button[class*="bg-[#EDEDF5]"]:hover {
+    background-color: var(--erp-indigo-strong) !important;
+    color: #ffffff !important;
+    border-color: var(--erp-indigo-strong) !important;
+}
+
+[class*="border-[#515DEF]"] {
+    border-color: var(--erp-indigo) !important;
+}
+
+[class*="focus:border-[#515DEF]"]:focus {
+    border-color: var(--erp-indigo) !important;
+}
+
+[class*="text-[#1E1E1E]"] {
+    color: var(--erp-ink) !important;
+}
+
+[class*="border-[#D9D9D9]"] {
+    border-color: var(--erp-line) !important;
+}
+
+[class*="border-[#f2f4f7]"] {
+    border-color: var(--erp-line) !important;
+}
+
+[class*="text-[#667085]"] {
+    color: var(--erp-slate) !important;
+}
+
+[class*="hover:bg-[#f2f4f7]"]:hover {
+    background-color: rgba(248, 250, 252, 0.85) !important;
+}
+
+/* Harmonize legacy fixed px-12 form action buttons to modern rounded-xl */
+button[class*="px-12"][class*="rounded-md"],
+a[class*="px-12"][class*="rounded-md"] {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    border-radius: 0.75rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    min-height: 2.375rem !important;
+}
+
+/* Reusable Modern ERP Utility Presets */
+.erp-card {
+    border-radius: 1rem;
+    border: 1px solid var(--erp-line);
+    background-color: var(--erp-paper);
+    padding: 1.25rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+@media (min-width: 768px) {
+    .erp-card {
+        padding: 1.5rem;
+    }
+}
+
+.erp-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--erp-slate);
+    margin-bottom: 0.25rem;
+}
+
+.erp-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--erp-line);
+    background-color: #ffffff;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--erp-ink);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.erp-input:focus {
+    outline: none;
+    border-color: var(--erp-indigo);
+    box-shadow: 0 0 0 2px rgba(63, 70, 199, 0.15);
+}
+
+.erp-input-readonly {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--erp-line);
+    background-color: rgba(248, 250, 252, 0.75);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--erp-slate);
+    cursor: not-allowed;
+}
+
+.erp-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: 0.75rem;
+    background-color: var(--erp-indigo);
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.erp-btn-primary:hover:not(:disabled) {
+    background-color: var(--erp-indigo-strong);
+}
+
+.erp-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.erp-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--erp-line);
+    background-color: #ffffff;
+    color: var(--erp-ink);
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.erp-btn-secondary:hover:not(:disabled) {
+    background-color: #F8FAFC;
+    color: var(--erp-indigo);
+}
+
+.erp-table-row {
+    border-bottom: 1px solid var(--erp-line);
+    color: var(--erp-ink);
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.erp-table-row:hover {
+    background-color: rgba(248, 250, 252, 0.75);
+}
+
+.erp-table-header {
+    background-color: rgba(248, 250, 252, 0.85);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--erp-slate);
+    border-bottom: 1px solid var(--erp-line);
+}
+
+/* ==========================================================================
+   Universal Legacy UI Modernization & Theme Harmonization
+   ========================================================================== */
+
+/* Universal Modern Table Header Harmonization */
+thead[class*="bg-[#EDEEF5]"],
+table thead[class*="bg-[#EDEEF5]"] {
+    background-color: rgba(248, 250, 252, 0.95) !important;
+    border-bottom: 1px solid var(--erp-line) !important;
+}
+
+thead[class*="bg-[#EDEEF5]"] th,
+table thead[class*="bg-[#EDEEF5]"] th {
+    color: var(--erp-slate) !important;
+    font-size: 0.6875rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+}
+
+/* Universal Table Row Harmonization */
+tr[class*="border-[#f2f4f7]"],
+table tbody tr[class*="border-b"] {
+    border-color: var(--erp-line) !important;
+}
+
+tr[class*="hover:bg-[#f2f4f7]"]:hover,
+table tbody tr:hover {
+    background-color: rgba(248, 250, 252, 0.85) !important;
+}
+
+/* Harmonize Legacy Filter Buttons */
+button[class*="bg-[#515DEF]"][class*="uppercase"],
+button[class*="border-[#515DEF]"][class*="uppercase"] {
+    text-transform: none !important;
+    border-radius: 0.75rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    padding: 0.5rem 1rem !important;
+}
+
+/* Harmonize Legacy Inputs & Selects */
+input[class*="border-[#D9D9D9]"],
+select[class*="border-[#D9D9D9]"],
+textarea[class*="border-[#D9D9D9]"] {
+    border-color: var(--erp-line) !important;
+    border-radius: 0.75rem !important;
+    color: var(--erp-ink) !important;
+    font-size: 0.75rem !important;
+    background-color: #ffffff !important;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+input[class*="border-[#D9D9D9]"]:focus,
+select[class*="border-[#D9D9D9]"]:focus,
+textarea[class*="border-[#D9D9D9]"]:focus {
+    border-color: var(--erp-indigo) !important;
+    box-shadow: 0 0 0 2px rgba(63, 70, 199, 0.15) !important;
+    outline: none !important;
+}
+
+/* Harmonize Legacy Form Labels */
+label[class*="text-[#808080]"] {
+    color: var(--erp-slate) !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.25rem !important;
+    display: block !important;
+}
+
+/* Harmonize Legacy Full-Rounded Pagination Buttons */
+div[class*="flex gap-x-2"] > button[class*="size-8"][class*="rounded-full"] {
+    border-radius: 0.5rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    transition: all 150ms ease !important;
+}
+
+div[class*="flex gap-x-2"] > button[class*="size-8"][class*="rounded-full"][class*="bg-white"] {
+    border-color: var(--erp-line) !important;
+    color: var(--erp-slate) !important;
+}
+
+div[class*="flex gap-x-2"] > button[class*="size-8"][class*="rounded-full"][class*="bg-white"]:hover {
+    background-color: #F8FAFC !important;
+    color: var(--erp-indigo) !important;
+    border-color: var(--erp-indigo) !important;
+}
+
+div[class*="flex gap-x-2"] > button[class*="size-8"][class*="rounded-full"][class*="bg-[#515DEF]"] {
+    background-color: var(--erp-indigo) !important;
+    border-color: var(--erp-indigo) !important;
+    color: #ffffff !important;
+}
+
+/* Harmonize Legacy Card Containers */
+div[class*="bg-white"][class*="rounded-2xl"][class*="shadow-md"] {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+    border: 1px solid var(--erp-line) !important;
+}
+
+

@@ -13,6 +13,8 @@ import {
     UserX,
 } from 'lucide-react'
 import ExportModal from '../CommonComponents/ExportModal'
+import { Button } from '../ui'
+import { inputClass, selectClass } from '../ui/formStyles'
 import {
     getIntegratedStudentsList,
     DEFAULT_ACADEMIC_YEARS,
@@ -56,14 +58,14 @@ const StudentDatabaseListView = ({
         })
     }, [search, academicYear, department, className, section, status])
 
-    // KPI Summary
+    // KPI metrics
     const totalStudents = students.length
     const activeCount = useMemo(() => students.filter((s) => s.currentStatus === 'Active').length, [students])
     const graduatedCount = useMemo(() => students.filter((s) => s.currentStatus === 'Graduated').length, [students])
     const withdrawnCount = useMemo(() => students.filter((s) => s.currentStatus === 'Withdrawn').length, [students])
 
     // Pagination
-    const totalPages = Math.max(1, Math.ceil(students.length / itemsPerPage))
+    const totalPages = Math.ceil(students.length / itemsPerPage) || 1
     const paginatedStudents = useMemo(() => {
         const start = (currentPage - 1) * itemsPerPage
         return students.slice(start, start + itemsPerPage)
@@ -90,22 +92,21 @@ const StudentDatabaseListView = ({
                     </p>
                 </div>
                 <div className='flex items-center gap-2'>
-                    <button
-                        type='button'
+                    <Button
+                        variant='secondary'
+                        icon={<Download size={15} />}
                         onClick={() => setExportModal(true)}
-                        className='inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 shadow-sm transition-colors cursor-pointer'
                     >
-                        <Download size={16} />
                         Export
-                    </button>
+                    </Button>
                     {renderExtraActions && renderExtraActions()}
                 </div>
             </div>
 
             {/* Quick KPI Count Strip */}
             <div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
-                <div className='bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3'>
-                    <div className='p-2 bg-indigo-50 text-indigo-600 rounded-lg'>
+                <div className='bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3'>
+                    <div className='p-2 bg-indigo-50 text-indigo-600 rounded-xl'>
                         <Users size={18} />
                     </div>
                     <div>
@@ -113,8 +114,8 @@ const StudentDatabaseListView = ({
                         <div className='text-lg font-bold text-slate-900'>{totalStudents}</div>
                     </div>
                 </div>
-                <div className='bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3'>
-                    <div className='p-2 bg-emerald-50 text-emerald-600 rounded-lg'>
+                <div className='bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3'>
+                    <div className='p-2 bg-emerald-50 text-emerald-600 rounded-xl'>
                         <UserCheck size={18} />
                     </div>
                     <div>
@@ -122,8 +123,8 @@ const StudentDatabaseListView = ({
                         <div className='text-lg font-bold text-emerald-700'>{activeCount}</div>
                     </div>
                 </div>
-                <div className='bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3'>
-                    <div className='p-2 bg-blue-50 text-blue-600 rounded-lg'>
+                <div className='bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3'>
+                    <div className='p-2 bg-blue-50 text-blue-600 rounded-xl'>
                         <GraduationCap size={18} />
                     </div>
                     <div>
@@ -131,8 +132,8 @@ const StudentDatabaseListView = ({
                         <div className='text-lg font-bold text-blue-700'>{graduatedCount}</div>
                     </div>
                 </div>
-                <div className='bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3'>
-                    <div className='p-2 bg-slate-100 text-slate-600 rounded-lg'>
+                <div className='bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3'>
+                    <div className='p-2 bg-slate-100 text-slate-600 rounded-xl'>
                         <UserX size={18} />
                     </div>
                     <div>
@@ -143,11 +144,11 @@ const StudentDatabaseListView = ({
             </div>
 
             {/* Filter Control Bar */}
-            <div className='bg-white rounded-2xl shadow-xs border border-slate-200 p-4'>
+            <div className='bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4'>
                 <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3'>
                     {/* Search */}
                     <div className='lg:col-span-2'>
-                        <label className='block text-xs font-semibold text-slate-600 uppercase mb-1'>Search Student</label>
+                        <label className='block text-xs font-semibold text-slate-700 uppercase mb-1 tracking-wider'>Search Student</label>
                         <div className='relative'>
                             <input
                                 type='text'
@@ -157,7 +158,7 @@ const StudentDatabaseListView = ({
                                     setCurrentPage(1)
                                 }}
                                 placeholder='Search by Name, Student ID, or Admission No...'
-                                className='w-full text-sm text-slate-800 border border-slate-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none'
+                                className={`${inputClass} pl-9`}
                             />
                             <Search size={16} className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none' />
                         </div>
@@ -165,14 +166,14 @@ const StudentDatabaseListView = ({
 
                     {/* Academic Year */}
                     <div>
-                        <label className='block text-xs font-semibold text-slate-600 uppercase mb-1'>Academic Year</label>
+                        <label className='block text-xs font-semibold text-slate-700 uppercase mb-1 tracking-wider'>Academic Year</label>
                         <select
                             value={academicYear}
                             onChange={(e) => {
                                 setAcademicYear(e.target.value)
                                 setCurrentPage(1)
                             }}
-                            className='w-full text-sm text-slate-800 border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white'
+                            className={selectClass}
                         >
                             {DEFAULT_ACADEMIC_YEARS.map((yr) => (
                                 <option key={yr} value={yr}>
@@ -184,14 +185,14 @@ const StudentDatabaseListView = ({
 
                     {/* Department */}
                     <div>
-                        <label className='block text-xs font-semibold text-slate-600 uppercase mb-1'>Department</label>
+                        <label className='block text-xs font-semibold text-slate-700 uppercase mb-1 tracking-wider'>Department</label>
                         <select
                             value={department}
                             onChange={(e) => {
                                 setDepartment(e.target.value)
                                 setCurrentPage(1)
                             }}
-                            className='w-full text-sm text-slate-800 border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white'
+                            className={selectClass}
                         >
                             <option value=''>All Departments</option>
                             {STUDENT_DEPARTMENTS.map((dept) => (
@@ -204,15 +205,15 @@ const StudentDatabaseListView = ({
 
                     {/* Class & Section */}
                     <div>
-                        <label className='block text-xs font-semibold text-slate-600 uppercase mb-1'>Class & Section</label>
-                        <div className='flex gap-1'>
+                        <label className='block text-xs font-semibold text-slate-700 uppercase mb-1 tracking-wider'>Class & Section</label>
+                        <div className='flex gap-1.5'>
                             <select
                                 value={className}
                                 onChange={(e) => {
                                     setClassName(e.target.value)
                                     setCurrentPage(1)
                                 }}
-                                className='w-2/3 text-sm text-slate-800 border border-slate-300 rounded-lg px-1.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white'
+                                className={selectClass}
                             >
                                 <option value=''>All Class</option>
                                 <option value='10'>Grade 10</option>
@@ -227,7 +228,7 @@ const StudentDatabaseListView = ({
                                     setSection(e.target.value)
                                     setCurrentPage(1)
                                 }}
-                                className='w-1/3 text-sm text-slate-800 border border-slate-300 rounded-lg px-1 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white'
+                                className={`w-20 shrink-0 ${selectClass}`}
                             >
                                 <option value=''>Sec</option>
                                 <option value='A'>A</option>
@@ -239,7 +240,7 @@ const StudentDatabaseListView = ({
 
                     {/* Current Status */}
                     <div>
-                        <label className='block text-xs font-semibold text-slate-600 uppercase mb-1'>Status</label>
+                        <label className='block text-xs font-semibold text-slate-700 uppercase mb-1 tracking-wider'>Status</label>
                         <div className='flex gap-1.5'>
                             <select
                                 value={status}
@@ -247,31 +248,30 @@ const StudentDatabaseListView = ({
                                     setStatus(e.target.value)
                                     setCurrentPage(1)
                                 }}
-                                className='w-full text-sm text-slate-800 border border-slate-300 rounded-lg px-2 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white'
+                                className={selectClass}
                             >
                                 <option value=''>All Statuses</option>
                                 <option value='Active'>Active</option>
                                 <option value='Graduated'>Graduated</option>
                                 <option value='Withdrawn'>Withdrawn</option>
                             </select>
-                            <button
-                                type='button'
+                            <Button
+                                variant='secondary'
+                                size='icon'
                                 onClick={handleClearFilters}
                                 title='Reset Filters'
-                                className='px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-300 transition-colors cursor-pointer flex items-center justify-center shrink-0'
-                            >
-                                <RotateCcw size={15} />
-                            </button>
+                                icon={<RotateCcw size={15} />}
+                            />
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Compact Student Directory Table */}
-            <div className='bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden'>
+            <div className='bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden'>
                 <div className='overflow-x-auto'>
                     <table className='w-full text-sm text-left'>
-                        <thead className='text-xs uppercase bg-slate-100 text-slate-700 font-semibold border-b border-slate-200'>
+                        <thead className='text-[11px] uppercase bg-slate-50/90 text-slate-600 font-semibold border-b border-slate-200/80 tracking-wider'>
                             <tr>
                                 <th scope='col' className='px-4 py-3 text-center w-14'>Profile Photo</th>
                                 <th scope='col' className='px-4 py-3'>Name</th>
@@ -293,7 +293,7 @@ const StudentDatabaseListView = ({
                                 </tr>
                             ) : (
                                 paginatedStudents.map((student) => (
-                                    <tr key={student.id} className='hover:bg-slate-50 transition-colors'>
+                                    <tr key={student.id} className='hover:bg-slate-50/80 transition-colors'>
                                         {/* Profile Photo */}
                                         <td className='px-4 py-3 text-center'>
                                             <img
@@ -361,7 +361,7 @@ const StudentDatabaseListView = ({
                                         <td className='px-4 py-3 text-right'>
                                             <Link
                                                 to={`${routeBase}/view/${student.id}`}
-                                                className='inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors cursor-pointer'
+                                                className='inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#3F46C7] bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors cursor-pointer'
                                             >
                                                 <Eye size={14} />
                                                 View Profile
@@ -375,7 +375,7 @@ const StudentDatabaseListView = ({
                 </div>
 
                 {/* Table Footer with Pagination */}
-                <div className='flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-slate-200 bg-slate-50'>
+                <div className='flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-slate-200/80 bg-slate-50/70'>
                     <div className='text-xs text-slate-600'>
                         Showing <span className='font-semibold'>{students.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to{' '}
                         <span className='font-semibold'>{Math.min(currentPage * itemsPerPage, students.length)}</span> of{' '}
@@ -383,25 +383,23 @@ const StudentDatabaseListView = ({
                     </div>
                     {totalPages > 1 && (
                         <div className='flex items-center gap-1.5'>
-                            <button
-                                type='button'
+                            <Button
+                                variant='secondary'
+                                size='icon-sm'
                                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className='p-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed'
-                            >
-                                <ChevronLeft size={16} />
-                            </button>
+                                icon={<ChevronLeft size={16} />}
+                            />
                             <span className='px-3 py-1 text-xs font-semibold text-slate-700'>
                                 Page {currentPage} of {totalPages}
                             </span>
-                            <button
-                                type='button'
+                            <Button
+                                variant='secondary'
+                                size='icon-sm'
                                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className='p-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed'
-                            >
-                                <ChevronRight size={16} />
-                            </button>
+                                icon={<ChevronRight size={16} />}
+                            />
                         </div>
                     )}
                 </div>

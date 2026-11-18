@@ -24,13 +24,13 @@ const ResultDetails = () => {
     const [selectMonth, setSelectMonth] = useState(new Date());
     const { activeStudent } = useActiveStudent()
     const summary = useMemo(
-        () => getStudentResultSummary(activeStudent.id),
-        [activeStudent.id],
+        () => (activeStudent?.id ? getStudentResultSummary(activeStudent.id) : null),
+        [activeStudent?.id],
     )
 
     const approvedResults = useMemo(
-        () => getApprovedMarksForStudent(activeStudent.id),
-        [activeStudent.id],
+        () => (activeStudent?.id ? getApprovedMarksForStudent(activeStudent.id) : []),
+        [activeStudent?.id],
     )
 
     const bagdeColor = {

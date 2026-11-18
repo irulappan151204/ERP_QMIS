@@ -6,6 +6,7 @@ import { Calendar, ChevronLeft, ChevronRight, EllipsisIcon, Plus, Download } fro
 import Dropdown from '../../../../Common/CommonComponents/Dropdown'
 import ExportModal from '../../../../Common/CommonComponents/ExportModal'
 import DeleteRequestModal from '../../../../Common/CommonComponents/DeleteRequestModal'
+import ViewRecordModal from '../../../../Common/CommonComponents/ViewRecordModal'
 import {
     documentStatusColor,
     getDocumentCellValue,
@@ -25,6 +26,7 @@ const EmployeeDocuments = () => {
     const [documentTypes, setDocumentTypes] = useState(() => getDocumentTypes())
     const [exportModal, setExportModal] = useState(false)
     const [deleteRequestModal, setDeleteRequestModal] = useState(false)
+    const [selectedRecordForView, setSelectedRecordForView] = useState(null)
 
     const refreshData = () => {
         setRecords(getEmployeeDocumentRecords())
@@ -245,6 +247,7 @@ const EmployeeDocuments = () => {
                                             >
                                                 <button
                                                     type='button'
+                                                    onClick={() => setSelectedRecordForView(record)}
                                                     className='w-full text-left p-2 hover:bg-[#515DEF] hover:text-white rounded cursor-pointer'
                                                 >
                                                     View
@@ -300,6 +303,12 @@ const EmployeeDocuments = () => {
 
             <ExportModal exportModal={exportModal} setExportModal={setExportModal} />
             <DeleteRequestModal deleteRequestModal={deleteRequestModal} setDeleteRequestModal={setDeleteRequestModal} />
+            <ViewRecordModal
+                isOpen={Boolean(selectedRecordForView)}
+                onClose={() => setSelectedRecordForView(null)}
+                data={selectedRecordForView}
+                title={selectedRecordForView?.name ? `${selectedRecordForView.name} - Employee Documents` : 'Employee Document Details'}
+            />
         </section>
     )
 }

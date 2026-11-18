@@ -93,7 +93,7 @@ const ExportModal = ({
                     <button
                         type='button'
                         onClick={close}
-                        className='min-h-10 rounded-lg border border-[var(--erp-line-strong)] px-4 text-sm font-semibold hover:bg-slate-50 transition cursor-pointer'
+                        className='min-h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition cursor-pointer'
                     >
                         Cancel
                     </button>

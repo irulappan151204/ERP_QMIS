@@ -9,15 +9,16 @@ export const ActiveStudentProvider = ({
     portalMode = 'student',
     routePrefix = '/student',
 }) => {
+    const resolvedStudent = student || DEFAULT_STUDENT_PROFILE
     const value = useMemo(
         () => ({
-            activeStudent: student,
-            activeStudentId: student.id,
+            activeStudent: resolvedStudent,
+            activeStudentId: resolvedStudent?.id || DEFAULT_STUDENT_PROFILE.id,
             portalMode,
             routePrefix,
             isParentPortal: portalMode === 'parent',
         }),
-        [student, portalMode, routePrefix],
+        [resolvedStudent, portalMode, routePrefix],
     )
 
     return (

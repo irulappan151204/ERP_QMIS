@@ -12,16 +12,16 @@ const CommonBreadcrumb = () => {
     return (
         <nav
             aria-label="Breadcrumb"
-            className="mb-3 w-full rounded-2xl bg-white px-4 py-3 shadow-[0_1px_3px_rgba(16,24,40,0.08)] sm:px-5"
+            className="mb-3.5 w-full rounded-2xl border border-slate-200/80 bg-white px-4 py-2.5 shadow-2xs sm:px-5"
         >
-            <ol className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-sm font-inter">
+            <ol className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs font-medium font-inter">
                 <li className="flex items-center">
                     <Link
                         to={homePath}
-                        className="inline-flex items-center text-[#515DEF] transition-opacity hover:opacity-80"
+                        className="inline-flex items-center text-[var(--erp-indigo)] transition-colors hover:text-[var(--erp-indigo-strong)]"
                         aria-label="Home"
                     >
-                        <House size={18} strokeWidth={2.25} />
+                        <House size={16} strokeWidth={2.25} />
                     </Link>
                 </li>
 
@@ -29,12 +29,12 @@ const CommonBreadcrumb = () => {
                     const isLast = index === crumbs.length - 1 || crumb.isCurrent
 
                     return (
-                        <li key={`${crumb.label}-${index}`} className="flex items-center gap-x-2.5">
-                            <ChevronRight size={16} className="shrink-0 text-[#9CA3AF]" strokeWidth={2} />
+                        <li key={`${crumb.label}-${index}`} className="flex items-center gap-x-2">
+                            <ChevronRight size={14} className="shrink-0 text-slate-400" strokeWidth={2} />
                             {crumb.to && !isLast ? (
                                 <Link
                                     to={crumb.to}
-                                    className="text-[#6B7280] transition-colors hover:text-[#515DEF]"
+                                    className="text-slate-500 transition-colors hover:text-[var(--erp-indigo)]"
                                 >
                                     {crumb.label}
                                 </Link>
@@ -42,8 +42,8 @@ const CommonBreadcrumb = () => {
                                 <span
                                     className={
                                         isLast
-                                            ? 'font-semibold text-[#111827]'
-                                            : 'text-[#6B7280]'
+                                            ? 'font-semibold text-slate-900'
+                                            : 'text-slate-500'
                                     }
                                     aria-current={isLast ? 'page' : undefined}
                                 >

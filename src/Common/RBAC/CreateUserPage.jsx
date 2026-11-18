@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Save } from 'lucide-react'
 import { toast } from 'react-toastify'
 import UserCreationForm from './Components/UserCreationForm'
-import { ConfirmAction, IntegrationNotice, PageHeader, Surface } from '../ui'
+import { Button, ConfirmAction, IntegrationNotice, PageHeader, Surface } from '../ui'
 import { CREATABLE_ROLE_LABELS } from './createdUsersData'
 
 const CreateUserPage = ({
@@ -50,14 +50,13 @@ const CreateUserPage = ({
 
     return (
         <section className='space-y-5'>
-            <button
-                type='button'
+            <Button
+                variant='secondary'
                 onClick={() => navigate(routeBase)}
-                className='inline-flex items-center gap-2 text-sm text-[#515DEF] border border-[#515DEF] rounded-md px-4 py-2 hover:bg-[#515DEF] hover:text-white transition-colors cursor-pointer'
+                icon={<ArrowLeft size={16} />}
             >
-                <ArrowLeft size={18} />
                 Back to list
-            </button>
+            </Button>
 
             <PageHeader title={pageTitle} description={pageDescription} context='Identity and access provisioning' />
 
@@ -80,14 +79,13 @@ const CreateUserPage = ({
                 {error ? <p className='text-sm text-[#F44336] mt-6'>{error}</p> : null}
 
                 <div className='mt-6'>
-                    <button
-                        type='button'
+                    <Button
+                        variant='primary'
                         onClick={() => setConfirmOpen(true)}
-                        className='inline-flex items-center gap-2 bg-[#515DEF] text-white text-sm px-6 py-2.5 rounded-md hover:opacity-90 cursor-pointer'
+                        icon={<Save size={16} />}
                     >
-                        <Save size={16} />
                         Review {submitLabel.toLowerCase()}
-                    </button>
+                    </Button>
                 </div>
             </Surface>
 

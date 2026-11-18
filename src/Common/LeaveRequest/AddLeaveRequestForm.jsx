@@ -11,9 +11,7 @@ import IntegrationNotice from '../ui/IntegrationNotice'
 import PageHeader from '../ui/PageHeader'
 import Surface from '../ui/Surface'
 import WorkflowContextBar from '../ui/WorkflowContextBar'
-
-const inputClass = 'text-sm font-normal text-[#1E1E1E] border border-[#D9D9D9] rounded-md px-2 py-3 w-full'
-const readOnlyInputClass = `${inputClass} bg-[#F9FAFB] cursor-not-allowed`
+import { inputClass, readOnlyInputClass, btnPrimaryClass, btnSecondaryClass } from '../ui/formStyles'
 
 export default function AddLeaveRequestForm({ roleKey: roleKeyProp }) {
     const navigate = useNavigate()
@@ -79,9 +77,9 @@ export default function AddLeaveRequestForm({ roleKey: roleKeyProp }) {
             <IntegrationNotice state='demo' title='Local leave submission' description='This request is stored in this browser. Leave balances, document evidence and staff notifications are not connected.' />
             <WorkflowContextBar owner={approverConfig.requestedToLabel} due={fromDate && toDate ? `${fromDate.toLocaleDateString('en-GB')} to ${toDate.toLocaleDateString('en-GB')}` : 'Select dates'} nextAction='Complete and submit the request' />
             <Surface title='Request information' description='Dates and leave type determine the request sent to the decision owner.' contentClassName='p-4 sm:p-5'>
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:mt-8 mt-2'>
-                    <div className='flex flex-col gap-y-2'>
-                        <label htmlFor='leave-request-owner' className='text-base font-medium text-[#1E1E1E]'>Requested To:</label>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
+                    <div className='flex flex-col gap-1'>
+                        <label htmlFor='leave-request-owner' className='text-xs font-semibold text-slate-700'>Requested To:</label>
                         <input
                             id='leave-request-owner'
                             type='text'
@@ -91,8 +89,8 @@ export default function AddLeaveRequestForm({ roleKey: roleKeyProp }) {
                             className={readOnlyInputClass}
                         />
                     </div>
-                    <div className='flex flex-col gap-y-2'>
-                        <label htmlFor='leave-request-type' className='text-base font-medium text-[#1E1E1E]'>Leave Type:</label>
+                    <div className='flex flex-col gap-1'>
+                        <label htmlFor='leave-request-type' className='text-xs font-semibold text-slate-700'>Leave Type:</label>
                         <select id='leave-request-type' value={leaveType} onChange={(event) => setLeaveType(event.target.value)} className={inputClass}>
                             <option value=''>Select Leave Type</option>
                             {LEAVE_TYPES.map((type) => (
@@ -100,46 +98,46 @@ export default function AddLeaveRequestForm({ roleKey: roleKeyProp }) {
                             ))}
                         </select>
                     </div>
-                    <div className='flex flex-col gap-y-2'>
-                        <label htmlFor='leave-request-from' className='text-base font-medium text-[#1E1E1E]'>From Date:</label>
+                    <div className='flex flex-col gap-1'>
+                        <label htmlFor='leave-request-from' className='text-xs font-semibold text-slate-700'>From Date:</label>
                         <div className='relative'>
-                            <DatePicker id='leave-request-from' selected={fromDate} onChange={(date) => setFromDate(date || new Date())} dateFormat='dd/MM/yyyy' isClearable className='w-full text-sm text-[#1E1E1E] border border-[#D9D9D9] rounded-md px-3 py-3 pr-10 focus:outline-none' />
-                            <Calendar size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-[#808080] pointer-events-none' />
+                            <DatePicker id='leave-request-from' selected={fromDate} onChange={(date) => setFromDate(date || new Date())} dateFormat='dd/MM/yyyy' isClearable className={inputClass} />
+                            <Calendar size={14} className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none' />
                         </div>
                     </div>
-                    <div className='flex flex-col gap-y-2'>
-                        <label htmlFor='leave-request-to' className='text-base font-medium text-[#1E1E1E]'>To Date:</label>
+                    <div className='flex flex-col gap-1'>
+                        <label htmlFor='leave-request-to' className='text-xs font-semibold text-slate-700'>To Date:</label>
                         <div className='relative'>
-                            <DatePicker id='leave-request-to' selected={toDate} onChange={(date) => setToDate(date || new Date())} dateFormat='dd/MM/yyyy' isClearable className='w-full text-sm text-[#1E1E1E] border border-[#D9D9D9] rounded-md px-3 py-3 pr-10 focus:outline-none' />
-                            <Calendar size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-[#808080] pointer-events-none' />
+                            <DatePicker id='leave-request-to' selected={toDate} onChange={(date) => setToDate(date || new Date())} dateFormat='dd/MM/yyyy' isClearable className={inputClass} />
+                            <Calendar size={14} className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none' />
                         </div>
                     </div>
-                    <div className='flex flex-col gap-y-2'>
-                        <label htmlFor='leave-request-days' className='text-base font-medium text-[#1E1E1E]'>Total Days:</label>
+                    <div className='flex flex-col gap-1'>
+                        <label htmlFor='leave-request-days' className='text-xs font-semibold text-slate-700'>Total Days:</label>
                         <input id='leave-request-days' type='text' readOnly value={totalDays || ''} placeholder='Auto-calculated' className={readOnlyInputClass} />
                     </div>
                     {leaveType === 'Permission' && (
                         <>
-                            <div className='flex flex-col gap-y-2'>
-                                <label htmlFor='leave-request-from-time' className='text-base font-medium text-[#1E1E1E]'>From Time:</label>
+                            <div className='flex flex-col gap-1'>
+                                <label htmlFor='leave-request-from-time' className='text-xs font-semibold text-slate-700'>From Time:</label>
                                 <input id='leave-request-from-time' type='time' value={fromTime} onChange={(event) => setFromTime(event.target.value)} className={inputClass} />
                             </div>
-                            <div className='flex flex-col gap-y-2'>
-                                <label htmlFor='leave-request-to-time' className='text-base font-medium text-[#1E1E1E]'>To Time:</label>
+                            <div className='flex flex-col gap-1'>
+                                <label htmlFor='leave-request-to-time' className='text-xs font-semibold text-slate-700'>To Time:</label>
                                 <input id='leave-request-to-time' type='time' value={toTime} onChange={(event) => setToTime(event.target.value)} className={inputClass} />
                             </div>
                         </>
                     )}
-                    <div className='flex flex-col gap-y-2 lg:col-span-3'>
-                        <label htmlFor='leave-request-reason' className='text-base font-medium text-[#1E1E1E]'>Reason:</label>
+                    <div className='flex flex-col gap-1 lg:col-span-3'>
+                        <label htmlFor='leave-request-reason' className='text-xs font-semibold text-slate-700'>Reason:</label>
                         <textarea id='leave-request-reason' rows={3} value={reason} onChange={(event) => setReason(event.target.value)} className={inputClass} placeholder='Describe the reason for leave...' />
                     </div>
                 </div>
             </Surface>
 
             <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-end'>
-                <button type='button' onClick={() => navigate(routes.myList)} className='bg-white text-[#515DEF] text-sm px-12 py-2 rounded-md border border-[#515DEF] hover:bg-[#515DEF] hover:text-white transition-all duration-200 cursor-pointer md:w-auto w-full'>Cancel</button>
-                <button type='button' onClick={handleSubmit} className='bg-[#515DEF] text-white text-sm px-12 py-2 rounded-md border border-[#515DEF] hover:opacity-90 transition-all duration-200 cursor-pointer md:w-auto w-full'>Submit Request</button>
+                <button type='button' onClick={() => navigate(routes.myList)} className={btnSecondaryClass}>Cancel</button>
+                <button type='button' onClick={handleSubmit} className={btnPrimaryClass}>Submit Request</button>
             </div>
         </section>
     )

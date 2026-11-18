@@ -22,9 +22,33 @@ import { getStudentGuardianDashboardData } from './studentGuardianDashboardData'
 const StudentGuardianDashboard = () => {
     const { activeStudent, isParentPortal, routePrefix } = useActiveStudent()
     const dashboard = getStudentGuardianDashboardData(routePrefix)
-    const resultSummary = getStudentResultSummary(activeStudent.id)
+    const resultSummary = activeStudent?.id ? getStudentResultSummary(activeStudent.id) : null
 
     if (!dashboard) return null
+
+    if (!activeStudent) {
+        return (
+            <section className='p-8 max-w-xl mx-auto text-center space-y-4 font-inter'>
+                <div className='p-6 bg-white border border-slate-200 rounded-3xl shadow-sm space-y-3'>
+                    <div className='size-12 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center'>
+                        <GraduationCap size={24} />
+                    </div>
+                    <h2 className='text-lg font-bold text-slate-900'>No Active Student Profile Selected</h2>
+                    <p className='text-xs text-slate-500 leading-relaxed'>
+                        Please link or select a student profile to view academic results, attendance tracking, and parent portal communications.
+                    </p>
+                    {isParentPortal && (
+                        <NavLink
+                            to='/parent/select-child'
+                            className='inline-flex items-center gap-2 mt-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 shadow-sm'
+                        >
+                            Select Child Profile
+                        </NavLink>
+                    )}
+                </div>
+            </section>
+        )
+    }
 
     return (
         <section className='space-y-6 pb-6 font-inter'>
@@ -33,14 +57,14 @@ const StudentGuardianDashboard = () => {
                 <div>
                     <div className='flex items-center gap-2'>
                         <h1 className='text-2xl font-bold tracking-tight text-slate-900'>
-                            {isParentPortal ? `${activeStudent.name} · Family Portal` : `Welcome, ${activeStudent.name}`}
+                            {isParentPortal ? `${activeStudent?.name || 'Student'} · Family Portal` : `Welcome, ${activeStudent?.name || 'Student'}`}
                         </h1>
                         <span className='rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 border border-blue-100'>
                             {isParentPortal ? 'Guardian Overview' : 'Student Workspace'}
                         </span>
                     </div>
                     <p className='mt-1 text-xs text-slate-500'>
-                        {formatGradeSection(activeStudent)} · Roll #{activeStudent.rollNumber} · Student ID: {activeStudent.id}
+                        {formatGradeSection(activeStudent)} · Roll #{activeStudent?.rollNumber || '—'} · Student ID: {activeStudent?.id || '—'}
                     </p>
                 </div>
 
