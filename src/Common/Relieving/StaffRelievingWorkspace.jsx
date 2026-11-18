@@ -1320,7 +1320,6 @@ export default function StaffRelievingWorkspace({ roleOverride = null }) {
                 </div>
             )}
 
-            ${target3}
             {viewMode === 'student_tc' && (
                 <div className='space-y-6'>
                     {/* Top Stats Banner */}

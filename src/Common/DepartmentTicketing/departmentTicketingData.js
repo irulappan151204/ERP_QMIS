@@ -233,25 +233,70 @@ export const INITIAL_TICKETS = [
     }
 ]
 
+// Ticket Schema Normalizer to support both legacy and modern property names
+export const normalizeTicket = (t) => {
+    if (!t) return t
+    const ticketId = t.id || t.ticketNumber || 'TICK-2026-000'
+    const title = t.ticketTitle || t.title || t.subject || 'Service Request'
+    const reqName = t.requestedByName || t.raisedByName || 'Staff Member'
+    const reqDept = t.requestingDepartment || t.raisedByDepartment || 'Academics & Teaching'
+    const reqId = t.requestedById || t.raisedByEmployeeId || 'EMP-STF-001'
+    const assignedName = t.assignedToName || t.assignedStaffName || 'Unassigned'
+    const assignedId = t.assignedToId || t.assignedStaffId || ''
+    const category = t.issueCategory || t.category || 'General Service'
+    const resolutionNotes = t.resolutionSummary || t.resolutionRemarks || ''
+    const feedbackObj = typeof t.requesterFeedback === 'object' && t.requesterFeedback !== null
+        ? t.requesterFeedback
+        : (t.requesterFeedback || t.requesterRating ? { rating: t.requesterRating || 5, comments: String(t.requesterFeedback || ''), feedback: String(t.requesterFeedback || '') } : null)
+
+    return {
+        ...t,
+        id: ticketId,
+        ticketNumber: ticketId,
+        ticketTitle: title,
+        title: title,
+        subject: title,
+        requestedByName: reqName,
+        raisedByName: reqName,
+        requestingDepartment: reqDept,
+        raisedByDepartment: reqDept,
+        requestedById: reqId,
+        raisedByEmployeeId: reqId,
+        assignedToName: assignedName,
+        assignedStaffName: assignedName,
+        assignedToId: assignedId,
+        assignedStaffId: assignedId,
+        issueCategory: category,
+        category: category,
+        resolutionSummary: resolutionNotes,
+        resolutionRemarks: resolutionNotes,
+        requesterRating: feedbackObj?.rating || t.requesterRating || 0,
+        requesterFeedback: feedbackObj
+    }
+}
+
 // Storage Accessors
 export const getDepartmentTickets = () => {
+    let tickets = []
     try {
         if (typeof localStorage !== 'undefined') {
             const raw = localStorage.getItem(TICKETS_STORAGE_KEY)
             if (raw) {
                 const parsed = JSON.parse(raw)
-                if (Array.isArray(parsed) && parsed.length > 0) return parsed
+                if (Array.isArray(parsed) && parsed.length > 0) tickets = parsed
             }
         }
     } catch {
         /* ignore */
     }
-    if (_memoryTickets && Array.isArray(_memoryTickets) && _memoryTickets.length > 0) {
-        return _memoryTickets
+    if (!tickets.length && _memoryTickets && Array.isArray(_memoryTickets) && _memoryTickets.length > 0) {
+        tickets = _memoryTickets
     }
-    _memoryTickets = [...INITIAL_TICKETS]
-    saveDepartmentTickets(_memoryTickets)
-    return _memoryTickets
+    if (!tickets.length) {
+        tickets = [...INITIAL_TICKETS]
+        saveDepartmentTickets(tickets)
+    }
+    return tickets.map(normalizeTicket)
 }
 
 export const saveDepartmentTickets = (tickets) => {
@@ -272,16 +317,29 @@ export const saveDepartmentTickets = (tickets) => {
  */
 export const raiseDepartmentTicket = ({
     ticketTitle,
+    title,
+    subject,
     targetDepartment,
     issueCategory,
+    category,
     priority = 'Medium',
     requestedById,
+    raisedByEmployeeId,
     requestedByName,
+    raisedByName,
     requestingDepartment,
+    raisedByDepartment,
     location,
     description,
-    attachments = []
+    attachments = [],
+    teamMembers = []
 }) => {
+    const finalTitle = ticketTitle || title || subject || 'Service Request'
+    const finalReqName = requestedByName || raisedByName || 'Staff Member'
+    const finalReqId = requestedById || raisedByEmployeeId || 'EMP-STF-001'
+    const finalReqDept = requestingDepartment || raisedByDepartment || 'Academics & Teaching'
+    const finalCategory = issueCategory || category || 'General Support'
+
     const deptConfig = DEPARTMENT_CONFIGS.find((d) => d.name === targetDepartment) || DEPARTMENT_CONFIGS[0]
     const slaHours = deptConfig.slaTargetHours[priority] || 24
 
@@ -294,20 +352,30 @@ export const raiseDepartmentTicket = ({
     const targetResolution = new Date(now.getTime() + slaHours * 3600000)
     const targetStr = targetResolution.toLocaleDateString('en-GB') + ' ' + targetResolution.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 
-    const newTicket = {
+    const rawTicket = {
         id: newId,
-        ticketTitle,
+        ticketNumber: newId,
+        ticketTitle: finalTitle,
+        title: finalTitle,
+        subject: finalTitle,
         targetDepartment,
-        issueCategory,
+        issueCategory: finalCategory,
+        category: finalCategory,
         priority,
-        requestedById,
-        requestedByName,
-        requestingDepartment,
-        location,
-        description,
+        requestedById: finalReqId,
+        raisedByEmployeeId: finalReqId,
+        requestedByName: finalReqName,
+        raisedByName: finalReqName,
+        requestingDepartment: finalReqDept,
+        raisedByDepartment: finalReqDept,
+        location: location || 'Campus Main Block',
+        description: description || '',
         attachments,
+        teamMembers,
         assignedToId: deptConfig.managerId,
+        assignedStaffId: deptConfig.managerId,
         assignedToName: deptConfig.managerName,
+        assignedStaffName: deptConfig.managerName,
         slaHours,
         createdDateTime: nowStr,
         targetResolutionDateTime: targetStr,
@@ -316,34 +384,37 @@ export const raiseDepartmentTicket = ({
         timeline: [
             {
                 timestamp: nowStr,
-                actorName: requestedByName,
+                actorName: finalReqName,
                 action: 'Submitted',
                 notes: `Ticket raised for ${targetDepartment}. Priority: ${priority}.`
             }
         ],
         resolutionSummary: '',
-        requesterFeedback: null
+        resolutionRemarks: '',
+        requesterFeedback: null,
+        requesterRating: 0
     }
 
+    const newTicket = normalizeTicket(rawTicket)
     const updated = [newTicket, ...tickets]
     saveDepartmentTickets(updated)
 
     recordAuditLog({
-        actorId: requestedById,
-        actorName: requestedByName,
+        actorId: finalReqId,
+        actorName: finalReqName,
         module: 'Department Ticketing',
         action: 'RAISE_TICKET',
         entityId: newId,
         previousState: 'None',
         newState: 'Submitted',
-        remarks: `${priority} ticket '${ticketTitle}' routed to ${targetDepartment}`
+        remarks: `${priority} ticket '${finalTitle}' routed to ${targetDepartment}`
     })
 
     dispatchNotification({
         recipientId: deptConfig.managerId,
         recipientRole: deptConfig.managerRole,
         title: `New Ticket in ${targetDepartment} Queue`,
-        message: `${newId} (${priority}): ${ticketTitle} reported by ${requestedByName}. SLA: ${slaHours}h.`,
+        message: `${newId} (${priority}): ${finalTitle} reported by ${finalReqName}. SLA: ${slaHours}h.`,
         link: '/department-tickets?tab=queue',
         priority: priority === 'Critical' ? 'Critical' : 'Normal',
         type: 'DEPARTMENT_TICKET'
@@ -357,49 +428,63 @@ export const raiseDepartmentTicket = ({
  */
 export const assignTicketToStaff = ({
     ticketId,
+    ticketNumber,
     assignedToId,
+    assignedStaffId,
     assignedToName,
+    assignedStaffName,
     managerName = 'Department Manager',
-    instructions = ''
+    assignedByStaffName,
+    instructions = '',
+    notes = ''
 }) => {
+    const id = ticketId || ticketNumber
     const tickets = getDepartmentTickets()
-    const target = tickets.find((t) => t.id === ticketId)
+    const target = tickets.find((t) => t.id === id || t.ticketNumber === id)
     if (!target) throw new Error('Ticket not found.')
 
+    const staffId = assignedToId || assignedStaffId || 'EMP-STF-001'
+    const staffName = assignedToName || assignedStaffName || 'Assigned Technician'
+    const actor = managerName || assignedByStaffName || 'Department Manager'
+    const remarks = instructions || notes || ''
+
     const oldStatus = target.status
-    target.assignedToId = assignedToId
-    target.assignedToName = assignedToName
+    target.assignedToId = staffId
+    target.assignedStaffId = staffId
+    target.assignedToName = staffName
+    target.assignedStaffName = staffName
     target.status = 'Assigned'
 
     const nowStr = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    if (!target.timeline) target.timeline = []
     target.timeline.push({
         timestamp: nowStr,
-        actorName: managerName,
+        actorName: actor,
         action: 'Assigned',
-        notes: `Assigned to ${assignedToName}. ${instructions || ''}`.trim()
+        notes: `Assigned to ${staffName}. ${remarks}`.trim()
     })
 
     saveDepartmentTickets(tickets)
 
     recordAuditLog({
-        actorName: managerName,
+        actorName: actor,
         module: 'Department Ticketing',
         action: 'ASSIGN_TICKET',
-        entityId: ticketId,
+        entityId: target.id,
         previousState: oldStatus,
         newState: 'Assigned',
-        remarks: `Assigned to ${assignedToName}`
+        remarks: `Assigned to ${staffName}`
     })
 
     dispatchNotification({
-        recipientId: assignedToId,
-        title: `Ticket ${ticketId} Assigned to You`,
-        message: `You have been assigned ${ticketId}: '${target.ticketTitle}'. Target SLA: ${target.targetResolutionDateTime}.`,
+        recipientId: staffId,
+        title: `Ticket ${target.id} Assigned to You`,
+        message: `You have been assigned ${target.id}: '${target.ticketTitle}'. Target SLA: ${target.targetResolutionDateTime}.`,
         link: '/department-tickets?tab=assigned',
         type: 'DEPARTMENT_TICKET'
     })
 
-    return target
+    return normalizeTicket(target)
 }
 
 /**
@@ -407,56 +492,69 @@ export const assignTicketToStaff = ({
  */
 export const updateTicketProgress = ({
     ticketId,
+    ticketNumber,
     newStatus,
+    status,
     actorName,
+    updatedByName,
     workNotes,
+    notes,
+    resolutionRemarks,
     resolutionSummary = ''
 }) => {
+    const id = ticketId || ticketNumber
+    const finalStatus = newStatus || status || 'In Progress'
+    const actor = actorName || updatedByName || 'Technician'
+    const workText = workNotes || resolutionRemarks || notes || `Status updated to ${finalStatus}`
+    const finalSummary = resolutionSummary || resolutionRemarks || workNotes || ''
+
     const tickets = getDepartmentTickets()
-    const target = tickets.find((t) => t.id === ticketId)
+    const target = tickets.find((t) => t.id === id || t.ticketNumber === id)
     if (!target) throw new Error('Ticket not found.')
 
     const oldStatus = target.status
-    target.status = newStatus
+    target.status = finalStatus
 
     const nowStr = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 
-    if (newStatus === 'Resolved') {
+    if (finalStatus.toLowerCase().includes('resolve')) {
         target.actualResolutionDateTime = nowStr
-        target.resolutionSummary = resolutionSummary || workNotes
+        target.resolutionSummary = finalSummary
+        target.resolutionRemarks = finalSummary
     }
 
+    if (!target.timeline) target.timeline = []
     target.timeline.push({
         timestamp: nowStr,
-        actorName,
-        action: newStatus,
-        notes: workNotes || `Status updated to ${newStatus}`
+        actorName: actor,
+        action: finalStatus,
+        notes: workText
     })
 
     saveDepartmentTickets(tickets)
 
     recordAuditLog({
-        actorName,
+        actorName: actor,
         module: 'Department Ticketing',
-        action: `TICKET_${newStatus.toUpperCase().replace(/\s+/g, '_')}`,
-        entityId: ticketId,
+        action: `TICKET_${finalStatus.toUpperCase().replace(/\s+/g, '_')}`,
+        entityId: target.id,
         previousState: oldStatus,
-        newState: newStatus,
-        remarks: workNotes
+        newState: finalStatus,
+        remarks: workText
     })
 
-    if (newStatus === 'Resolved') {
+    if (finalStatus.toLowerCase().includes('resolve')) {
         dispatchNotification({
             recipientId: target.requestedById,
-            title: `Ticket ${ticketId} Resolved`,
-            message: `Work on '${target.ticketTitle}' has been completed by ${actorName}. Please confirm closure.`,
+            title: `Ticket ${target.id} Resolved`,
+            message: `Work on '${target.ticketTitle}' has been completed by ${actor}. Please confirm closure.`,
             link: '/department-tickets?tab=my-tickets',
             priority: 'High',
             type: 'DEPARTMENT_TICKET'
         })
     }
 
-    return target
+    return normalizeTicket(target)
 }
 
 /**
@@ -464,13 +562,20 @@ export const updateTicketProgress = ({
  */
 export const confirmTicketClosure = ({
     ticketId,
-    action, // 'Confirmed & Closed' | 'Reopened'
+    ticketNumber,
+    action = 'Confirmed & Closed',
     requesterName,
     feedbackRating = 5,
-    feedbackComments = ''
+    requesterRating,
+    feedbackComments = '',
+    requesterFeedback = ''
 }) => {
+    const id = ticketId || ticketNumber
+    const rating = Number(feedbackRating || requesterRating || 5)
+    const feedback = feedbackComments || (typeof requesterFeedback === 'string' ? requesterFeedback : '') || 'Satisfactorily resolved.'
+
     const tickets = getDepartmentTickets()
-    const target = tickets.find((t) => t.id === ticketId)
+    const target = tickets.find((t) => t.id === id || t.ticketNumber === id)
     if (!target) throw new Error('Ticket not found.')
 
     const oldStatus = target.status
@@ -478,34 +583,37 @@ export const confirmTicketClosure = ({
 
     if (action === 'Confirmed & Closed') {
         target.status = 'Confirmed & Closed'
+        target.requesterRating = rating
         target.requesterFeedback = {
-            rating: Number(feedbackRating),
-            comments: feedbackComments,
+            rating,
+            comments: feedback,
+            feedback,
             timestamp: nowStr
         }
     } else {
         target.status = 'Reopened'
     }
 
+    if (!target.timeline) target.timeline = []
     target.timeline.push({
         timestamp: nowStr,
-        actorName: requesterName,
+        actorName: requesterName || 'Requester',
         action,
-        notes: feedbackComments || (action === 'Confirmed & Closed' ? 'Closure confirmed by requester.' : 'Ticket reopened.')
+        notes: feedback || (action === 'Confirmed & Closed' ? 'Closure confirmed by requester.' : 'Ticket reopened.')
     })
 
     saveDepartmentTickets(tickets)
 
     recordAuditLog({
-        actorName: requesterName,
+        actorName: requesterName || 'Requester',
         module: 'Department Ticketing',
         action: action === 'Confirmed & Closed' ? 'CLOSE_TICKET' : 'REOPEN_TICKET',
-        entityId: ticketId,
+        entityId: target.id,
         previousState: oldStatus,
         newState: target.status,
-        remarks: feedbackComments
+        remarks: feedback
     })
 
-    return target
+    return normalizeTicket(target)
 }
 

@@ -178,6 +178,9 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
         feedback: 'Prompt and courteous resolution!'
     })
 
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+    const [selectedTicketForDetails, setSelectedTicketForDetails] = useState(null)
+
     // Filter states
     const [searchQuery, setSearchQuery] = useState('')
     const [deptFilter, setDeptFilter] = useState('ALL')
@@ -192,7 +195,12 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
 
             if (searchQuery.trim()) {
                 const q = searchQuery.toLowerCase().trim()
-                const match = `${t.ticketNumber} ${t.title} ${t.targetDepartment} ${t.raisedByName} ${t.location}`.toLowerCase()
+                const num = (t.ticketNumber || t.id || '').toLowerCase()
+                const tit = (t.ticketTitle || t.title || '').toLowerCase()
+                const dep = (t.targetDepartment || '').toLowerCase()
+                const req = (t.requestedByName || t.raisedByName || '').toLowerCase()
+                const loc = (t.location || '').toLowerCase()
+                const match = `${num} ${tit} ${dep} ${req} ${loc}`
                 if (!match.includes(q)) return false
             }
             return true
@@ -201,7 +209,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
 
     // Department Queue specific
     const departmentQueue = useMemo(() => {
-        return allTickets.filter((t) => t.targetDepartment.toLowerCase().includes(userDepartment.toLowerCase()) || isHOD)
+        return allTickets.filter((t) => (t.targetDepartment && t.targetDepartment.toLowerCase().includes(userDepartment.toLowerCase())) || isHOD)
     }, [allTickets, userDepartment, isHOD])
 
     // ==========================================
@@ -212,21 +220,26 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
         try {
             const result = raiseDepartmentTicket({
                 raisedByEmployeeId: 'EMP-SEC-012',
+                requestedById: 'EMP-SEC-012',
                 raisedByName: authName || 'Sunita Verma',
+                requestedByName: authName || 'Sunita Verma',
                 raisedByDepartment: 'Academic - Secondary',
+                requestingDepartment: 'Academic - Secondary',
                 raisedByRole: activeRole,
                 targetDepartment: ticketFormData.targetDepartment,
                 category: ticketFormData.category,
+                issueCategory: ticketFormData.category,
                 priority: ticketFormData.priority,
                 title: ticketFormData.title,
+                ticketTitle: ticketFormData.title,
                 description: ticketFormData.description,
                 location: ticketFormData.location
             })
-            notify(`Ticket ${result.ticketNumber} raised successfully! Routed to ${result.targetDepartment}.`)
+            notify(`Ticket ${result.ticketNumber || result.id} raised successfully! Routed to ${result.targetDepartment}.`)
             setIsRaiseModalOpen(false)
             setTicketFormData({
-                targetDepartment: 'IT Support',
-                category: 'Projector / Audio-Visual Fault',
+                targetDepartment: 'IT Support & Systems',
+                category: 'Classroom Interactive Smartboard / Projector',
                 title: '',
                 description: '',
                 priority: 'High',
@@ -242,16 +255,43 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
         e.preventDefault()
         if (!selectedTicketForAssign) return
         try {
+            const ticketId = selectedTicketForAssign.id || selectedTicketForAssign.ticketNumber
             assignTicketToStaff({
-                ticketNumber: selectedTicketForAssign.ticketNumber,
+                ticketId,
+                ticketNumber: ticketId,
                 assignedStaffId: assignFormData.assignedStaffId,
+                assignedToId: assignFormData.assignedStaffId,
                 assignedStaffName: assignFormData.assignedStaffName,
+                assignedToName: assignFormData.assignedStaffName,
                 assignedByStaffName: authName || 'HOD / Manager',
-                notes: assignFormData.internalNotes
+                managerName: authName || 'HOD / Manager',
+                notes: assignFormData.internalNotes,
+                instructions: assignFormData.internalNotes
             })
-            notify(`Ticket ${selectedTicketForAssign.ticketNumber} assigned to ${assignFormData.assignedStaffName}!`)
+            notify(`Ticket ${ticketId} assigned to ${assignFormData.assignedStaffName}!`)
             setIsAssignModalOpen(false)
             setSelectedTicketForAssign(null)
+            setRefreshKey((k) => k + 1)
+        } catch (err) {
+            alert(err.message)
+        }
+    }
+
+    const handleStartWork = (ticket) => {
+        if (!ticket) return
+        try {
+            const ticketId = ticket.id || ticket.ticketNumber
+            updateTicketProgress({
+                ticketId,
+                ticketNumber: ticketId,
+                newStatus: 'In Progress',
+                status: 'In Progress',
+                actorName: authName || 'Technician',
+                updatedByName: authName || 'Technician',
+                workNotes: 'Technician commenced on-site service order.',
+                notes: 'Technician commenced on-site service order.'
+            })
+            notify(`Ticket ${ticketId} moved to In Progress!`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
             alert(err.message)
@@ -262,13 +302,19 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
         e.preventDefault()
         if (!selectedTicketForResolve) return
         try {
+            const ticketId = selectedTicketForResolve.id || selectedTicketForResolve.ticketNumber
             updateTicketProgress({
-                ticketNumber: selectedTicketForResolve.ticketNumber,
+                ticketId,
+                ticketNumber: ticketId,
+                newStatus: resolveFormData.status,
                 status: resolveFormData.status,
                 updatedByName: authName || 'Technician',
-                resolutionRemarks: resolveFormData.resolutionRemarks
+                actorName: authName || 'Technician',
+                resolutionRemarks: resolveFormData.resolutionRemarks,
+                workNotes: resolveFormData.resolutionRemarks,
+                resolutionSummary: resolveFormData.resolutionRemarks
             })
-            notify(`Ticket ${selectedTicketForResolve.ticketNumber} resolved! Requester closure confirmation requested.`)
+            notify(`Ticket ${ticketId} resolved! Requester closure confirmation requested.`)
             setIsResolveModalOpen(false)
             setSelectedTicketForResolve(null)
             setRefreshKey((k) => k + 1)
@@ -281,13 +327,18 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
         e.preventDefault()
         if (!selectedTicketForFeedback) return
         try {
+            const ticketId = selectedTicketForFeedback.id || selectedTicketForFeedback.ticketNumber
             confirmTicketClosure({
-                ticketNumber: selectedTicketForFeedback.ticketNumber,
+                ticketId,
+                ticketNumber: ticketId,
+                action: 'Confirmed & Closed',
                 requesterRating: feedbackFormData.rating,
+                feedbackRating: feedbackFormData.rating,
                 requesterFeedback: feedbackFormData.feedback,
-                requesterName: authName || selectedTicketForFeedback.raisedByName
+                feedbackComments: feedbackFormData.feedback,
+                requesterName: authName || selectedTicketForFeedback.requestedByName || selectedTicketForFeedback.raisedByName || 'Requester'
             })
-            notify(`Ticket ${selectedTicketForFeedback.ticketNumber} closed with ${feedbackFormData.rating}★ rating!`)
+            notify(`Ticket ${ticketId} closed with ${feedbackFormData.rating}★ rating!`)
             setIsFeedbackModalOpen(false)
             setSelectedTicketForFeedback(null)
             setRefreshKey((k) => k + 1)
@@ -487,12 +538,12 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                     </tr>
                                 </thead>
                                 <tbody className='divide-y divide-slate-100 text-slate-700'>
-                                    {allTickets.slice(0, 6).map((t) => (
-                                        <tr key={t.ticketNumber} className='hover:bg-slate-50/70'>
-                                            <td className='py-2.5 px-3 font-mono font-bold text-slate-900'>{t.ticketNumber}</td>
+                                    {allTickets.slice(0, 8).map((t) => (
+                                        <tr key={t.ticketNumber || t.id} className='hover:bg-slate-50/70'>
+                                            <td className='py-2.5 px-3 font-mono font-bold text-slate-900'>{t.ticketNumber || t.id}</td>
                                             <td className='py-2.5 px-3'>
-                                                <div className='font-semibold text-slate-900'>{t.title}</div>
-                                                <div className='text-[11px] text-slate-400'>{t.location} • By {t.raisedByName}</div>
+                                                <div className='font-semibold text-slate-900'>{t.ticketTitle || t.title}</div>
+                                                <div className='text-[11px] text-slate-400'>{t.location} • By {t.requestedByName || t.raisedByName}</div>
                                             </td>
                                             <td className='py-2.5 px-3 font-medium text-slate-800'>{t.targetDepartment}</td>
                                             <td className='py-2.5 px-3'>
@@ -501,12 +552,14 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                                         ? 'bg-rose-100 text-rose-800'
                                                         : t.priority === 'High'
                                                         ? 'bg-amber-100 text-amber-800'
+                                                        : t.priority === 'Medium'
+                                                        ? 'bg-blue-100 text-blue-800'
                                                         : 'bg-slate-100 text-slate-600'
                                                 }`}>
                                                     {t.priority}
                                                 </span>
                                             </td>
-                                            <td className='py-2.5 px-3 text-slate-600'>{t.assignedStaffName || 'Unassigned'}</td>
+                                            <td className='py-2.5 px-3 text-slate-600 font-medium'>{t.assignedToName || t.assignedStaffName || 'Unassigned'}</td>
                                             <td className='py-2.5 px-3'>
                                                 <span className={`font-mono text-[11px] font-semibold ${
                                                     t.isSlaBreached ? 'text-rose-600 font-bold' : 'text-slate-600'
@@ -516,20 +569,32 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                             </td>
                                             <td className='py-2.5 px-3 text-center'>
                                                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                                                    t.status === 'Closed'
+                                                    t.status === 'Closed' || t.status === 'Confirmed & Closed'
                                                         ? 'bg-emerald-50 text-emerald-700'
-                                                        : t.status === 'Resolved (Awaiting Confirmation)'
+                                                        : t.status === 'Resolved' || t.status === 'Resolved (Awaiting Confirmation)'
                                                         ? 'bg-indigo-50 text-indigo-700'
-                                                        : t.status === 'In-Progress'
+                                                        : t.status === 'In Progress' || t.status === 'In-Progress'
                                                         ? 'bg-blue-50 text-blue-700'
+                                                        : t.status === 'Assigned'
+                                                        ? 'bg-sky-50 text-sky-700'
                                                         : 'bg-amber-50 text-amber-700'
                                                 }`}>
                                                     {t.status}
                                                 </span>
                                             </td>
                                             <td className='py-2.5 px-3 text-right'>
-                                                <div className='flex items-center justify-end gap-1'>
-                                                    {t.status === 'Open' && (
+                                                <div className='flex items-center justify-end gap-1.5'>
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedTicketForDetails(t)
+                                                            setIsDetailsModalOpen(true)
+                                                        }}
+                                                        className='rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50'
+                                                        title='View Details & Timeline'
+                                                    >
+                                                        <Eye size={12} className='inline mr-0.5' /> View
+                                                    </button>
+                                                    {(t.status === 'Open' || t.status === 'Submitted') && (
                                                         <button
                                                             onClick={() => {
                                                                 setSelectedTicketForAssign(t)
@@ -540,7 +605,15 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                                             Assign
                                                         </button>
                                                     )}
-                                                    {t.status === 'In-Progress' && (
+                                                    {t.status === 'Assigned' && (
+                                                        <button
+                                                            onClick={() => handleStartWork(t)}
+                                                            className='rounded-lg bg-amber-500 px-2 py-1 text-[11px] font-semibold text-white hover:bg-amber-600'
+                                                        >
+                                                            Start
+                                                        </button>
+                                                    )}
+                                                    {(t.status === 'In-Progress' || t.status === 'In Progress' || t.status === 'Assigned') && (
                                                         <button
                                                             onClick={() => {
                                                                 setSelectedTicketForResolve(t)
@@ -551,7 +624,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                                             Resolve
                                                         </button>
                                                     )}
-                                                    {t.status === 'Resolved (Awaiting Confirmation)' && (
+                                                    {(t.status === 'Resolved' || t.status === 'Resolved (Awaiting Confirmation)') && (
                                                         <button
                                                             onClick={() => {
                                                                 setSelectedTicketForFeedback(t)
@@ -595,18 +668,22 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
 
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                         {allTickets.map((t) => (
-                            <div key={t.ticketNumber} className='rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-3'>
+                            <div key={t.ticketNumber || t.id} className='rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-3'>
                                 <div className='flex items-center justify-between'>
                                     <div>
-                                        <span className='font-mono text-xs font-bold text-slate-900'>{t.ticketNumber}</span>
-                                        <h4 className='text-sm font-bold text-slate-900'>{t.title}</h4>
-                                        <p className='text-xs text-slate-500'>Target: <b>{t.targetDepartment}</b> • Category: {t.category}</p>
+                                        <span className='font-mono text-xs font-bold text-slate-900'>{t.ticketNumber || t.id}</span>
+                                        <h4 className='text-sm font-bold text-slate-900'>{t.ticketTitle || t.title}</h4>
+                                        <p className='text-xs text-slate-500'>Target: <b>{t.targetDepartment}</b> • Category: {t.issueCategory || t.category}</p>
                                     </div>
                                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                                        t.status === 'Closed'
+                                        t.status === 'Closed' || t.status === 'Confirmed & Closed'
                                             ? 'bg-emerald-50 text-emerald-700'
-                                            : t.status === 'Resolved (Awaiting Confirmation)'
+                                            : t.status === 'Resolved' || t.status === 'Resolved (Awaiting Confirmation)'
                                             ? 'bg-indigo-50 text-indigo-700'
+                                            : t.status === 'In Progress' || t.status === 'In-Progress'
+                                            ? 'bg-blue-50 text-blue-700'
+                                            : t.status === 'Assigned'
+                                            ? 'bg-sky-50 text-sky-700'
                                             : 'bg-amber-50 text-amber-700'
                                     }`}>
                                         {t.status}
@@ -616,29 +693,38 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                 <div className='rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-xs space-y-1.5'>
                                     <div><b>Location:</b> {t.location}</div>
                                     <div><b>Description:</b> {t.description}</div>
-                                    <div><b>Assigned Staff:</b> {t.assignedStaffName || 'Pending Assignment'}</div>
-                                    {t.resolutionRemarks && (
+                                    <div><b>Assigned Staff:</b> {t.assignedToName || t.assignedStaffName || 'Pending Assignment'}</div>
+                                    {(t.resolutionSummary || t.resolutionRemarks) && (
                                         <div className='pt-1 text-emerald-800 font-medium'>
-                                            <b>Resolution:</b> {t.resolutionRemarks}
+                                            <b>Resolution:</b> {t.resolutionSummary || t.resolutionRemarks}
                                         </div>
                                     )}
-                                    {t.requesterRating > 0 && (
+                                    {(t.requesterRating > 0 || t.requesterFeedback?.rating > 0) && (
                                         <div className='flex items-center gap-1 text-amber-600 font-bold pt-1'>
                                             <span>Rating:</span>
-                                            {'★'.repeat(t.requesterRating)}
-                                            <span className='text-slate-500 font-normal'>- "{t.requesterFeedback}"</span>
+                                            {'★'.repeat(t.requesterRating || t.requesterFeedback?.rating || 5)}
+                                            <span className='text-slate-500 font-normal'>- "{typeof t.requesterFeedback === 'string' ? t.requesterFeedback : t.requesterFeedback?.comments || t.requesterFeedback?.feedback || ''}"</span>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className='flex items-center justify-end pt-1'>
-                                    {t.status === 'Resolved (Awaiting Confirmation)' && (
+                                <div className='flex items-center justify-between pt-1'>
+                                    <button
+                                        onClick={() => {
+                                            setSelectedTicketForDetails(t)
+                                            setIsDetailsModalOpen(true)
+                                        }}
+                                        className='inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50'
+                                    >
+                                        <Eye size={13} /> View Timeline
+                                    </button>
+                                    {(t.status === 'Resolved' || t.status === 'Resolved (Awaiting Confirmation)') && (
                                         <button
                                             onClick={() => {
                                                 setSelectedTicketForFeedback(t)
                                                 setIsFeedbackModalOpen(true)
                                             }}
-                                            className='rounded-xl bg-amber-500 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-amber-600'
+                                            className='rounded-xl bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600'
                                         >
                                             Confirm Resolution & Rate ★
                                         </button>
@@ -691,54 +777,122 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                 </thead>
                                 <tbody className='divide-y divide-slate-100 text-slate-700'>
                                     {departmentQueue.map((t) => (
-                                        <tr key={t.ticketNumber} className='hover:bg-slate-50/70'>
-                                            <td className='py-3 px-4 font-mono font-bold text-slate-900'>{t.ticketNumber}</td>
-                                            <td className='py-3 px-4'>
-                                                <div className='font-semibold text-slate-900'>{t.raisedByName}</div>
-                                                <div className='text-[11px] text-slate-400'>{t.raisedByDepartment}</div>
+                                        <tr key={t.ticketNumber || t.id} className='hover:bg-slate-50/70'>
+                                            <td className='py-3 px-4 font-mono font-bold text-slate-900'>
+                                                {t.ticketNumber || t.id}
                                             </td>
                                             <td className='py-3 px-4'>
-                                                <div className='font-semibold text-slate-900'>{t.title}</div>
-                                                <div className='text-[11px] text-slate-500'>{t.description}</div>
+                                                <div className='font-semibold text-slate-900'>{t.requestedByName || t.raisedByName || 'Staff Member'}</div>
+                                                <div className='text-[11px] text-slate-400'>{t.requestingDepartment || t.raisedByDepartment || 'Academics'}</div>
+                                            </td>
+                                            <td className='py-3 px-4'>
+                                                <div className='font-semibold text-slate-900'>{t.ticketTitle || t.title}</div>
+                                                <div className='text-[11px] text-slate-500 line-clamp-2'>{t.description}</div>
                                             </td>
                                             <td className='py-3 px-4 text-slate-600'>{t.location}</td>
                                             <td className='py-3 px-4'>
-                                                <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${
-                                                    t.priority === 'Critical' ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'
+                                                <span className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-bold ${
+                                                    t.priority === 'Critical'
+                                                        ? 'bg-rose-100 text-rose-800'
+                                                        : t.priority === 'High'
+                                                        ? 'bg-amber-100 text-amber-800'
+                                                        : t.priority === 'Medium'
+                                                        ? 'bg-blue-100 text-blue-800'
+                                                        : 'bg-slate-100 text-slate-700'
                                                 }`}>
                                                     {t.priority}
                                                 </span>
                                             </td>
-                                            <td className='py-3 px-4 font-medium text-slate-900'>{t.assignedStaffName || 'Unassigned'}</td>
+                                            <td className='py-3 px-4 font-medium text-slate-900'>
+                                                {t.assignedToName || t.assignedStaffName || 'Unassigned'}
+                                            </td>
                                             <td className='py-3 px-4 text-center'>
-                                                <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                                                    t.status === 'Closed' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                                                    t.status === 'Closed' || t.status === 'Confirmed & Closed'
+                                                        ? 'bg-emerald-100 text-emerald-800'
+                                                        : t.status === 'Resolved' || t.status === 'Resolved (Awaiting Confirmation)'
+                                                        ? 'bg-indigo-100 text-indigo-800'
+                                                        : t.status === 'In Progress' || t.status === 'In-Progress'
+                                                        ? 'bg-amber-100 text-amber-800'
+                                                        : t.status === 'Assigned'
+                                                        ? 'bg-sky-100 text-sky-800'
+                                                        : 'bg-purple-100 text-purple-800'
                                                 }`}>
                                                     {t.status}
                                                 </span>
                                             </td>
                                             <td className='py-3 px-4 text-right'>
-                                                <div className='flex items-center justify-end gap-1.5'>
-                                                    {t.status === 'Open' && (
+                                                <div className='flex items-center justify-end gap-1.5 flex-wrap'>
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedTicketForDetails(t)
+                                                            setIsDetailsModalOpen(true)
+                                                        }}
+                                                        className='inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 shadow-2xs'
+                                                        title='View Details & Timeline'
+                                                    >
+                                                        <Eye size={12} className='text-slate-500' />
+                                                        <span>Details</span>
+                                                    </button>
+
+                                                    {(t.status === 'Open' || t.status === 'Submitted' || (!t.assignedToName && !t.assignedStaffName) || t.assignedToName === 'Unassigned') && (
                                                         <button
                                                             onClick={() => {
                                                                 setSelectedTicketForAssign(t)
                                                                 setIsAssignModalOpen(true)
                                                             }}
-                                                            className='rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-blue-700'
+                                                            className='inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 shadow-2xs'
                                                         >
-                                                            Assign Staff
+                                                            <UserCheck size={12} />
+                                                            <span>Assign Staff</span>
                                                         </button>
                                                     )}
-                                                    {t.status === 'In-Progress' && (
+
+                                                    {t.status === 'Assigned' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleStartWork(t)}
+                                                                className='inline-flex items-center gap-1 rounded-lg bg-amber-500 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-amber-600 shadow-2xs'
+                                                            >
+                                                                <Clock size={12} />
+                                                                <span>Start Work</span>
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedTicketForResolve(t)
+                                                                    setIsResolveModalOpen(true)
+                                                                }}
+                                                                className='inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-emerald-700 shadow-2xs'
+                                                            >
+                                                                <CheckCircle2 size={12} />
+                                                                <span>Resolve</span>
+                                                            </button>
+                                                        </>
+                                                    )}
+
+                                                    {(t.status === 'In Progress' || t.status === 'In-Progress') && (
                                                         <button
                                                             onClick={() => {
                                                                 setSelectedTicketForResolve(t)
                                                                 setIsResolveModalOpen(true)
                                                             }}
-                                                            className='rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-emerald-700'
+                                                            className='inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-emerald-700 shadow-2xs'
                                                         >
-                                                            Resolve
+                                                            <CheckCircle2 size={12} />
+                                                            <span>Resolve</span>
+                                                        </button>
+                                                    )}
+
+                                                    {(t.status === 'Resolved' || t.status === 'Resolved (Awaiting Confirmation)') && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedTicketForFeedback(t)
+                                                                setIsFeedbackModalOpen(true)
+                                                            }}
+                                                            className='inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-indigo-700 shadow-2xs'
+                                                        >
+                                                            <Star size={12} />
+                                                            <span>Sign-off / Close</span>
                                                         </button>
                                                     )}
                                                 </div>
@@ -765,39 +919,64 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                     </div>
 
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        {allTickets.filter((t) => t.assignedStaffName).map((t) => (
-                            <div key={t.ticketNumber} className='rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-3'>
+                        {allTickets.filter((t) => (t.assignedToName && t.assignedToName !== 'Unassigned') || (t.assignedStaffName && t.assignedStaffName !== 'Unassigned')).map((t) => (
+                            <div key={t.ticketNumber || t.id} className='rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-3'>
                                 <div className='flex items-center justify-between'>
                                     <div>
-                                        <span className='font-mono text-xs font-bold text-slate-900'>{t.ticketNumber}</span>
-                                        <h4 className='text-sm font-bold text-slate-900'>{t.title}</h4>
+                                        <span className='font-mono text-xs font-bold text-slate-900'>{t.ticketNumber || t.id}</span>
+                                        <h4 className='text-sm font-bold text-slate-900'>{t.ticketTitle || t.title}</h4>
                                     </div>
                                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                                        t.status === 'Closed' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'
+                                        t.status === 'Closed' || t.status === 'Confirmed & Closed'
+                                            ? 'bg-emerald-50 text-emerald-700'
+                                            : t.status === 'Resolved' || t.status === 'Resolved (Awaiting Confirmation)'
+                                            ? 'bg-indigo-50 text-indigo-700'
+                                            : t.status === 'In Progress' || t.status === 'In-Progress'
+                                            ? 'bg-blue-50 text-blue-700'
+                                            : 'bg-sky-50 text-sky-700'
                                     }`}>
                                         {t.status}
                                     </span>
                                 </div>
 
                                 <div className='rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-xs space-y-1'>
-                                    <div><b>Requester:</b> {t.raisedByName} ({t.raisedByDepartment})</div>
+                                    <div><b>Requester:</b> {t.requestedByName || t.raisedByName} ({t.requestingDepartment || t.raisedByDepartment})</div>
                                     <div><b>Location:</b> {t.location}</div>
                                     <div><b>Priority:</b> {t.priority}</div>
                                     <div><b>Issue:</b> {t.description}</div>
                                 </div>
 
-                                <div className='flex justify-end pt-1'>
-                                    {t.status !== 'Closed' && (
-                                        <button
-                                            onClick={() => {
-                                                setSelectedTicketForResolve(t)
-                                                setIsResolveModalOpen(true)
-                                            }}
-                                            className='rounded-xl bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700'
-                                        >
-                                            Mark as Resolved
-                                        </button>
-                                    )}
+                                <div className='flex items-center justify-between pt-1'>
+                                    <button
+                                        onClick={() => {
+                                            setSelectedTicketForDetails(t)
+                                            setIsDetailsModalOpen(true)
+                                        }}
+                                        className='inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50'
+                                    >
+                                        <Eye size={13} /> View Timeline
+                                    </button>
+                                    <div className='flex items-center gap-2'>
+                                        {t.status === 'Assigned' && (
+                                            <button
+                                                onClick={() => handleStartWork(t)}
+                                                className='rounded-xl bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600'
+                                            >
+                                                Start Work
+                                            </button>
+                                        )}
+                                        {t.status !== 'Closed' && t.status !== 'Confirmed & Closed' && (
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedTicketForResolve(t)
+                                                    setIsResolveModalOpen(true)
+                                                }}
+                                                className='rounded-xl bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700'
+                                            >
+                                                Mark as Resolved
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -828,7 +1007,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                         className='w-full rounded-xl border border-slate-200 p-2 focus:border-blue-500 focus:outline-hidden'
                                     >
                                         {DEPARTMENT_CONFIGS.map((d) => (
-                                            <option key={d.id} value={d.name}>
+                                            <option key={d.code || d.name} value={d.name}>
                                                 {d.name}
                                             </option>
                                         ))}
@@ -993,8 +1172,8 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
 
                         <form onSubmit={handleAssignSubmit} className='space-y-3 text-xs'>
                             <div className='p-3 rounded-xl bg-slate-50 border border-slate-100'>
-                                <div className='font-mono font-bold text-slate-900'>{selectedTicketForAssign.ticketNumber}</div>
-                                <div className='text-slate-800 font-semibold'>{selectedTicketForAssign.title}</div>
+                                <div className='font-mono font-bold text-slate-900'>{selectedTicketForAssign.ticketNumber || selectedTicketForAssign.id}</div>
+                                <div className='text-slate-800 font-semibold'>{selectedTicketForAssign.ticketTitle || selectedTicketForAssign.title}</div>
                                 <div className='text-slate-500 text-[11px]'>{selectedTicketForAssign.location}</div>
                             </div>
 
@@ -1054,8 +1233,8 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
 
                         <form onSubmit={handleResolveSubmit} className='space-y-3 text-xs'>
                             <div className='p-3 rounded-xl bg-slate-50 border border-slate-100'>
-                                <div className='font-mono font-bold text-slate-900'>{selectedTicketForResolve.ticketNumber}</div>
-                                <div className='text-slate-800 font-semibold'>{selectedTicketForResolve.title}</div>
+                                <div className='font-mono font-bold text-slate-900'>{selectedTicketForResolve.ticketNumber || selectedTicketForResolve.id}</div>
+                                <div className='text-slate-800 font-semibold'>{selectedTicketForResolve.ticketTitle || selectedTicketForResolve.title}</div>
                             </div>
 
                             <div>
@@ -1104,10 +1283,10 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
 
                         <form onSubmit={handleFeedbackSubmit} className='space-y-4 text-xs'>
                             <div className='p-3 rounded-xl bg-slate-50 border border-slate-100'>
-                                <div className='font-mono font-bold text-slate-900'>{selectedTicketForFeedback.ticketNumber}</div>
-                                <div className='text-slate-800 font-semibold'>{selectedTicketForFeedback.title}</div>
+                                <div className='font-mono font-bold text-slate-900'>{selectedTicketForFeedback.ticketNumber || selectedTicketForFeedback.id}</div>
+                                <div className='text-slate-800 font-semibold'>{selectedTicketForFeedback.ticketTitle || selectedTicketForFeedback.title}</div>
                                 <div className='text-emerald-700 mt-1 font-medium'>
-                                    <b>Resolved As:</b> {selectedTicketForFeedback.resolutionRemarks}
+                                    <b>Resolved As:</b> {selectedTicketForFeedback.resolutionSummary || selectedTicketForFeedback.resolutionRemarks || 'Service complete'}
                                 </div>
                             </div>
 
@@ -1156,6 +1335,226 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* ========================================================================= */}
+            {/* MODAL: TICKET DETAILS & TIMELINE                                          */}
+            {/* ========================================================================= */}
+            {isDetailsModalOpen && selectedTicketForDetails && (
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs'>
+                    <div className='w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto'>
+                        <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
+                            <div className='flex items-center gap-3'>
+                                <span className='font-mono text-sm font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200'>
+                                    {selectedTicketForDetails.ticketNumber || selectedTicketForDetails.id}
+                                </span>
+                                <h3 className='text-base font-bold text-slate-900'>Ticket Overview & Timeline</h3>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    setIsDetailsModalOpen(false)
+                                    setSelectedTicketForDetails(null)
+                                }}
+                                className='text-slate-400 hover:text-slate-600'
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* Title and Status Badges */}
+                        <div className='space-y-1.5'>
+                            <div className='flex items-center gap-2 flex-wrap'>
+                                <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold ${
+                                    selectedTicketForDetails.priority === 'Critical'
+                                        ? 'bg-rose-100 text-rose-800'
+                                        : selectedTicketForDetails.priority === 'High'
+                                        ? 'bg-amber-100 text-amber-800'
+                                        : selectedTicketForDetails.priority === 'Medium'
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : 'bg-slate-100 text-slate-700'
+                                }`}>
+                                    Priority: {selectedTicketForDetails.priority}
+                                </span>
+                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                                    selectedTicketForDetails.status === 'Closed' || selectedTicketForDetails.status === 'Confirmed & Closed'
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : selectedTicketForDetails.status === 'Resolved' || selectedTicketForDetails.status === 'Resolved (Awaiting Confirmation)'
+                                        ? 'bg-indigo-100 text-indigo-800'
+                                        : selectedTicketForDetails.status === 'In Progress' || selectedTicketForDetails.status === 'In-Progress'
+                                        ? 'bg-amber-100 text-amber-800'
+                                        : selectedTicketForDetails.status === 'Assigned'
+                                        ? 'bg-sky-100 text-sky-800'
+                                        : 'bg-purple-100 text-purple-800'
+                                }`}>
+                                    Status: {selectedTicketForDetails.status}
+                                </span>
+                                <span className='text-xs text-slate-400'>
+                                    Target SLA: {selectedTicketForDetails.slaHours || 24}h ({selectedTicketForDetails.targetResolutionDateTime || 'Standard'})
+                                </span>
+                            </div>
+                            <h4 className='text-base font-bold text-slate-900'>
+                                {selectedTicketForDetails.ticketTitle || selectedTicketForDetails.title}
+                            </h4>
+                        </div>
+
+                        {/* Metadata Details Grid */}
+                        <div className='grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs'>
+                            <div>
+                                <span className='text-[10px] uppercase font-semibold text-slate-400 block'>Requester</span>
+                                <span className='font-semibold text-slate-900'>{selectedTicketForDetails.requestedByName || selectedTicketForDetails.raisedByName || 'Staff Member'}</span>
+                            </div>
+                            <div>
+                                <span className='text-[10px] uppercase font-semibold text-slate-400 block'>Department</span>
+                                <span className='text-slate-700'>{selectedTicketForDetails.requestingDepartment || selectedTicketForDetails.raisedByDepartment || 'Academics'}</span>
+                            </div>
+                            <div>
+                                <span className='text-[10px] uppercase font-semibold text-slate-400 block'>Target Queue</span>
+                                <span className='font-semibold text-blue-700'>{selectedTicketForDetails.targetDepartment}</span>
+                            </div>
+                            <div>
+                                <span className='text-[10px] uppercase font-semibold text-slate-400 block'>Location / Room</span>
+                                <span className='text-slate-700'>{selectedTicketForDetails.location}</span>
+                            </div>
+                            <div>
+                                <span className='text-[10px] uppercase font-semibold text-slate-400 block'>Assigned Technician</span>
+                                <span className='font-semibold text-slate-900'>{selectedTicketForDetails.assignedToName || selectedTicketForDetails.assignedStaffName || 'Unassigned'}</span>
+                            </div>
+                            <div>
+                                <span className='text-[10px] uppercase font-semibold text-slate-400 block'>Created On</span>
+                                <span className='text-slate-700'>{selectedTicketForDetails.createdDateTime || 'Recent'}</span>
+                            </div>
+                        </div>
+
+                        {/* Issue Description */}
+                        <div className='space-y-1 text-xs'>
+                            <span className='font-semibold text-slate-700 block'>Issue Description & Remarks:</span>
+                            <div className='p-3 rounded-xl bg-white border border-slate-200 text-slate-700 leading-relaxed whitespace-pre-wrap'>
+                                {selectedTicketForDetails.description || 'No detailed description provided.'}
+                            </div>
+                        </div>
+
+                        {/* Resolution Summary (if available) */}
+                        {(selectedTicketForDetails.resolutionSummary || selectedTicketForDetails.resolutionRemarks) && (
+                            <div className='space-y-1 text-xs'>
+                                <span className='font-semibold text-emerald-800 block'>Work Resolution Summary:</span>
+                                <div className='p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 leading-relaxed'>
+                                    {selectedTicketForDetails.resolutionSummary || selectedTicketForDetails.resolutionRemarks}
+                                    {selectedTicketForDetails.actualResolutionDateTime && (
+                                        <div className='text-[11px] text-emerald-700 mt-1 font-medium'>
+                                            Resolved on: {selectedTicketForDetails.actualResolutionDateTime}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Requester Feedback (if rated) */}
+                        {(selectedTicketForDetails.requesterRating > 0 || selectedTicketForDetails.requesterFeedback?.rating > 0) && (
+                            <div className='p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1'>
+                                <div className='flex items-center gap-1 font-bold'>
+                                    <span>Requester Verification & Sign-off:</span>
+                                    <span className='text-amber-600'>
+                                        {'★'.repeat(selectedTicketForDetails.requesterRating || selectedTicketForDetails.requesterFeedback?.rating || 5)}
+                                    </span>
+                                </div>
+                                <div className='italic text-slate-700'>
+                                    "{typeof selectedTicketForDetails.requesterFeedback === 'string' ? selectedTicketForDetails.requesterFeedback : selectedTicketForDetails.requesterFeedback?.comments || selectedTicketForDetails.requesterFeedback?.feedback || 'Satisfactorily resolved.'}"
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Audit Trail Timeline */}
+                        <div className='space-y-2 pt-2 border-t border-slate-100'>
+                            <h5 className='text-xs font-bold uppercase tracking-wider text-slate-500'>
+                                Chronological Activity & Dispatch History
+                            </h5>
+                            <div className='space-y-2.5 max-h-56 overflow-y-auto pr-1'>
+                                {(selectedTicketForDetails.timeline && selectedTicketForDetails.timeline.length > 0) ? (
+                                    selectedTicketForDetails.timeline.map((item, idx) => (
+                                        <div key={idx} className='flex items-start gap-2.5 text-xs'>
+                                            <div className='mt-1 w-2 h-2 rounded-full bg-blue-500 shrink-0' />
+                                            <div className='flex-1 p-2.5 rounded-xl bg-slate-50 border border-slate-100'>
+                                                <div className='flex items-center justify-between font-medium text-slate-800 text-[11px]'>
+                                                    <span className='font-bold text-slate-900'>{item.actorName || 'System'}</span>
+                                                    <span className='text-slate-400 font-mono'>{item.timestamp}</span>
+                                                </div>
+                                                <div className='text-slate-600 mt-0.5 text-[11px]'>{item.notes}</div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className='p-3 rounded-xl bg-slate-50 text-slate-400 text-center text-xs'>
+                                        Initial ticket submission recorded.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Modal Footer with Actions */}
+                        <div className='flex items-center justify-between pt-3 border-t border-slate-100'>
+                            <button
+                                type='button'
+                                onClick={() => {
+                                    setIsDetailsModalOpen(false)
+                                    setSelectedTicketForDetails(null)
+                                }}
+                                className='rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50'
+                            >
+                                Close View
+                            </button>
+
+                            <div className='flex items-center gap-2'>
+                                {(selectedTicketForDetails.status === 'Open' || selectedTicketForDetails.status === 'Submitted' || (!selectedTicketForDetails.assignedToName && !selectedTicketForDetails.assignedStaffName) || selectedTicketForDetails.assignedToName === 'Unassigned') && (
+                                    <button
+                                        onClick={() => {
+                                            setIsDetailsModalOpen(false)
+                                            setSelectedTicketForAssign(selectedTicketForDetails)
+                                            setIsAssignModalOpen(true)
+                                        }}
+                                        className='rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-700'
+                                    >
+                                        Assign Staff
+                                    </button>
+                                )}
+                                {selectedTicketForDetails.status === 'Assigned' && (
+                                    <button
+                                        onClick={() => {
+                                            handleStartWork(selectedTicketForDetails)
+                                            setIsDetailsModalOpen(false)
+                                        }}
+                                        className='rounded-xl bg-amber-500 px-3.5 py-2 text-xs font-semibold text-white hover:bg-amber-600'
+                                    >
+                                        Start Work
+                                    </button>
+                                )}
+                                {(selectedTicketForDetails.status === 'In Progress' || selectedTicketForDetails.status === 'In-Progress' || selectedTicketForDetails.status === 'Assigned') && (
+                                    <button
+                                        onClick={() => {
+                                            setIsDetailsModalOpen(false)
+                                            setSelectedTicketForResolve(selectedTicketForDetails)
+                                            setIsResolveModalOpen(true)
+                                        }}
+                                        className='rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-700'
+                                    >
+                                        Resolve Ticket
+                                    </button>
+                                )}
+                                {(selectedTicketForDetails.status === 'Resolved' || selectedTicketForDetails.status === 'Resolved (Awaiting Confirmation)') && (
+                                    <button
+                                        onClick={() => {
+                                            setIsDetailsModalOpen(false)
+                                            setSelectedTicketForFeedback(selectedTicketForDetails)
+                                            setIsFeedbackModalOpen(true)
+                                        }}
+                                        className='rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-indigo-700'
+                                    >
+                                        Sign-off & Close
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
