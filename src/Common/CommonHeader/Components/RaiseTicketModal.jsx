@@ -183,17 +183,17 @@ const RaiseTicketModal = () => {
 
                                 <div>
                                     <label className='block font-semibold text-slate-700 mb-1'>
-                                        Priority / SLA Urgency *
+                                        Priority Level *
                                     </label>
                                     <select
                                         value={priority}
                                         onChange={(e) => setPriority(e.target.value)}
                                         className={inputClass}
                                     >
-                                        <option value='Low'>Low (Routine • 48-72h SLA)</option>
-                                        <option value='Medium'>Medium (Standard • 24h SLA)</option>
-                                        <option value='High'>High (Urgent • 8-12h SLA)</option>
-                                        <option value='Critical'>Critical (Emergency • 2-4h SLA)</option>
+                                        <option value='Low'>Low (Routine)</option>
+                                        <option value='Medium'>Medium (Standard)</option>
+                                        <option value='High'>High (Urgent)</option>
+                                        <option value='Critical'>Critical (Emergency)</option>
                                     </select>
                                 </div>
                             </div>

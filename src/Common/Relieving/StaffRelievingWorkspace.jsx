@@ -107,6 +107,154 @@ export default function StaffRelievingWorkspace({ roleOverride = null }) {
     const [attachedFile, setAttachedFile] = useState(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
+    // Check if user is an authorized approver/manager
+    const isAuthorizedApprover = useMemo(() => {
+        return [
+            'hr',
+            'superadmin',
+            'admin',
+            'director',
+            'principal',
+            'jointdirector',
+            'coordinator',
+            'itsupportmanager',
+            'accounthead',
+            'account-head',
+            'finance',
+            'librarian',
+            'stationerystoremanager',
+            'transportmanager'
+        ].includes(activeRole)
+    }, [activeRole])
+
+    // Staff Sub-tab: my_request vs approvals_queue
+    const [staffSubTab, setStaffSubTab] = useState(() => {
+        return isAuthorizedApprover ? 'approvals_queue' : 'my_request'
+    })
+
+    // Queue filter state
+    const [queueSearch, setQueueSearch] = useState('')
+    const [queueStatusFilter, setQueueStatusFilter] = useState('All')
+
+    // Modals for staff queue actions
+    const [selectedExitForNoc, setSelectedExitForNoc] = useState(null)
+    const [selectedExitForReject, setSelectedExitForReject] = useState(null)
+    const [rejectReason, setRejectReason] = useState('')
+    const [selectedExitForCert, setSelectedExitForCert] = useState(null)
+
+    const resolveStaff = (empId) => {
+        const found = ENTERPRISE_EMPLOYEES.find((e) => e.id === empId)
+        if (found) return found
+        return {
+            id: empId,
+            name: empId,
+            department: 'Institutional Staff',
+            designation: 'Staff Member',
+            category: 'Academic'
+        }
+    }
+
+    // Accept / Acknowledge an initiated exit request
+    const handleAcceptExit = (exitItem) => {
+        const updated = {
+            ...exitItem,
+            status: 'In Progress',
+            acknowledgedBy: authName || roleLabel,
+            acknowledgedDate: new Date().toISOString().split('T')[0]
+        }
+        const updatedExits = exits.map((x) => (x.id === exitItem.id ? updated : x))
+        saveExits(updatedExits)
+        setRefreshKey((k) => k + 1)
+        toast.success(`Accepted relieving request for ${resolveStaff(exitItem.employeeId).name}. Department NOC sign-offs are now open!`)
+    }
+
+    // Toggle checkpoint in modal
+    const handleToggleModalNocStep = (stepKey) => {
+        if (!selectedExitForNoc) return
+        const updated = {
+            ...selectedExitForNoc,
+            [stepKey]: !selectedExitForNoc[stepKey]
+        }
+        const isAllCleared = NOC_CLEARANCE_STEPS.every((step) => Boolean(updated[step.key]))
+        if (isAllCleared && updated.status !== 'Completed') {
+            updated.status = 'Approved'
+        }
+        const updatedExits = exits.map((x) => (x.id === selectedExitForNoc.id ? updated : x))
+        saveExits(updatedExits)
+        setSelectedExitForNoc(updated)
+        setRefreshKey((k) => k + 1)
+        toast.success(`Updated sign-off for ${stepKey}!`)
+    }
+
+    // Final Approve Exit
+    const handleFinalApproveExit = (exitItem) => {
+        const updated = {
+            ...exitItem,
+            status: 'Completed',
+            approvedBy: authName || roleLabel,
+            approvalDate: new Date().toISOString().split('T')[0],
+            departmentClearance: true,
+            handover: true,
+            assets: true,
+            documents: true,
+            finance: true,
+            hrClearance: true,
+            noticeServed: true,
+            exitInterview: true
+        }
+        const updatedExits = exits.map((x) => (x.id === exitItem.id ? updated : x))
+        saveExits(updatedExits)
+        setRefreshKey((k) => k + 1)
+        toast.success(`Relieving request for ${resolveStaff(exitItem.employeeId).name} approved and finalized!`)
+    }
+
+    // Reject Exit
+    const handleConfirmRejectExit = () => {
+        if (!selectedExitForReject) return
+        if (!rejectReason.trim()) {
+            toast.error('Please enter a rejection reason.')
+            return
+        }
+        const updated = {
+            ...selectedExitForReject,
+            status: 'Rejected',
+            rejectedBy: authName || roleLabel,
+            rejectedDate: new Date().toISOString().split('T')[0],
+            rejectionReason: rejectReason.trim()
+        }
+        const updatedExits = exits.map((x) => (x.id === selectedExitForReject.id ? updated : x))
+        saveExits(updatedExits)
+        setRefreshKey((k) => k + 1)
+        toast.info(`Relieving request for ${resolveStaff(selectedExitForReject.employeeId).name} was rejected.`)
+        setSelectedExitForReject(null)
+        setRejectReason('')
+    }
+
+    const filteredQueueExits = useMemo(() => {
+        return exits.filter((x) => {
+            const staff = resolveStaff(x.employeeId)
+            const query = queueSearch.trim().toLowerCase()
+            const matchesSearch = !query ||
+                staff.name.toLowerCase().includes(query) ||
+                staff.id.toLowerCase().includes(query) ||
+                staff.department.toLowerCase().includes(query) ||
+                (x.reason && x.reason.toLowerCase().includes(query)) ||
+                (x.id && x.id.toLowerCase().includes(query))
+
+            let matchesStatus = true
+            if (queueStatusFilter !== 'All') {
+                if (queueStatusFilter === 'In Progress') {
+                    matchesStatus = ['In Progress', 'Pending Clearance', 'Pending Clearances'].includes(x.status)
+                } else if (queueStatusFilter === 'Completed') {
+                    matchesStatus = ['Completed', 'Approved'].includes(x.status)
+                } else {
+                    matchesStatus = x.status === queueStatusFilter
+                }
+            }
+            return matchesSearch && matchesStatus
+        })
+    }, [exits, queueSearch, queueStatusFilter])
+
     // Student TC State
     const [tcRequests, setTcRequests] = useState(() => getAllTcRequests())
     const [tcSearch, setTcSearch] = useState('')
@@ -359,6 +507,49 @@ export default function StaffRelievingWorkspace({ roleOverride = null }) {
             {/* VIEW MODE 1: STAFF RELIEVING & NOC */}
             {viewMode === 'staff' && (
                 <>
+                    {/* Sub-navigation bar between personal request and approvals queue */}
+                    {isAuthorizedApprover && (
+                        <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs mb-4'>
+                            <div className='flex items-center gap-2'>
+                                <button
+                                    type='button'
+                                    onClick={() => setStaffSubTab('my_request')}
+                                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                                        staffSubTab === 'my_request'
+                                            ? 'bg-indigo-600 text-white shadow-xs'
+                                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                    }`}
+                                >
+                                    My Relieving Application
+                                </button>
+                                <button
+                                    type='button'
+                                    onClick={() => setStaffSubTab('approvals_queue')}
+                                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                                        staffSubTab === 'approvals_queue'
+                                            ? 'bg-indigo-600 text-white shadow-xs'
+                                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                    }`}
+                                >
+                                    <FileCheck2 size={14} />
+                                    <span>Staff Relieving Approvals &amp; NOC Queue</span>
+                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                        staffSubTab === 'approvals_queue' ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-700'
+                                    }`}>
+                                        {exits.length}
+                                    </span>
+                                </button>
+                            </div>
+                            <div className='text-xs text-slate-500 font-medium'>
+                                {staffSubTab === 'approvals_queue'
+                                    ? 'Review, approve, or clear departmental NOCs for employee resignations'
+                                    : 'Manage your personal exit request'}
+                            </div>
+                        </div>
+                    )}
+
+                    {staffSubTab === 'my_request' ? (
+                        <>
                     {/* Employee Profile & Notice Terms Banner */}
                     <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
                         <div className='bg-white p-4 rounded-2xl border border-slate-200 shadow-xs'>
@@ -635,9 +826,501 @@ export default function StaffRelievingWorkspace({ roleOverride = null }) {
                         </div>
                     </div>
                 </>
+            ) : (
+                /* STAFF RELIEVING APPROVALS & NOC QUEUE */
+                <div className='space-y-6'>
+                    {/* Top Stats Banner */}
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+                        <div className='bg-white p-4 rounded-2xl border border-slate-200 shadow-xs'>
+                            <span className='text-[11px] font-semibold text-slate-400 uppercase tracking-wider'>Total Relieving Requests</span>
+                            <p className='text-2xl font-bold text-slate-900 mt-1'>{exits.length}</p>
+                            <p className='text-xs text-slate-500'>Submitted staff resignation records</p>
+                        </div>
+                        <div className='bg-white p-4 rounded-2xl border border-slate-200 shadow-xs'>
+                            <span className='text-[11px] font-semibold text-slate-400 uppercase tracking-wider'>Awaiting Acceptance</span>
+                            <p className='text-2xl font-bold text-amber-600 mt-1'>
+                                {exits.filter((x) => x.status === 'Initiated').length}
+                            </p>
+                            <p className='text-xs text-slate-500'>New requests requiring review</p>
+                        </div>
+                        <div className='bg-white p-4 rounded-2xl border border-slate-200 shadow-xs'>
+                            <span className='text-[11px] font-semibold text-slate-400 uppercase tracking-wider'>In Department Clearances</span>
+                            <p className='text-2xl font-bold text-blue-600 mt-1'>
+                                {exits.filter((x) => ['In Progress', 'Pending Clearance', 'Pending Clearances'].includes(x.status)).length}
+                            </p>
+                            <p className='text-xs text-slate-500'>Active multi-department sign-offs</p>
+                        </div>
+                        <div className='bg-white p-4 rounded-2xl border border-slate-200 shadow-xs'>
+                            <span className='text-[11px] font-semibold text-slate-400 uppercase tracking-wider'>Relieved &amp; Completed</span>
+                            <p className='text-2xl font-bold text-emerald-600 mt-1'>
+                                {exits.filter((x) => ['Completed', 'Approved'].includes(x.status)).length}
+                            </p>
+                            <p className='text-xs text-slate-500'>Certificates authorized &amp; issued</p>
+                        </div>
+                    </div>
+
+                    {/* Filter & Action Toolbar */}
+                    <div className='bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4'>
+                        <div className='flex flex-wrap items-center gap-3 flex-1'>
+                            <div className='relative flex-1 min-w-[220px] max-w-md'>
+                                <Search size={16} className='absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400' />
+                                <input
+                                    type='text'
+                                    placeholder='Search by employee name, ID, department, or reason...'
+                                    value={queueSearch}
+                                    onChange={(e) => setQueueSearch(e.target.value)}
+                                    className='w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500'
+                                />
+                            </div>
+
+                            <select
+                                value={queueStatusFilter}
+                                onChange={(e) => setQueueStatusFilter(e.target.value)}
+                                className='rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-700 focus:outline-hidden focus:border-indigo-500'
+                            >
+                                <option value='All'>All Statuses</option>
+                                <option value='Initiated'>Initiated (Pending Acceptance)</option>
+                                <option value='In Progress'>In Progress (Department Clearances)</option>
+                                <option value='Completed'>Completed / Approved</option>
+                                <option value='Rejected'>Rejected</option>
+                            </select>
+                        </div>
+
+                        <div className='text-xs text-slate-500'>
+                            Showing <strong>{filteredQueueExits.length}</strong> of <strong>{exits.length}</strong> staff requests
+                        </div>
+                    </div>
+
+                    {/* Requests Data Table */}
+                    <div className='bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden'>
+                        <div className='overflow-x-auto'>
+                            <table className='w-full text-left text-xs'>
+                                <thead className='bg-slate-50 text-slate-700 font-bold border-b border-slate-200'>
+                                    <tr>
+                                        <th className='py-3.5 px-4'>Ref #</th>
+                                        <th className='py-3.5 px-4'>Staff Member</th>
+                                        <th className='py-3.5 px-4'>Proposed LWD</th>
+                                        <th className='py-3.5 px-4'>Reason &amp; Handover</th>
+                                        <th className='py-3.5 px-4 text-center'>NOC Progress</th>
+                                        <th className='py-3.5 px-4 text-center'>Status</th>
+                                        <th className='py-3.5 px-4 text-right'>Workflow Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className='divide-y divide-slate-100 text-slate-600'>
+                                    {filteredQueueExits.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={7} className='py-12 text-center text-slate-400'>
+                                                No staff relieving requests match the selected search or status filter.
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        filteredQueueExits.map((item) => {
+                                            const staff = resolveStaff(item.employeeId)
+                                            const clearedCount = NOC_CLEARANCE_STEPS.filter((s) => Boolean(item[s.key])).length
+                                            const isDone = clearedCount === NOC_CLEARANCE_STEPS.length
+                                            const isInitiated = item.status === 'Initiated'
+                                            const isApprovedOrCompleted = ['Completed', 'Approved'].includes(item.status)
+                                            const isRejected = item.status === 'Rejected'
+
+                                            return (
+                                                <tr key={item.id} className='hover:bg-slate-50/80 transition'>
+                                                    <td className='py-3.5 px-4 font-mono font-bold text-indigo-700 whitespace-nowrap'>
+                                                        {item.id}
+                                                    </td>
+                                                    <td className='py-3.5 px-4'>
+                                                        <div className='font-bold text-slate-900'>{staff.name}</div>
+                                                        <div className='text-[11px] text-slate-500'>
+                                                            {staff.id} · {staff.designation || 'Staff'} ({staff.department})
+                                                        </div>
+                                                    </td>
+                                                    <td className='py-3.5 px-4 whitespace-nowrap'>
+                                                        <div className='font-semibold text-slate-900'>{item.lastWorkingDate}</div>
+                                                        <div className='text-[10px] text-slate-400'>Applied: {item.appliedDate || item.lastWorkingDate}</div>
+                                                    </td>
+                                                    <td className='py-3.5 px-4 max-w-xs'>
+                                                        <div className='font-medium text-slate-800 truncate' title={item.reason}>{item.reason}</div>
+                                                        <div className='text-[10px] text-slate-400'>
+                                                            Handover: {item.handoverColleague || 'Colleague'}
+                                                        </div>
+                                                    </td>
+                                                    <td className='py-3.5 px-4 text-center'>
+                                                        <div className='inline-flex flex-col items-center gap-1'>
+                                                            <span className={`font-bold text-xs px-2 py-0.5 rounded-md ${
+                                                                isDone ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'
+                                                            }`}>
+                                                                {clearedCount} / {NOC_CLEARANCE_STEPS.length} Cleared
+                                                            </span>
+                                                            <div className='w-20 bg-slate-100 rounded-full h-1.5 overflow-hidden'>
+                                                                <div
+                                                                    className={`h-full ${isDone ? 'bg-emerald-600' : 'bg-indigo-600'}`}
+                                                                    style={{ width: `${(clearedCount / NOC_CLEARANCE_STEPS.length) * 100}%` }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className='py-3.5 px-4 text-center'>
+                                                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                                                            isApprovedOrCompleted
+                                                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                                                : isRejected
+                                                                ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                                                : isInitiated
+                                                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                                                : 'bg-blue-50 text-blue-700 border border-blue-200'
+                                                        }`}>
+                                                            {isApprovedOrCompleted && <CheckCircle2 size={11} />}
+                                                            {isRejected && <X size={11} />}
+                                                            {isInitiated && <Clock size={11} />}
+                                                            {item.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className='py-3.5 px-4 text-right'>
+                                                        <div className='flex items-center justify-end gap-1.5 flex-wrap'>
+                                                            {isInitiated && (
+                                                                <button
+                                                                    type='button'
+                                                                    onClick={() => handleAcceptExit(item)}
+                                                                    className='inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold text-xs hover:bg-indigo-700 transition cursor-pointer shadow-2xs'
+                                                                    title='Accept and open departmental clearance checklist'
+                                                                >
+                                                                    <Check size={12} />
+                                                                    <span>Accept</span>
+                                                                </button>
+                                                            )}
+                                                            <button
+                                                                type='button'
+                                                                onClick={() => setSelectedExitForNoc(item)}
+                                                                className='inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition cursor-pointer'
+                                                                title='Inspect and toggle departmental sign-offs'
+                                                            >
+                                                                <FileCheck2 size={12} className='text-indigo-600' />
+                                                                <span>NOC Checkpoints</span>
+                                                            </button>
+                                                            {!isApprovedOrCompleted && !isRejected && (
+                                                                <button
+                                                                    type='button'
+                                                                    onClick={() => handleFinalApproveExit(item)}
+                                                                    className='inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold text-xs hover:bg-emerald-700 transition cursor-pointer shadow-2xs'
+                                                                    title='Final approval & mark completed'
+                                                                >
+                                                                    <CheckCircle2 size={12} />
+                                                                    <span>Approve</span>
+                                                                </button>
+                                                            )}
+                                                            {!isRejected && !isApprovedOrCompleted && (
+                                                                <button
+                                                                    type='button'
+                                                                    onClick={() => {
+                                                                        setSelectedExitForReject(item)
+                                                                        setRejectReason('')
+                                                                    }}
+                                                                    className='inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 font-semibold text-xs transition cursor-pointer'
+                                                                    title='Reject resignation'
+                                                                >
+                                                                    <X size={12} />
+                                                                    <span>Reject</span>
+                                                                </button>
+                                                            )}
+                                                            <button
+                                                                type='button'
+                                                                onClick={() => setSelectedExitForCert(item)}
+                                                                className='inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold text-xs transition cursor-pointer'
+                                                                title='View official relieving & experience certificate'
+                                                            >
+                                                                <FileText size={12} />
+                                                                <span>Certificate</span>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    )}
+
+{/* ========================================================================= */}
+            {/* MODAL: STAFF DEPARTMENT NOC CHECKPOINTS                                    */}
+            {/* ========================================================================= */}
+            {selectedExitForNoc && (
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs'>
+                    <div className='w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto'>
+                        <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
+                            <div className='flex items-center gap-3'>
+                                <div className='p-2.5 rounded-xl bg-indigo-50 text-indigo-600'>
+                                    <FileCheck2 size={20} />
+                                </div>
+                                <div>
+                                    <h3 className='text-base font-bold text-slate-900'>Departmental NOC Clearance Checkpoints</h3>
+                                    <p className='text-xs text-slate-500'>
+                                        Staff: {resolveStaff(selectedExitForNoc.employeeId).name} ({selectedExitForNoc.employeeId}) · Proposed LWD: {selectedExitForNoc.lastWorkingDate}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setSelectedExitForNoc(null)}
+                                className='p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer'
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div className='space-y-3 text-xs'>
+                            {NOC_CLEARANCE_STEPS.map((step, idx) => {
+                                const Icon = step.icon
+                                const isCleared = Boolean(selectedExitForNoc[step.key])
+                                return (
+                                    <div
+                                        key={step.key}
+                                        className={`rounded-xl border p-3.5 transition-all flex items-start justify-between gap-3 ${
+                                            isCleared ? 'bg-emerald-50/50 border-emerald-200' : 'bg-white border-slate-200'
+                                        }`}
+                                    >
+                                        <div className='flex items-start gap-3'>
+                                            <div className={`p-2 rounded-xl mt-0.5 ${
+                                                isCleared ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                                            }`}>
+                                                <Icon size={16} />
+                                            </div>
+                                            <div>
+                                                <div className='flex items-center gap-2'>
+                                                    <span className='text-slate-400 font-bold'>Step {idx + 1}.</span>
+                                                    <h4 className={`font-bold ${isCleared ? 'text-emerald-900' : 'text-slate-900'}`}>
+                                                        {step.label}
+                                                    </h4>
+                                                </div>
+                                                <p className='text-slate-500 text-[11px] mt-0.5'>{step.desc}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className='flex items-center gap-2 shrink-0'>
+                                            <button
+                                                type='button'
+                                                onClick={() => handleToggleModalNocStep(step.key)}
+                                                className={`text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-colors cursor-pointer ${
+                                                    isCleared
+                                                        ? 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                                                        : 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700 shadow-2xs'
+                                                }`}
+                                            >
+                                                {isCleared ? 'Reopen Check' : 'Mark Cleared'}
+                                            </button>
+                                            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+                                                isCleared ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                            }`}>
+                                                {isCleared ? <CheckCircle2 size={12} /> : <Clock size={12} />}
+                                                {isCleared ? 'Cleared' : 'Pending'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+
+                        <div className='flex items-center justify-between pt-3 border-t border-slate-100'>
+                            <div className='text-xs text-slate-500'>
+                                Completed: <strong>{NOC_CLEARANCE_STEPS.filter((s) => Boolean(selectedExitForNoc[s.key])).length}</strong> of <strong>{NOC_CLEARANCE_STEPS.length}</strong> checkpoints
+                            </div>
+                            <button
+                                type='button'
+                                onClick={() => setSelectedExitForNoc(null)}
+                                className='px-4 py-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs hover:bg-indigo-700 cursor-pointer shadow-xs'
+                            >
+                                Done &amp; Save Clearances
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
-            {/* VIEW MODE 2: STUDENT TC & DEPARTMENT CLEARANCE */}
+            {/* ========================================================================= */}
+            {/* MODAL: REJECT EXIT REQUEST                                                */}
+            {/* ========================================================================= */}
+            {selectedExitForReject && (
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs'>
+                    <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl space-y-4'>
+                        <div className='flex items-center justify-between border-b border-slate-100 pb-3'>
+                            <div className='flex items-center gap-2 text-rose-600'>
+                                <X size={20} />
+                                <h3 className='text-base font-bold text-slate-900'>Reject Relieving Request</h3>
+                            </div>
+                            <button onClick={() => setSelectedExitForReject(null)} className='text-slate-400 hover:text-slate-600'>
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div className='text-xs text-slate-600 space-y-2'>
+                            <p>
+                                Are you sure you want to reject the resignation request for <strong>{resolveStaff(selectedExitForReject.employeeId).name}</strong> ({selectedExitForReject.id})?
+                            </p>
+                            <div>
+                                <label className='block font-semibold text-slate-700 mb-1'>Rejection Remarks / Reason *</label>
+                                <textarea
+                                    rows='3'
+                                    value={rejectReason}
+                                    onChange={(e) => setRejectReason(e.target.value)}
+                                    placeholder='Specify reason (e.g. Critical handover incomplete, notice period agreement breach)...'
+                                    className='w-full rounded-xl border border-slate-200 p-2.5 focus:outline-hidden focus:border-rose-500 text-xs'
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className='flex items-center justify-end gap-2 pt-2 border-t border-slate-100'>
+                            <button
+                                type='button'
+                                onClick={() => setSelectedExitForReject(null)}
+                                className='px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs cursor-pointer'
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type='button'
+                                onClick={handleConfirmRejectExit}
+                                className='px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold text-xs hover:bg-rose-700 cursor-pointer shadow-xs'
+                            >
+                                Confirm Rejection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ========================================================================= */}
+            {/* MODAL: OFFICIAL RELIEVING & EXPERIENCE CERTIFICATE                         */}
+            {/* ========================================================================= */}
+            {selectedExitForCert && (
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs overflow-y-auto'>
+                    <div className='w-full max-w-3xl rounded-2xl bg-white p-6 md:p-8 shadow-2xl space-y-6 my-8'>
+                        <div className='flex items-center justify-between border-b border-slate-100 pb-3 print:hidden'>
+                            <div className='flex items-center gap-2'>
+                                <FileText size={20} className='text-indigo-600' />
+                                <h3 className='text-base font-bold text-slate-900'>Official Relieving &amp; Service Experience Certificate</h3>
+                            </div>
+                            <div className='flex items-center gap-2'>
+                                <button
+                                    type='button'
+                                    onClick={() => window.print()}
+                                    className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-semibold text-xs cursor-pointer'
+                                >
+                                    <Printer size={14} className='text-indigo-600' />
+                                    <span>Print</span>
+                                </button>
+                                <button
+                                    type='button'
+                                    onClick={() => toast.success('Downloaded Official Relieving Certificate (PDF)')}
+                                    className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 font-semibold text-xs cursor-pointer shadow-xs'
+                                >
+                                    <Download size={14} />
+                                    <span>Download PDF</span>
+                                </button>
+                                <button
+                                    onClick={() => setSelectedExitForCert(null)}
+                                    className='p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer'
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Official Letterhead Certificate Document */}
+                        <div className='border-4 border-double border-slate-200 p-8 rounded-xl bg-white font-serif text-slate-900 space-y-6'>
+                            {/* Letterhead */}
+                            <div className='text-center border-b-2 border-indigo-900 pb-4'>
+                                <h1 className='text-2xl md:text-3xl font-extrabold tracking-tight text-indigo-950 font-sans'>
+                                    QUEEN MIRA INTERNATIONAL SCHOOL
+                                </h1>
+                                <p className='text-xs font-sans tracking-wide text-indigo-800 uppercase font-semibold mt-0.5'>
+                                    Affiliated to CBSE, New Delhi — Affiliation No. 1930432
+                                </p>
+                                <p className='text-[11px] font-sans text-slate-500 mt-1'>
+                                    Melakkal Main Road, Kochadai, Madurai, Tamil Nadu 625016 · Phone: +91 452 238 2200 · Email: hr@queenmira.com
+                                </p>
+                            </div>
+
+                            {/* Reference and Date */}
+                            <div className='flex items-center justify-between font-sans text-xs text-slate-600 pt-2'>
+                                <div>
+                                    <strong>Ref. No:</strong> QMIS/HR/REL/{selectedExitForCert.id}
+                                </div>
+                                <div>
+                                    <strong>Date:</strong> {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                </div>
+                            </div>
+
+                            {/* Certificate Title */}
+                            <div className='text-center py-2'>
+                                <span className='inline-block border-b-2 border-slate-900 pb-1 text-sm md:text-base font-bold tracking-widest font-sans uppercase'>
+                                    Relieving &amp; Service Experience Certificate
+                                </span>
+                            </div>
+
+                            {/* Certificate Body */}
+                            <div className='space-y-4 text-xs md:text-sm leading-relaxed text-slate-800 font-sans'>
+                                <p className='font-bold uppercase tracking-wider text-xs text-slate-600'>
+                                    TO WHOMSOEVER IT MAY CONCERN
+                                </p>
+
+                                <p>
+                                    This is to certify that <strong>{resolveStaff(selectedExitForCert.employeeId).name}</strong> (Employee ID: <strong>{selectedExitForCert.employeeId}</strong>) was employed with <strong>Queen Mira International School, Madurai</strong> as <strong>{resolveStaff(selectedExitForCert.employeeId).designation || 'Staff Member'}</strong> in the <strong>{resolveStaff(selectedExitForCert.employeeId).department}</strong> department from <strong>01-June-2022</strong> to <strong>{selectedExitForCert.lastWorkingDate}</strong>.
+                                </p>
+
+                                <p>
+                                    During their tenure of service with our institution, their conduct and character were found to be <strong>Exemplary</strong>. They discharged their assigned academic, administrative, and institutional duties with dedication, sincerity, and high professional standards.
+                                </p>
+
+                                <p>
+                                    They have been formally relieved from the services of the school at the close of institutional working hours on <strong>{selectedExitForCert.lastWorkingDate}</strong>, upon satisfactory completion of operational work handovers and full clearance from all concerned departments including Department HOD, IT &amp; Assets, Library, and Finance &amp; Accounts.
+                                </p>
+
+                                <p>
+                                    We place on record our sincere appreciation for their contributions to Queen Mira International School and wish them all success in their future endeavors.
+                                </p>
+                            </div>
+
+                            {/* Signatories */}
+                            <div className='pt-12 flex items-end justify-between font-sans text-xs'>
+                                <div className='text-center space-y-1'>
+                                    <div className='h-10 border-b border-slate-400 w-36 mx-auto' />
+                                    <p className='font-bold text-slate-900'>Dr. S. Meenakshi</p>
+                                    <p className='text-slate-500 text-[11px]'>Principal</p>
+                                </div>
+
+                                <div className='text-center space-y-1'>
+                                    <div className='w-20 h-20 rounded-full border-2 border-dashed border-indigo-300 flex items-center justify-center text-[10px] text-indigo-700 font-bold mx-auto uppercase'>
+                                        Official Seal
+                                    </div>
+                                    <p className='text-[10px] text-slate-400'>Queen Mira International</p>
+                                </div>
+
+                                <div className='text-center space-y-1'>
+                                    <div className='h-10 border-b border-slate-400 w-36 mx-auto' />
+                                    <p className='font-bold text-slate-900'>Savitha Raman</p>
+                                    <p className='text-slate-500 text-[11px]'>Head of Human Resources</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className='flex justify-end pt-2 border-t border-slate-100 print:hidden'>
+                            <button
+                                type='button'
+                                onClick={() => setSelectedExitForCert(null)}
+                                className='px-5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold text-xs cursor-pointer'
+                            >
+                                Close Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            ${target3}
             {viewMode === 'student_tc' && (
                 <div className='space-y-6'>
                     {/* Top Stats Banner */}

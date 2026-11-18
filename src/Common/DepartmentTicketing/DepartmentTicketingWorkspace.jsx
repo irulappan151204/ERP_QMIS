@@ -108,7 +108,6 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
 
         tabs.push({ id: 'department-queue', label: `${userDepartment} Queue`, icon: LifeBuoy })
         tabs.push({ id: 'assigned-to-me', label: 'Assigned to Me', icon: UserCheck })
-        tabs.push({ id: 'sla-analytics', label: 'SLA & Performance', icon: Layers })
 
         return tabs
     }, [userDepartment])
@@ -398,7 +397,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
 
                         <div className='rounded-[1.25rem] border border-rose-100 bg-rose-50/50 p-4 shadow-2xs'>
                             <div className='flex items-center justify-between'>
-                                <span className='text-xs font-semibold text-slate-600'>SLA Breached</span>
+                                <span className='text-xs font-semibold text-slate-600'>Escalated / Overdue</span>
                                 <AlertTriangle size={16} className='text-rose-600' />
                             </div>
                             <div className='mt-2 flex items-baseline gap-2'>
@@ -432,7 +431,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
 
                     {/* Department Directory Routing Cards */}
                     <div className='space-y-3'>
-                        <h3 className='text-sm font-semibold text-slate-900'>11 Integrated Department Helpdesks & Standard SLAs</h3>
+                        <h3 className='text-sm font-semibold text-slate-900'>11 Integrated Department Helpdesks</h3>
                         <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3'>
                             {DEPARTMENT_CONFIGS.slice(0, 6).map((dept) => {
                                 const deptTickets = allTickets.filter((t) => t.targetDepartment === dept.name)
@@ -449,7 +448,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                         <div className='font-bold text-slate-900 truncate'>{dept.name}</div>
                                         <div className='text-slate-500 text-[11px]'>Head: {dept.headOfDepartment}</div>
                                         <div className='flex items-center justify-between pt-1 border-t border-slate-100 text-[10px]'>
-                                            <span className='text-blue-600 font-bold'>SLA: {dept.slaHours}h</span>
+                                            <span className='text-blue-600 font-bold'>Target: {dept.slaHours}h</span>
                                             <span className='font-semibold text-slate-600'>{openCount} active</span>
                                         </div>
                                     </div>
@@ -463,7 +462,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                         <div className='flex items-center justify-between mb-4 border-b border-slate-100 pb-3'>
                             <div>
                                 <h3 className='text-sm font-semibold text-slate-900'>Live Service Desk Operations Queue</h3>
-                                <p className='text-xs text-slate-500'>Prioritized operational tasks with dynamic SLA countdown timers</p>
+                                <p className='text-xs text-slate-500'>Prioritized operational tasks with dynamic resolution countdown timers</p>
                             </div>
                             <button
                                 onClick={() => setActiveTab('department-queue')}
@@ -482,7 +481,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                         <th className='py-2.5 px-3'>Target Dept</th>
                                         <th className='py-2.5 px-3'>Priority</th>
                                         <th className='py-2.5 px-3'>Assigned Tech</th>
-                                        <th className='py-2.5 px-3'>SLA Target</th>
+                                        <th className='py-2.5 px-3'>Resolution Target</th>
                                         <th className='py-2.5 px-3 text-center'>Status</th>
                                         <th className='py-2.5 px-3 text-right'>Action</th>
                                     </tr>
@@ -807,61 +806,6 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
             )}
 
             {/* ========================================================================= */}
-            {/* TAB 5: SLA ANALYTICS                                                      */}
-            {/* ========================================================================= */}
-            {activeTab === 'sla-analytics' && (
-                <div className='space-y-6'>
-                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                        <div className='rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs'>
-                            <h3 className='text-sm font-semibold text-slate-900 mb-1'>Department SLA Compliance</h3>
-                            <p className='text-xs text-slate-500 mb-4'>Resolution within agreed hours</p>
-                            <div className='space-y-2 text-xs'>
-                                {DEPARTMENT_CONFIGS.slice(0, 5).map((d) => (
-                                    <div key={d.id} className='flex items-center justify-between p-2 rounded-lg bg-slate-50'>
-                                        <span className='font-medium text-slate-700'>{d.name}</span>
-                                        <span className='font-bold text-emerald-700'>98.2% on-time</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className='rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs'>
-                            <h3 className='text-sm font-semibold text-slate-900 mb-1'>Customer Satisfaction (CSAT)</h3>
-                            <p className='text-xs text-slate-500 mb-4'>Based on 5-star closure verifications</p>
-                            <div className='space-y-2 text-xs'>
-                                <div className='p-3 rounded-xl bg-amber-50/60 border border-amber-100 flex items-center justify-between'>
-                                    <span className='font-bold text-amber-900'>Overall Satisfaction</span>
-                                    <span className='font-bold text-lg text-amber-700'>{kpis.avgRating} / 5.0 ★</span>
-                                </div>
-                                <p className='text-[11px] text-slate-500 pt-1'>
-                                    100% of tickets require requester sign-off rating before being marked permanently Closed in the database.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className='rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs'>
-                            <h3 className='text-sm font-semibold text-slate-900 mb-1'>Export Helpdesk Reports</h3>
-                            <p className='text-xs text-slate-500 mb-4'>Download resolution logs & metrics</p>
-                            <div className='space-y-2'>
-                                <button
-                                    onClick={() => notify('Helpdesk SLA report exported to CSV.')}
-                                    className='w-full rounded-xl border border-slate-200 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1.5'
-                                >
-                                    <Download size={14} /> Export SLA Performance (CSV)
-                                </button>
-                                <button
-                                    onClick={() => notify('Customer Satisfaction ratings exported.')}
-                                    className='w-full rounded-xl border border-slate-200 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1.5'
-                                >
-                                    <Download size={14} /> Export Feedback Register (CSV)
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* ========================================================================= */}
             {/* MODAL: RAISE TICKET                                                       */}
             {/* ========================================================================= */}
             {isRaiseModalOpen && (
@@ -885,7 +829,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
                                     >
                                         {DEPARTMENT_CONFIGS.map((d) => (
                                             <option key={d.id} value={d.name}>
-                                                {d.name} (SLA: {d.slaHours}h)
+                                                {d.name}
                                             </option>
                                         ))}
                                     </select>

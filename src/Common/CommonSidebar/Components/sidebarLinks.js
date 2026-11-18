@@ -1288,12 +1288,6 @@ export const itSupportManagerSidebarLinks = [
     },
     {
         id: 7,
-        title: "Data Import",
-        to: "/it-support-manager/data-import",
-        icon: FileText,
-    },
-    {
-        id: 8,
         title: "Purchase Workflow",
         to: "/it-support-manager/purchase-workflow",
         icon: ClipboardCheck,
@@ -2670,16 +2664,7 @@ export const hrSidebarLinks = [
         ],
     },
     {
-        id: 7, title: "Performance", to: "#0", icon: Star,
-        subLinks: [
-            { icon: Star, title: "Performance Review", to: "/hr/performance-review" },
-            { icon: BarChart3, title: "Performance Comparison", to: "/hr/performance-comparison" },
-            { icon: ClipboardCheck, title: "BSC / Audit Score", to: "/hr/performance-bsc" },
-            { icon: BadgeDollarSign, title: "Increment / Promotion", to: "/hr/performance-increment" },
-        ],
-    },
-    {
-        id: 8, title: "Payroll & Benefits", to: "#0", icon: Wallet,
+        id: 7, title: "Payroll & Benefits", to: "#0", icon: Wallet,
         subLinks: [
             { icon: BadgeDollarSign, title: "Salary Statement", to: "/hr/payroll/salary-statement" },
             { icon: Receipt, title: "Payslip", to: "/hr/payroll/payslip" },

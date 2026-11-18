@@ -29,7 +29,6 @@ const ITSupportManagerRoutes = () => {
             <Route path="/it-support-manager/asset-management" element={<AssetManagement />} />
             <Route path="/it-support-manager/asset-management/add-asset" element={<AddAsset />} />
             <Route path="/it-support-manager/asset-management/view-asset/:id" element={<ViewAsset />} />
-            <Route path="/it-support-manager/data-import" element={<UnavailableWorkflowPage title="Data Import & Bulk Migration" />} />
             <Route path="/it-support-manager/purchase-workflow" element={<StoresProcurementWorkspace defaultTab="purchase-orders" roleOverride="it-support-manager" />} />
             
             {/* IT Service Desk / Support Tickets */}

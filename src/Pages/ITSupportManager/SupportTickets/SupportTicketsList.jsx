@@ -50,7 +50,7 @@ const SupportTicketsList = () => {
         { key: 'subject', label: 'Issue', required: true, render: (ticket) => <span className='block'><span className='block font-semibold text-[var(--erp-ink)]'>{ticket.subject}</span><span className='block text-xs text-[var(--erp-muted)]'>{ticket.issueType} · {ticket.requesterName}</span></span> },
         { key: 'location', label: 'Location', required: true, render: (ticket) => ticket.location || ticket.department || 'Not recorded' },
         { key: 'assignedTo', label: 'Assigned to', required: true, render: (ticket) => ticket.assignedTo || 'IT Queue' },
-        { key: 'priority', label: 'Priority / SLA', render: (ticket) => <span className='block'><StatusBadge status={ticket.priority} /><span className='mt-1 block text-xs text-[var(--erp-muted)]'>{SLA_HOURS[ticket.priority] || 24}h response target</span></span> },
+        { key: 'priority', label: 'Priority', render: (ticket) => <StatusBadge status={ticket.priority} /> },
         { key: 'status', label: 'Status', render: (ticket) => <StatusBadge status={ticket.status} /> },
         { key: 'remarks', label: 'Remarks / Resolution', render: (ticket) => <span className='block max-w-[200px] truncate text-xs text-[var(--erp-ink)]'>{ticket.remarks || ticket.resolution || 'Pending review'}</span> },
         { key: 'createdDate', label: 'Created' },

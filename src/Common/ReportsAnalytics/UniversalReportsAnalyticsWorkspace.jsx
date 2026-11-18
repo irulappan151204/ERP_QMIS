@@ -52,7 +52,7 @@ const ROLE_REPORT_SUITES = {
         reports: [
             { id: 'staff-attendance', name: 'Staff Attendance & Leave Utilization', desc: 'Biometric punches, sick leave vs casual leave rates, and duty hours' },
             { id: 'enrollment-funnel', name: 'Student Enrollment & Admission Funnel', desc: 'Inquiries, entrance tests, completed admissions, and TC requests' },
-            { id: 'escalation-sla', name: 'Escalation Management & Helpdesk SLA', desc: 'Department response times, unresolved grievances, and resolution velocity' },
+            { id: 'escalation-helpdesk', name: 'Escalation & Helpdesk Resolution Velocity', desc: 'Department response times, unresolved grievances, and resolution velocity' },
             { id: 'payroll-headcount', name: 'Workforce Headcount & Payroll Allocation', desc: 'Department staffing quotas, contract renewals, and gratuity fund' }
         ],
         sampleData: [
@@ -77,19 +77,143 @@ const ROLE_REPORT_SUITES = {
         ],
         columns: ['Financial Head', 'Target Budget', 'Total Realized', 'Collection %', 'Variance / Dues', 'Finance Notes', 'Status', 'Date']
     },
-    logistics: {
-        category: 'Logistics, Fleet, Stores & Security',
+    itsupport: {
+        category: 'IT Support & Systems Infrastructure',
         reports: [
-            { id: 'fleet-fuel', name: 'Transport Fleet Fuel & Route Inspection', desc: 'Mileage, fuel consumption per kilometer, and vehicle fitness dates' },
-            { id: 'store-stock', name: 'Stores Inventory Valuation & Movement', desc: 'Fast-moving stationery items, stockouts, and replenishment triggers' },
-            { id: 'visitor-traffic', name: 'Campus Gate Passes & Visitor Footfall', desc: 'Parent check-ins, delivery vehicles, and security gate clearances' }
+            { id: 'it-hardware-inventory', name: 'IT Hardware & Device Inventory', desc: 'Workstations, displays, printers, switches, and warranty lifecycles' },
+            { id: 'it-incident-resolution', name: 'IT Incident Log & Resolution Times', desc: 'Hardware, networking, and application support tickets' },
+            { id: 'it-spares-consumption', name: 'IT Spares & Consumables Consumption', desc: 'Cables, RAM modules, SSDs, adapters, and peripheral replacements' },
+            { id: 'it-network-uptime', name: 'Campus Wi-Fi & Network Infrastructure', desc: 'Core switch health, internet bandwidth, and firewall uptime' }
+        ],
+        sampleData: [
+            { col1: 'Computer Lab 01', col2: '36 Desktop All-in-Ones', col3: '100% Operational', col4: '0 Faults', col5: 'OS Windows 11 Pro', col6: 'Tech: Sandy Selva', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Primary Wing Smartboards', col2: '14 Interactive Displays', col3: '98% Uptime', col4: '1 HDMI Cable Replaced', col5: 'Firmware v4.2', col6: 'Tech: Sandy Selva', status: 'Completed', date: '2026-10-29' },
+            { col1: 'Campus Wi-Fi Core Switch', col2: 'Aruba 48-Port PoE', col3: '99.98% Uptime', col4: '0 Packet Drops', col5: 'Bandwidth 1 Gbps', col6: 'Verified by HOD', status: 'Completed', date: '2026-10-28' },
+            { col1: 'Admin Office Multi-Function Printer', col2: 'HP LaserJet Managed', col3: 'Toner Level 84%', col4: 'Toner Cartridge Inward', col5: 'Page Count: 18,400', col6: 'Tech: Sandy Selva', status: 'Completed', date: '2026-10-25' }
+        ],
+        columns: ['Asset / Facility', 'Device Configuration', 'Operational Status', 'Maintenance Activity', 'Technical Spec', 'Officer Incharge', 'Audit Status', 'Date']
+    },
+    maintenance: {
+        category: 'Campus Maintenance & Facility Operations',
+        reports: [
+            { id: 'maintenance-work-orders', name: 'Campus Facility Work Orders & Remediation', desc: 'Electrical, plumbing, carpentry, and masonry repair turnaround' },
+            { id: 'maintenance-preventive-schedule', name: 'Preventive Maintenance Audit Schedule', desc: 'HVAC filters, generator load testing, and RO water TDS compliance' },
+            { id: 'maintenance-spares-ledger', name: 'Maintenance Spares & Material Consumption', desc: 'Wiring, plumbing fixtures, LED tubes, and hardware replenishment' }
+        ],
+        sampleData: [
+            { col1: 'Main Block - Floor 2', col2: 'LED Light & Fixture Replacement', col3: 'WO-2026-089', col4: 'Electrical', col5: 'Completed within 4h', col6: 'Tech: R. Sundar', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Kindergarten Restrooms', col2: 'Tap Sensor & Plumbing Overhaul', col3: 'WO-2026-077', col4: 'Plumbing', col5: 'Fitted New Cartridge', col6: 'Tech: P. Murugan', status: 'Completed', date: '2026-10-29' },
+            { col1: 'Central RO Plant', col2: 'Membrane & TDS Inspection', col3: 'WO-2026-054', col4: 'Water Facility', col5: 'TDS: 42 ppm (Pristine)', col6: 'Signed by Maintenance Head', status: 'Completed', date: '2026-10-27' }
+        ],
+        columns: ['Campus Zone', 'Work Order Description', 'Work Order #', 'Trade / Category', 'Remediation Action', 'Assigned Specialist', 'Status', 'Date']
+    },
+    transport: {
+        category: 'Transport & Fleet Logistics',
+        reports: [
+            { id: 'transport-fleet-fuel', name: 'Transport Fleet Fuel & Route Mileage', desc: 'Daily diesel consumption, mileage per liter, and route efficiency' },
+            { id: 'transport-route-inspection', name: 'Bus Route Capacity & Student Headcount', desc: 'Student boarding count, stop schedule timings, and delays' },
+            { id: 'transport-fitness-expiry', name: 'RTO Vehicle Fitness & Insurance Compliance', desc: 'FC renewal dates, insurance policies, pollution testing, and road tax' }
         ],
         sampleData: [
             { col1: 'Route 01 - North Sector', col2: 'Bus TN-58-A-1024', col3: '42 Students', col4: '14.2 km/Ltr', col5: 'Fitness Exp: Dec 2027', col6: 'Driver: K. Selvam', status: 'Active', date: '2026-10-30' },
             { col1: 'Route 04 - IT Expressway', col2: 'Bus TN-58-B-3389', col3: '38 Students', col4: '13.8 km/Ltr', col5: 'Fitness Exp: Jan 2028', col6: 'Driver: R. Munusamy', status: 'Active', date: '2026-10-30' },
-            { col1: 'Stationery Main Depot', col2: 'SKU Inventory: 248 Items', col3: '₹ 4,85,000 Valuation', col4: '12 Low Stock Items', col5: 'PO Placed for Paper Reams', col6: 'Store Mgr Verified', status: 'Completed', date: '2026-10-29' }
+            { col1: 'Route 07 - South Extn', col2: 'Bus TN-58-A-9011', col3: '45 Students', col4: '12.9 km/Ltr', col5: 'Fitness Exp: Aug 2027', col6: 'Driver: M. Pandi', status: 'Active', date: '2026-10-29' }
         ],
-        columns: ['Operational Asset', 'Identity / Registration', 'Capacity / Count', 'Operational Metric', 'Compliance Status', 'Officer Incharge', 'State', 'Date']
+        columns: ['Route Identifier', 'Vehicle Registration', 'Passenger Load', 'Fuel Economy', 'Statutory Compliance', 'Designated Driver', 'Fleet Status', 'Date']
+    },
+    stores: {
+        category: 'Stores, Stationery & Uniform Inventory',
+        reports: [
+            { id: 'stores-inventory-valuation', name: 'Stores Inventory Valuation & Movement', desc: 'Fast-moving stationery items, stockouts, and replenishment triggers' },
+            { id: 'stores-indent-fulfillment', name: 'Department Indent & Stationery Issuance', desc: 'Fulfillment rate of departmental requests and student distribution' },
+            { id: 'stores-reorder-alerts', name: 'Low Stock & Critical Reorder Alerts', desc: 'SKUs nearing safety minimum threshold requiring procurement' }
+        ],
+        sampleData: [
+            { col1: 'A4 Copier Paper (75 GSM)', col2: 'SKU-PAP-001', col3: '142 Reams', col4: '₹ 280 / Ream', col5: '₹ 39,760 Total', col6: 'Stock Healthy', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Student Notebooks (Ruled)', col2: 'SKU-NBK-012', col3: '480 Units', col4: '₹ 45 / Book', col5: '₹ 21,600 Total', col6: 'Stock Healthy', status: 'Completed', date: '2026-10-29' },
+            { col1: 'School Blazer (Size 34)', col2: 'SKU-UNF-045', col3: '6 Units', col4: '₹ 1,200 / Unit', col5: 'Below Min (Reorder: 15)', col6: 'Indent Raised to Vendor', status: 'Active', date: '2026-10-28' }
+        ],
+        columns: ['Item Description', 'SKU Part Code', 'Available Stock', 'Unit Cost', 'Inventory Value / Alert', 'Warehouse State', 'Audit Status', 'Date']
+    },
+    canteen: {
+        category: 'Canteen, Catering & Nutrition',
+        reports: [
+            { id: 'canteen-meal-sales', name: 'Daily Meal Token Sales & Collection', desc: 'Student and staff token collections across breakfast, lunch, and snack counters' },
+            { id: 'canteen-inventory-usage', name: 'Canteen Kitchen Grocery & Ingredient Usage', desc: 'Bulk dry provisions, cooking oil, dairy, and perishable vegetable ledger' },
+            { id: 'canteen-kitchen-hygiene', name: 'Kitchen Hygiene & Food Safety Checklist', desc: 'Daily sanitization, water purity, temperature logs, and FSSAI audits' }
+        ],
+        sampleData: [
+            { col1: 'Primary Lunch Meal Tokens', col2: '340 Tokens', col3: '₹ 120 / Token', col4: '₹ 40,800 Realized', col5: '100% Reconciled', col6: 'Supervisor: Meena', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Staff Breakfast & Beverage', col2: '65 Orders', col3: '₹ 60 / Meal', col4: '₹ 3,900 Realized', col5: 'Reconciled', col6: 'Supervisor: Meena', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Kitchen Hygiene & Water QA', col2: 'Daily Inspection', col3: 'Food Safety Grade A', col4: 'Oil Freshness Passed', col5: 'All Surface Swabs Clean', col6: 'Certified by QA', status: 'Completed', date: '2026-10-29' }
+        ],
+        columns: ['Meal Category', 'Volume / Units', 'Unit Rate', 'Revenue Realized', 'Reconciliation State', 'Canteen Lead', 'Status', 'Date']
+    },
+    library: {
+        category: 'Library Information & Resource Center',
+        reports: [
+            { id: 'library-book-circulation', name: 'Daily Book Lending & Return Flow', desc: 'Class-wise book issue rates, active loans, and return turnaround' },
+            { id: 'library-overdue-fines', name: 'Overdue Books & Fines Recovery', desc: 'Borrowed titles past due date, reminder alerts, and fine reconciliation' },
+            { id: 'library-student-reading', name: 'Student Reading Activity by Class', desc: 'Top student readers, genre popularity, and book club engagement' }
+        ],
+        sampleData: [
+            { col1: 'Grade 9 - English Fiction', col2: '48 Books Borrowed', col3: '44 Returned On Time', col4: '4 Active Borrows', col5: '0 Overdue', col6: 'Librarian: Anitha', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Senior STEM Reference', col2: '26 Volumes Issued', col3: '26 Returned On Time', col4: '0 Active', col5: 'All Catalogs Verified', col6: 'Librarian: Anitha', status: 'Completed', date: '2026-10-29' },
+            { col1: 'General Knowledge & Magazines', col2: '18 Subscriptions', col3: 'Full Circulation', col4: 'Digital Portal Active', col5: '120 Student Reads', col6: 'Librarian: Anitha', status: 'Completed', date: '2026-10-28' }
+        ],
+        columns: ['Resource Category', 'Lending Volume', 'Return Metrics', 'Outstanding Borrows', 'Compliance & Fines', 'Librarian Sign', 'Status', 'Date']
+    },
+    security: {
+        category: 'Campus Security & Gatehouse Operations',
+        reports: [
+            { id: 'security-visitor-log', name: 'Campus Gate Passes & Visitor Footfall', desc: 'Parent check-ins, delivery vehicles, and security gate clearances' },
+            { id: 'security-student-departure', name: 'Early Student Departure Gatepass Log', desc: 'Parent OTP authorization, escort details, and emergency departures' },
+            { id: 'security-vehicle-entry', name: 'Campus Vehicle Entry & Parking Allocation', desc: 'Staff vehicles, visitor parking, and commercial delivery check-ins' }
+        ],
+        sampleData: [
+            { col1: 'Main Gate - Parent Visitors', col2: '18 Visitors Checked-in', col3: 'All Photo IDs Verified', col4: 'Printed Visitor Badges', col5: '0 Security Incidents', col6: 'Officer: K. Raman', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Early Departure Student Gatepass', col2: '4 Students Authorized', col3: 'Parent Mobile OTP Validated', col4: 'Escort Accompanied', col5: 'Gatepass Archival Done', col6: 'Officer: K. Raman', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Commercial Delivery Vehicles', col2: '6 Delivery Trucks', col3: 'Goods Checked & Registered', col4: 'Parking Bay 2 Allocated', col5: 'Campus Speed Limit Followed', col6: 'Officer: K. Raman', status: 'Completed', date: '2026-10-29' }
+        ],
+        columns: ['Gatehouse Sector', 'Passes / Count', 'Identity Proof Verification', 'Movement Purpose', 'Security Clearance', 'Gate Officer', 'Status', 'Date']
+    },
+    housekeeping: {
+        category: 'Housekeeping, Sanitation & Facility Hygiene',
+        reports: [
+            { id: 'housekeeping-sanitation-schedule', name: 'Restroom & Corridor Sanitation Log', desc: 'Daily cleaning rotations, disinfection logs, and soap replenishment' },
+            { id: 'housekeeping-block-inspection', name: 'Academic Block Cleanliness Scores', desc: 'Floor inspections, surface hygiene audits, and supervisor sign-offs' },
+            { id: 'housekeeping-chemical-inventory', name: 'Cleaning Spares & Consumables Ledger', desc: 'Disinfectant liquids, mops, trash bags, and cleaning chemical stock' }
+        ],
+        sampleData: [
+            { col1: 'Academic Block A - Floors 1-3', col2: '12 Restrooms Cleaned', col3: '4 Inspections / Day', col4: 'Sanitizer Replenished', col5: 'Score: 98% Pristine', col6: 'Lead: Shanthi', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Academic Block B - Science Labs', col2: '6 Lab Floors Polished', col3: 'Hazardous Waste Disposed', col4: 'Disinfectant Mop Done', col5: 'Score: 100% Pristine', col6: 'Lead: Shanthi', status: 'Completed', date: '2026-10-29' },
+            { col1: 'Central Dining Hall & Kitchen', col2: 'Post-Lunch Deep Clean', col3: 'Floor Scrub Machine Run', col4: 'Trash Compacted', col5: 'Score: 99% Pristine', col6: 'Lead: Shanthi', status: 'Completed', date: '2026-10-28' }
+        ],
+        columns: ['Facility Zone', 'Sanitation Tasks', 'Inspection Frequency', 'Consumables Used', 'Hygiene Audit Score', 'Housekeeping Lead', 'Status', 'Date']
+    },
+    fileroom: {
+        category: 'Physical File Room & Records Custody',
+        reports: [
+            { id: 'fileroom-inward-outward', name: 'Physical Document Issue & Retrieval Log', desc: 'Physical dossiers checked out by management, return tracking, and custody chains' },
+            { id: 'fileroom-retention-schedule', name: 'Statutory Record Retention Tracker', desc: 'Archived files aging, mandatory retention years, and scheduled shredding' }
+        ],
+        sampleData: [
+            { col1: 'Student Academic Dossiers', col2: '14 Files Issued to HOD', col3: '14 Returned Same Day', col4: 'Rack 3, Shelf B', col5: 'Custody Sign Complete', col6: 'Incharge: Lakshmi', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Staff Service Books (2020-2025)', col2: '8 Files Audited by HR', col3: 'Re-indexed into Vault', col4: 'Fireproof Cabinet 1', col5: '100% File Integrity', col6: 'Incharge: Lakshmi', status: 'Completed', date: '2026-10-29' }
+        ],
+        columns: ['Archive Series', 'Movement Volume', 'Custody Status', 'Location & Shelf', 'Audit Verification', 'Records Officer', 'Status', 'Date']
+    },
+    cctv: {
+        category: 'CCTV Surveillance & Security Monitoring',
+        reports: [
+            { id: 'cctv-surveillance-coverage', name: 'Camera Online Uptime & Storage Days', desc: 'Live IP camera health, DVR storage capacity, and recording retention' },
+            { id: 'cctv-teachers-late', name: 'Campus Morning Movement & Entry Timings', desc: 'Gate entry verification and staff reporting timeline audits' }
+        ],
+        sampleData: [
+            { col1: 'Main Entrance & Perimeter Zone', col2: '16 4K IP Cameras', col3: '100% Online', col4: '60 Days DVR Storage', col5: 'Zero Blindspots', col6: 'Operator: Vinoth', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Academic Corridors & Sports Area', col2: '24 HD IP Cameras', col3: '100% Online', col4: '60 Days DVR Storage', col5: 'Night Vision Operational', col6: 'Operator: Vinoth', status: 'Completed', date: '2026-10-29' }
+        ],
+        columns: ['Surveillance Zone', 'Hardware Config', 'Live System Uptime', 'Storage Archive', 'Security Parameter', 'Control Desk Lead', 'Status', 'Date']
     },
     audit: {
         category: 'Governance, Audit & Institutional Quality',
@@ -115,7 +239,7 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
     const allowedSuiteKeys = useMemo(() => {
         // Executive Leadership can access all suites
         if (['superadmin', 'director', 'principal', 'jointdirector', 'admin', 'administrator'].includes(activeRole)) {
-            return ['academic', 'administrative', 'financial', 'logistics', 'audit']
+            return ['academic', 'administrative', 'financial', 'itsupport', 'maintenance', 'transport', 'stores', 'canteen', 'library', 'security', 'cctv', 'fileroom', 'housekeeping', 'audit']
         }
         // Teachers & Coordinators: Academic only
         if (['teacher', 'coordinator'].includes(activeRole)) {
@@ -125,9 +249,45 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
         if (['accounthead', 'account-head', 'finance'].includes(activeRole)) {
             return ['financial']
         }
-        // Logistics & Operations: Logistics only
-        if (['transportmanager', 'driver', 'canteenmanager', 'stationerystoremanager', 'gatekeeper', 'gatekeepermanager', 'housekeepingmanager', 'itsupportmanager', 'maintenancemanager', 'fileroom', 'cctv'].includes(activeRole)) {
-            return ['logistics']
+        // IT Support: IT Support suite only
+        if (['itsupportmanager', 'itsupport'].includes(activeRole)) {
+            return ['itsupport']
+        }
+        // Maintenance: Maintenance suite only
+        if (['maintenancemanager', 'maintenance'].includes(activeRole)) {
+            return ['maintenance']
+        }
+        // Transport: Transport suite only
+        if (['transportmanager', 'driver'].includes(activeRole)) {
+            return ['transport']
+        }
+        // Stores: Stores suite only
+        if (['stationerystoremanager', 'stores'].includes(activeRole)) {
+            return ['stores']
+        }
+        // Canteen: Canteen suite only
+        if (['canteenmanager', 'canteen'].includes(activeRole)) {
+            return ['canteen']
+        }
+        // Library: Library suite only
+        if (['librarian', 'library'].includes(activeRole)) {
+            return ['library']
+        }
+        // Gatekeeper & Security: Security suite only
+        if (['gatekeeper', 'gatekeepermanager', 'security'].includes(activeRole)) {
+            return ['security']
+        }
+        // CCTV: CCTV suite only
+        if (['cctv', 'cctvoperator'].includes(activeRole)) {
+            return ['cctv']
+        }
+        // File Room: File Room suite only
+        if (['fileroom', 'fileroommanager'].includes(activeRole)) {
+            return ['fileroom']
+        }
+        // Housekeeping: Housekeeping suite only
+        if (['housekeepingmanager', 'housekeeping'].includes(activeRole)) {
+            return ['housekeeping']
         }
         // Governance & Audit: Audit only
         if (['jointdirectoraudit', 'processauditor', 'qualityauditor'].includes(activeRole)) {
@@ -137,14 +297,23 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
         if (['hr', 'prm', 'frontoffice', 'jointdirectorassistant'].includes(activeRole)) {
             return ['administrative']
         }
-        return ['academic', 'administrative', 'financial', 'logistics', 'audit']
+        return ['academic', 'administrative', 'financial', 'itsupport', 'maintenance', 'transport', 'stores', 'canteen', 'library', 'security', 'cctv', 'fileroom', 'housekeeping', 'audit']
     }, [activeRole])
 
     // Determine default suite for role (clamped to allowedSuiteKeys)
     const initialSuiteKey = useMemo(() => {
         if (['teacher', 'coordinator'].includes(activeRole)) return 'academic'
         if (['accounthead', 'account-head', 'finance'].includes(activeRole)) return 'financial'
-        if (['transportmanager', 'driver', 'stationerystoremanager', 'canteenmanager', 'gatekeeper', 'gatekeepermanager', 'housekeepingmanager', 'itsupportmanager', 'maintenancemanager', 'fileroom', 'cctv'].includes(activeRole)) return 'logistics'
+        if (['itsupportmanager', 'itsupport'].includes(activeRole)) return 'itsupport'
+        if (['maintenancemanager', 'maintenance'].includes(activeRole)) return 'maintenance'
+        if (['transportmanager', 'driver'].includes(activeRole)) return 'transport'
+        if (['stationerystoremanager', 'stores'].includes(activeRole)) return 'stores'
+        if (['canteenmanager', 'canteen'].includes(activeRole)) return 'canteen'
+        if (['librarian', 'library'].includes(activeRole)) return 'library'
+        if (['gatekeeper', 'gatekeepermanager', 'security'].includes(activeRole)) return 'security'
+        if (['cctv', 'cctvoperator'].includes(activeRole)) return 'cctv'
+        if (['fileroom', 'fileroommanager'].includes(activeRole)) return 'fileroom'
+        if (['housekeepingmanager', 'housekeeping'].includes(activeRole)) return 'housekeeping'
         if (['jointdirectoraudit', 'processauditor', 'qualityauditor'].includes(activeRole)) return 'audit'
         if (['hr', 'prm', 'frontoffice', 'jointdirectorassistant'].includes(activeRole)) return 'administrative'
         return allowedSuiteKeys[0] || 'academic'
@@ -353,35 +522,61 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
                 </div>
             </div>
 
-            {/* Suite Category Switcher */}
-            <div className="flex items-center gap-2 overflow-x-auto bg-white p-2 rounded-2xl border border-slate-200 shadow-2xs sidebar-scroll-hide">
-                {allowedSuiteKeys.map((key) => {
-                    const suite = ROLE_REPORT_SUITES[key]
-                    if (!suite) return null
-                    return (
-                        <button
-                            key={key}
-                            type="button"
-                            onClick={() => {
-                                setSelectedSuiteKey(key)
-                                setSelectedReportId(suite.reports[0]?.id || '')
-                            }}
-                            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                                selectedSuiteKey === key
-                                    ? 'bg-indigo-600 text-white shadow-xs'
-                                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                            }`}
-                        >
-                            {key === 'academic' && <GraduationCap size={14} />}
-                            {key === 'administrative' && <Building2 size={14} />}
-                            {key === 'financial' && <DollarSign size={14} />}
-                            {key === 'logistics' && <Truck size={14} />}
-                            {key === 'audit' && <Shield size={14} />}
-                            <span>{suite.category}</span>
-                        </button>
-                    )
-                })}
-            </div>
+            {/* Suite Category Switcher - Multi-Suite for Executives, Single Department Banner for Department Roles */}
+            {allowedSuiteKeys.length > 1 ? (
+                <div className="flex items-center gap-2 overflow-x-auto bg-white p-2 rounded-2xl border border-slate-200 shadow-2xs sidebar-scroll-hide">
+                    {allowedSuiteKeys.map((key) => {
+                        const suite = ROLE_REPORT_SUITES[key]
+                        if (!suite) return null
+                        return (
+                            <button
+                                key={key}
+                                type="button"
+                                onClick={() => {
+                                    setSelectedSuiteKey(key)
+                                    setSelectedReportId(suite.reports[0]?.id || '')
+                                }}
+                                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                                    selectedSuiteKey === key
+                                        ? 'bg-indigo-600 text-white shadow-xs'
+                                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                }`}
+                            >
+                                {key === 'academic' && <GraduationCap size={14} />}
+                                {key === 'administrative' && <Building2 size={14} />}
+                                {key === 'financial' && <DollarSign size={14} />}
+                                {key === 'itsupport' && <Layers size={14} />}
+                                {key === 'maintenance' && <Package size={14} />}
+                                {key === 'transport' && <Truck size={14} />}
+                                {key === 'stores' && <Package size={14} />}
+                                {key === 'canteen' && <Users size={14} />}
+                                {key === 'library' && <FileText size={14} />}
+                                {key === 'security' && <Shield size={14} />}
+                                {key === 'housekeeping' && <CheckCircle2 size={14} />}
+                                {key === 'fileroom' && <FileText size={14} />}
+                                {key === 'cctv' && <Shield size={14} />}
+                                {key === 'audit' && <Shield size={14} />}
+                                <span>{suite.category}</span>
+                            </button>
+                        )
+                    })}
+                </div>
+            ) : (
+                <div className="flex items-center justify-between bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-2xs">
+                    <div className="flex items-center gap-2.5">
+                        <span className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+                            <Layers size={16} />
+                        </span>
+                        <div>
+                            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Authorized Department Dossier</span>
+                            <h2 className="text-sm font-bold text-slate-900">{currentSuite.category}</h2>
+                        </div>
+                    </div>
+                    <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                        Department Scoped (Strict Privacy)
+                    </span>
+                </div>
+            )}
 
             {/* Sub-report selector tabs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
