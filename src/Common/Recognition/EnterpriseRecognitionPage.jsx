@@ -306,7 +306,7 @@ const EnterpriseRecognitionPage = ({ view = 'som', defaultDomain }) => {
     const handleSubmitNomination = async (e) => {
         e.preventDefault()
         if (!selectedCandidate) {
-            alert('Please select a candidate first.')
+            toast.warn('Please select a candidate first.')
             return
         }
 

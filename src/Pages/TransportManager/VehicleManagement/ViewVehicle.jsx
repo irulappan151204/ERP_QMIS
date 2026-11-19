@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { toast } from 'react-toastify'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Wrench, Plus, X, Clock, CheckCircle2 } from 'lucide-react'
 import { getVehicleById } from './vehicleManagementData'
@@ -76,7 +77,7 @@ const ViewVehicle = () => {
     const handleAddServiceSubmit = (e) => {
         e.preventDefault()
         if (!newService.description.trim()) {
-            alert('Please provide a service description.')
+            toast.warn('Please provide a service description.')
             return
         }
         const created = {

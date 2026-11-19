@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     Bus,
     Plus,
@@ -102,7 +103,7 @@ const CctvBusLastDrop = () => {
     const handleCreateSubmit = async (e) => {
         e.preventDefault()
         if (!form.busNo || !form.routeNo || !form.driverName) {
-            alert('Please specify bus number, route, and driver.')
+            toast.warn('Please specify bus number, route, and driver.')
             return
         }
 
@@ -127,7 +128,7 @@ const CctvBusLastDrop = () => {
                     remarks: 'All students safely handed over at designated drop points; bus cabin inspected and locked.',
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to record last drop'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to record last drop'}`)
             }
         } catch (err) {
             console.error('Error logging last drop:', err)
@@ -149,7 +150,7 @@ const CctvBusLastDrop = () => {
 
     const exportCsv = () => {
         if (filteredDrops.length === 0) {
-            alert('No records to export.')
+            toast.warn('No records to export.')
             return
         }
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     CalendarDays,
     Plus,
@@ -114,7 +115,7 @@ const ProDailyWorkUpdate = () => {
     const handleCreateSubmit = async (e) => {
         e.preventDefault()
         if (!form.officerName || !form.licensingMatter || !form.meetingSummary) {
-            alert('Please provide officer name, licensing matter, and meeting summary.')
+            toast.warn('Please provide officer name, licensing matter, and meeting summary.')
             return
         }
 
@@ -138,11 +139,11 @@ const ProDailyWorkUpdate = () => {
                 })
                 loadData()
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to create work update'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to create work update'}`)
             }
         } catch (err) {
             console.error('Failed to create daily work update:', err)
-            alert('Error creating daily work update.')
+            toast.error('Error creating daily work update.')
         }
     }
 
@@ -176,7 +177,7 @@ const ProDailyWorkUpdate = () => {
 
     const exportToCSV = () => {
         if (!updates.length) {
-            alert('No daily work update records to export.')
+            toast.warn('No daily work update records to export.')
             return
         }
         const headers = ['Date', 'Officer ID', 'Officer Name', 'Authorities Visited', 'Licensing Matter', 'Meeting Summary', 'Documents Handled', 'Next Follow-up', 'Status', 'Remarks']

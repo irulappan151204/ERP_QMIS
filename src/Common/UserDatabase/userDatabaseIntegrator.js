@@ -1348,18 +1348,18 @@ export const getIntegratedTeacherProfile = (employeeId, selectedYear = CURRENT_A
             const records = []
             try {
                 if (typeof localStorage !== 'undefined') {
-                    const rawHistory = localStorage.getItem('schoolerp-student-som-history-v1')
+                    const rawHistory = localStorage.getItem('schoolerp-employee-som-history-v1')
                     if (rawHistory) {
                         const list = JSON.parse(rawHistory)
                         if (Array.isArray(list)) {
-                            records.push(...list.filter((r) => r.studentId === student.id || r.studentId === studentId))
+                            records.push(...list.filter((r) => r.employeeId === teacher.id || r.employeeId === teacher.employeeId))
                         }
                     }
-                    const rawSom = localStorage.getItem('schoolerp-academic-som-records-v1')
+                    const rawSom = localStorage.getItem('schoolerp-institutional-som-records-v1')
                     if (rawSom) {
                         const list = JSON.parse(rawSom)
                         if (Array.isArray(list)) {
-                            list.filter((r) => r.studentId === student.id || r.studentId === studentId).forEach((r) => {
+                            list.filter((r) => r.employeeId === teacher.id || r.employeeId === teacher.employeeId).forEach((r) => {
                                 if (!records.some((x) => x.id === r.id)) {
                                     records.push(r)
                                 }
@@ -1371,24 +1371,22 @@ export const getIntegratedTeacherProfile = (employeeId, selectedYear = CURRENT_A
                 /* ignore */
             }
 
-            // Fallback mock recognition record if brand new student
-            if (!records.length && (student.name.includes('Aarav') || student.name.includes('Diya'))) {
+            // Fallback mock recognition record for exemplary faculty
+            if (!records.length && (teacher.name?.includes('Priya') || teacher.id?.includes('014'))) {
                 records.push({
-                    id: `ASOM-2025-031-${student.id}`,
+                    id: `ESOM-2025-014-${teacher.id}`,
                     month: 'September 2025',
                     academicYear: selectedYear,
-                    classSection: student.classSection,
-                    className: student.className,
-                    section: student.section,
-                    studentId: student.id,
-                    studentName: student.name,
+                    department: teacher.department,
+                    employeeId: teacher.id,
+                    employeeName: teacher.name,
                     ratingStars: 3,
                     score: 98,
-                    citation: 'Outstanding academic rigor, peer leadership and classroom participation.',
-                    awardTitle: 'Star of the Month (Overall Winner)',
+                    citation: 'Excellence in mathematics pedagogy, student engagement, and board exam preparation.',
+                    awardTitle: 'Teacher of the Month (Academics & Teaching)',
                     awardTier: 'Winner',
                     status: 'Published',
-                    nominatedBy: student.classTeacher || 'Priya Menon (Class Teacher)',
+                    nominatedBy: 'Dr. Ramanathan K (Principal)',
                     finalizedAt: '2025-09-30',
                 })
             }

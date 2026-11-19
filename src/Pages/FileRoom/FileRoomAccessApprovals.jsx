@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     ClipboardCheck,
     Lock,
@@ -190,7 +191,7 @@ const FileRoomAccessApprovals = () => {
 
         // Custodian / MD approval stage
         if (decisionType === 'APPROVE' && isStrictlyConfidential && !isMdOrSuperAdmin && !mdAuthorizedOverride) {
-            alert('Cannot approve: Strictly Confidential files require explicit Managing Director (MD) sign-off.')
+            toast.error('Cannot approve: Strictly Confidential files require explicit Managing Director (MD) sign-off.')
             return
         }
 
@@ -225,7 +226,7 @@ const FileRoomAccessApprovals = () => {
     const handleRaiseSubmit = async (e) => {
         e.preventDefault()
         if (!newRequestForm.fileRefNo || !newRequestForm.fileName || !newRequestForm.purpose || !newRequestForm.requestedByName) {
-            alert('Please fill in file reference, title, requester name, and official purpose.')
+            toast.warn('Please fill in file reference, title, requester name, and official purpose.')
             return
         }
 

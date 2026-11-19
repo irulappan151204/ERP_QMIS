@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     Navigation,
     Plus,
@@ -110,7 +111,7 @@ const CctvGpsHalt = () => {
     const handleCreateSubmit = async (e) => {
         e.preventDefault()
         if (!form.busNo || !form.haltLocation.trim() || !form.haltDurationMinutes) {
-            alert('Please provide bus number, halt location, and duration.')
+            toast.warn('Please provide bus number, halt location, and duration.')
             return
         }
 
@@ -134,7 +135,7 @@ const CctvGpsHalt = () => {
                     speedAlert: false,
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to log GPS halt'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to log GPS halt'}`)
             }
         } catch (err) {
             console.error('Error creating GPS halt:', err)

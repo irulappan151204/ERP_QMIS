@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     Calendar as CalendarIcon,
     AlertTriangle,
@@ -81,7 +82,7 @@ const ProComplianceCalendar = () => {
     const handleCreateEvent = async (e) => {
         e.preventDefault()
         if (!newEvent.title || !newEvent.department || !newEvent.date) {
-            alert('Please fill in all mandatory fields.')
+            toast.warn('Please fill in all mandatory fields.')
             return
         }
 

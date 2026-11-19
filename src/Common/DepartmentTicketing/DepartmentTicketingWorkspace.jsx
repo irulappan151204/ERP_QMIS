@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { toast } from 'react-toastify'
 import {
     LifeBuoy,
     CheckCircle2,
@@ -247,7 +248,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
             })
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to submit ticket')
         }
     }
 
@@ -273,7 +274,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
             setSelectedTicketForAssign(null)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to assign ticket')
         }
     }
 
@@ -294,7 +295,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
             notify(`Ticket ${ticketId} moved to In Progress!`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to update ticket progress')
         }
     }
 
@@ -319,7 +320,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
             setSelectedTicketForResolve(null)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to resolve ticket')
         }
     }
 
@@ -343,7 +344,7 @@ export default function DepartmentTicketingWorkspace({ defaultTab = 'overview', 
             setSelectedTicketForFeedback(null)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to submit feedback')
         }
     }
 

@@ -1,6 +1,10 @@
 import React from 'react'
 import { Navigate, Route } from 'react-router-dom'
 import StoresProcurementWorkspace from '../Common/StoresProcurement/StoresProcurementWorkspace'
+import PurchaseWorkflowWorkspace from '../Common/Procurement/PurchaseWorkflowWorkspace'
+import StoreRequisitionWorkspace from '../Common/StoresProcurement/StoreRequisitionWorkspace'
+import AssetManagementWorkspace from '../Common/AssetManagement/AssetManagementWorkspace'
+import MaintenanceInventoryWorkspace from '../Common/MaintenanceInventory/MaintenanceInventoryWorkspace'
 import GatePassSecurityWorkspace from '../Common/GatePassSecurity/GatePassSecurityWorkspace'
 import VisitorsWorkspace from '../Common/Visitors/VisitorsWorkspace'
 import FileRoomWorkspace from '../Common/FileRoom/FileRoomWorkspace'
@@ -39,6 +43,10 @@ export const EnterpriseOperationsRoutes = ({ basePath, role = null }) => (
         <Route path={`${basePath}/calendar`} element={<AcademicCalendarPage roleKey={role} />} />
 
         {/* 1. Stores & Procurement */}
+        <Route path={`${basePath}/purchase-workflow`} element={<PurchaseWorkflowWorkspace roleOverride={role} />} />
+        <Route path={`${basePath}/store-requests`} element={<StoreRequisitionWorkspace roleOverride={role} />} />
+        <Route path={`${basePath}/asset-management`} element={<AssetManagementWorkspace roleOverride={role} />} />
+        <Route path={`${basePath}/maintenance-inventory`} element={<MaintenanceInventoryWorkspace roleOverride={role} />} />
         <Route path={`${basePath}/stores-procurement`} element={<StoresProcurementWorkspace roleOverride={role} />} />
         <Route path={`${basePath}/stores-procurement/:tab`} element={<StoresProcurementWorkspace roleOverride={role} />} />
         <Route path={`${basePath}/stores`} element={<StoresProcurementWorkspace roleOverride={role} />} />

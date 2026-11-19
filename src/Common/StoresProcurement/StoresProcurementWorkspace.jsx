@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { toast } from 'react-toastify'
+import { exportDataset } from '../ui/exportUtils'
 import {
     Package,
     ShoppingCart,
@@ -99,6 +101,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
 
     const notify = (msg) => {
         setActionMessage(msg)
+        toast.success(msg)
         setTimeout(() => setActionMessage(''), 4000)
     }
 
@@ -153,7 +156,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
         if (!isStoreManager && !isExecutiveOrAdmin) {
             const regularTabs = [
                 { id: 'inventory', label: 'Store Stocks', icon: Package },
-                { id: 'requisitions', label: 'My Material Requests', icon: ClipboardList }
+                { id: 'requisitions', label: 'My Store Requests (Internal)', icon: ClipboardList }
             ]
             if (isDepartmentHead) {
                 regularTabs.push({ id: 'approvals', label: 'Department Approvals', icon: CheckCircle2 })
@@ -164,12 +167,12 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
         return [
             { id: 'overview', label: 'Stores Overview', icon: BarChart3 },
             { id: 'inventory', label: 'Inventory Catalog', icon: Package },
-            { id: 'requisitions', label: 'Requests & Issues', icon: ClipboardList },
+            { id: 'requisitions', label: 'Store Requests & Issues (Internal)', icon: ClipboardList },
             { id: 'audit-quantities', label: 'Audit Quantities (Given & Receiving)', icon: ShieldAlert },
             { id: 'goods-received-passes', label: 'Goods Received Passes', icon: Truck },
             { id: 'material-gate-passes', label: 'Store Gate Passes', icon: Store },
             { id: 'requirements', label: 'Purchase Needs & RFQ', icon: ShoppingCart },
-            { id: 'purchase-orders', label: 'Purchase Orders (PO)', icon: FileText },
+            { id: 'purchase-orders', label: 'Purchase Orders & RFQ (Vendor)', icon: FileText },
             { id: 'grn', label: 'Goods Receipt (GRN)', icon: Archive },
             { id: 'vendors', label: 'Vendor Directory', icon: Building2 },
             { id: 'reports', label: 'Stock Reports', icon: Layers }
@@ -300,7 +303,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
         if (!selectedItemForAdjust) return
         const qty = Number(adjustFormData.quantity) || 0
         if (qty <= 0) {
-            alert('Quantity must be greater than zero.')
+            toast.warn('Quantity must be greater than zero.')
             return
         }
 
@@ -328,7 +331,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             setSelectedItemForAdjust(null)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message || 'Error recording stock adjustment.')
+            toast.error(err.message || 'Error recording stock adjustment.')
         }
     }
 
@@ -336,12 +339,12 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
         e.preventDefault()
         const targetItem = catalog.find(i => i.itemCode === transferFormData.itemCode)
         if (!targetItem) {
-            alert('Please select an inventory item.')
+            toast.warn('Please select an inventory item.')
             return
         }
         const qty = Number(transferFormData.quantity) || 0
         if (qty <= 0 || qty > (targetItem.currentStock || 0)) {
-            alert(`Transfer quantity must be between 1 and available stock (${targetItem.currentStock || 0}).`)
+            toast.warn(`Transfer quantity must be between 1 and available stock (${targetItem.currentStock || 0}).`)
             return
         }
 
@@ -366,7 +369,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             setIsTransferModalOpen(false)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message || 'Error processing transfer.')
+            toast.error(err.message || 'Error processing transfer.')
         }
     }
 
@@ -397,7 +400,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             notify(`✓ Returnable item for requisition ${req.id} successfully checked in! Stock restored.`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message || 'Error checking in returnable item.')
+            toast.error(err.message || 'Error checking in returnable item.')
         }
     }
 
@@ -414,7 +417,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             notify(`Received ${record.quantity} units of ${record.itemName} back into stock from Audit!`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -454,7 +457,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             setIsAuditModalOpen(false)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -471,7 +474,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             notify(`Goods Received Pass ${updated.grNo} signed and approved by Store!`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -488,7 +491,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             notify(`Material Gate Pass ${updated.mgpNo} signed and approved by Store!`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -507,7 +510,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             setSelectedReqForReady(null)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -521,7 +524,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             notify(`Requisition ${reqId} collection acknowledged and marked closed!`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -722,7 +725,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
     const handleRequisitionSubmit = (e) => {
         e.preventDefault()
         if (reqFormData.selectedItems.length === 0) {
-            alert('Please select at least one item to request.')
+            toast.warn('Please select at least one item to request.')
             return
         }
         try {
@@ -748,7 +751,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             })
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -758,7 +761,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             notify(`Requisition ${reqId} ${decision.toLowerCase()} successfully!`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -786,14 +789,14 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             setSelectedReqForIssue(null)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
     const handleCreatePOSubmit = (e) => {
         e.preventDefault()
         if (poFormData.lineItems.length === 0) {
-            alert('Please add at least one line item to the PO.')
+            toast.warn('Please add at least one line item to the PO.')
             return
         }
         try {
@@ -812,7 +815,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             setIsPOModalOpen(false)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -831,7 +834,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             notify(`Purchase Order ${poNum} ${decision.toLowerCase()}!`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -841,7 +844,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             notify(`Purchase Order ${poNum} marked as Dispatched to Vendor!`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
@@ -902,14 +905,14 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             setSelectedPOForGRN(null)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message)
         }
     }
 
     const handleAddVendorSubmit = (e) => {
         e.preventDefault()
         if (!vendorFormData.name || !vendorFormData.email) {
-            alert('Please fill in vendor name and email.')
+            toast.warn('Please fill in vendor name and email.')
             return
         }
         const newVendor = {
@@ -1610,19 +1613,55 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             {/* ========================================================================= */}
             {activeTab === 'requisitions' && (
                 <div className='space-y-4'>
-                    <div className='flex items-center justify-between'>
+                    <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
                         <div>
-                            <h2 className='text-sm font-semibold text-slate-900'>Material Requisitions & Issue Vouchers</h2>
-                            <p className='text-xs text-slate-500'>
-                                Review departmental requisitions, authorize approvals, and generate Returnable or Non-Returnable stock issues.
+                            <div className='flex items-center gap-2'>
+                                <h2 className='text-sm font-semibold text-slate-900'>Internal Store Requests & Material Indents</h2>
+                                <span className='rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200'>
+                                    Internal Stock Movement · Zero Vendor Liability
+                                </span>
+                            </div>
+                            <p className='text-xs text-slate-500 mt-0.5'>
+                                Departmental requests fulfilled directly from campus inventory upon HOD authorization. Stock decrements upon issue.
                             </p>
                         </div>
-                        <button
-                            onClick={() => setIsRequisitionModalOpen(true)}
-                            className='inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition'
-                        >
-                            <Plus size={14} /> Raise New Request
-                        </button>
+                        <div className='flex items-center gap-2'>
+                            <button
+                                type='button'
+                                onClick={() => {
+                                    const rows = (isStoreManager || isExecutiveOrAdmin) ? requisitions : requisitions.filter(r => r.requestingEmployeeName === (authName || 'Sunita Verma') || r.department === activeRole)
+                                    const exportRows = rows.map(r => ({
+                                        id: r.id,
+                                        date: r.requestDate || r.date || '—',
+                                        employee: `${r.requestingEmployeeName || r.requesterName || '—'} (${r.department || '—'})`,
+                                        items: (r.requestedItems || r.items || []).map(i => `${i.itemName || i.itemCode} (x${i.requestedQty || i.quantity || 1})`).join('; '),
+                                        urgency: r.urgency || r.priority || 'Medium',
+                                        status: r.status || 'Submitted',
+                                    }))
+                                    exportDataset('excel', {
+                                        title: 'Internal Store Requests & Material Indents',
+                                        columns: [
+                                            { key: 'id', label: 'Requisition ID' },
+                                            { key: 'date', label: 'Request Date' },
+                                            { key: 'employee', label: 'Employee & Dept' },
+                                            { key: 'items', label: 'Requested Items' },
+                                            { key: 'urgency', label: 'Urgency' },
+                                            { key: 'status', label: 'Status' },
+                                        ],
+                                        rows: exportRows
+                                    })
+                                }}
+                                className='inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer'
+                            >
+                                <Download size={13} className='text-emerald-600' /> Export Requisitions
+                            </button>
+                            <button
+                                onClick={() => setIsRequisitionModalOpen(true)}
+                                className='inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition cursor-pointer'
+                            >
+                                <Plus size={14} /> Raise Store Request
+                            </button>
+                        </div>
                     </div>
 
                     <div className='rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden'>
@@ -1865,21 +1904,56 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
             {/* ========================================================================= */}
             {activeTab === 'purchase-orders' && (
                 <div className='space-y-4'>
-                    <div className='flex items-center justify-between'>
+                    <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
                         <div>
-                            <h2 className='text-sm font-semibold text-slate-900'>Enterprise Purchase Orders</h2>
-                            <p className='text-xs text-slate-500'>
-                                Generated POs with status tracking, multi-tier approvals, vendor dispatch, and GRN linkage.
+                            <div className='flex items-center gap-2'>
+                                <h2 className='text-sm font-semibold text-slate-900'>Commercial Purchase Orders (PO) & Vendor RFQs</h2>
+                                <span className='rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 border border-indigo-200'>
+                                    External Commercial Procurement · Finance AP Linked
+                                </span>
+                            </div>
+                            <p className='text-xs text-slate-500 mt-0.5'>
+                                3-vendor quote comparisons, threshold-governed executive sign-offs, vendor dispatch, GRN inspection, and automated Accounts Payable vouchers.
                             </p>
                         </div>
-                        {(isStoreManager || isExecutiveOrAdmin) && (
+                        <div className='flex items-center gap-2'>
                             <button
-                                onClick={() => setIsPOModalOpen(true)}
-                                className='inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-700'
+                                type='button'
+                                onClick={() => {
+                                    const exportRows = purchaseOrders.map(po => ({
+                                        poNumber: po.id || po.poNumber,
+                                        poDate: po.poDate || po.createdAt || '—',
+                                        vendor: po.vendor?.name || po.vendorName || '—',
+                                        items: (po.items || []).map(i => `${i.description || i.itemCode} (x${i.qty || 1})`).join('; '),
+                                        total: `₹ ${Number(po.grandTotal || po.totalAmount || 0).toLocaleString()}`,
+                                        status: po.status || 'Draft',
+                                    }))
+                                    exportDataset('excel', {
+                                        title: 'Purchase Orders & Commercial Procurement',
+                                        columns: [
+                                            { key: 'poNumber', label: 'PO Number' },
+                                            { key: 'poDate', label: 'PO Date' },
+                                            { key: 'vendor', label: 'Vendor' },
+                                            { key: 'items', label: 'Line Items' },
+                                            { key: 'total', label: 'Total Amount' },
+                                            { key: 'status', label: 'Status' },
+                                        ],
+                                        rows: exportRows
+                                    })
+                                }}
+                                className='inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer'
                             >
-                                <Plus size={14} /> New Purchase Order
+                                <Download size={13} className='text-indigo-600' /> Export POs
                             </button>
-                        )}
+                            {(isStoreManager || isExecutiveOrAdmin) && (
+                                <button
+                                    onClick={() => setIsPOModalOpen(true)}
+                                    className='inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-700 cursor-pointer'
+                                >
+                                    <Plus size={14} /> New Purchase Order
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     <div className='rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden'>
@@ -1993,7 +2067,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
                                     if (availablePO) {
                                         openGRNModalForPO(availablePO)
                                     } else {
-                                        alert('No purchase orders currently pending goods receipt.')
+                                        toast.info('No purchase orders currently pending goods receipt.')
                                     }
                                 }}
                                 className='inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition cursor-pointer shadow-xs'
@@ -2662,7 +2736,7 @@ export default function StoresProcurementWorkspace({ defaultTab = 'overview', ro
                                                     type='button'
                                                     onClick={() => {
                                                         if (!customItemForm.itemName.trim()) {
-                                                            alert('Please enter a product name');
+                                                            toast.warn('Please enter a product name');
                                                             return;
                                                         }
                                                         const qty = Math.max(1, Number(customItemForm.requestedQuantity) || 1)

@@ -11,6 +11,7 @@
 
 import { ROLES } from '../../constants/roles.js'
 import { recordAuditLog, dispatchNotification } from '../AuditAndNotifications/centralAuditEngine.js'
+import { captureActivityEvent } from '../EmployeeActivityMonitoring/employeeActivityMonitoringData.js'
 
 export const ATTENDANCE_STORAGE_KEY = 'schoolerp-attendance-ledger-v1'
 export const LEAVE_REQUESTS_STORAGE_KEY = 'schoolerp-leave-requests'
@@ -2075,6 +2076,27 @@ export const updateLeaveRequestDecision = (requestId, decision, arg3, arg4, auth
             return att
         })
         saveAttendanceRecords(updatedAttendance)
+    }
+
+    try {
+        captureActivityEvent({
+            employeeId: target.employeeId,
+            employeeName: target.employeeName || 'Staff Member',
+            roleKey: authorizedRole || 'hr',
+            department: target.department || 'General',
+            action: decision === 'Approved' ? 'APPROVE' : 'REJECT',
+            activityType: 'Approval Decision',
+            title: `${decision === 'Approved' ? 'Approved' : 'Rejected'} Leave Application ${requestId}`,
+            description: `${decision} by ${approverName} (${authorizedRole || 'HR'}). Remarks: ${remarks || 'None'}`,
+            moduleRef: 'Attendance & Leave',
+            referenceId: requestId,
+            statusBefore: oldStatus,
+            statusAfter: decision,
+            previousValues: { status: oldStatus },
+            updatedValues: { status: decision, approver: approverName, remarks }
+        })
+    } catch {
+        /* ignore */
     }
 
     return {

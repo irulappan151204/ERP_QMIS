@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     Cpu,
     RefreshCw,
@@ -62,7 +63,7 @@ export default function EsslDeviceConfigSection({ currentUserRole = 'admin' }) {
         setMappings(getBiometricMappings())
         setRawPunches(getRawBiometricPunches())
         setSelectedUnmappedUserId(null)
-        alert(`Device User ID ${selectedUnmappedUserId} successfully mapped to ${emp.name} (${emp.id})`)
+        toast.success(`Device User ID ${selectedUnmappedUserId} successfully mapped to ${emp.name} (${emp.id})`)
     }
 
     // Filtered Mappings

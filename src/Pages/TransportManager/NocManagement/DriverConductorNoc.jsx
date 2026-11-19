@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     FileCheck,
     Plus,
@@ -118,7 +119,7 @@ const DriverConductorNoc = () => {
     const handleInitiateSubmit = async (e) => {
         e.preventDefault()
         if (!form.staffName.trim() || !form.licenseNo.trim() || !form.vehicleAssigned.trim()) {
-            alert('Please fill in staff name, license/badge number, and assigned vehicle.')
+            toast.warn('Please fill in staff name, license/badge number, and assigned vehicle.')
             return
         }
 
@@ -148,7 +149,7 @@ const DriverConductorNoc = () => {
                     nocStatus: 'Clearance In Progress',
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to initiate NOC clearance'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to initiate NOC clearance'}`)
             }
         } catch (err) {
             console.error('Error initiating NOC:', err)
@@ -192,7 +193,7 @@ const DriverConductorNoc = () => {
                 setFeedbackMessage(`Official NOC Certificate ${res.data.certificateNo} issued for ${res.data.staffName}!`)
                 setTimeout(() => setFeedbackMessage(''), 5000)
             } else {
-                alert(`Cannot Issue NOC: ${res.error?.message || res.error || 'All checklist items must be cleared'}`)
+                toast.error(`Cannot Issue NOC: ${res.error?.message || res.error || 'All checklist items must be cleared'}`)
             }
         } catch (err) {
             console.error('Failed to issue certificate:', err)

@@ -10,14 +10,15 @@ import ViewInventoryItem from '../Pages/HousekeepingManager/Inventory/ViewInvent
 import RequestsApprovalsList from '../Pages/HousekeepingManager/RequestsApprovals/RequestsApprovalsList'
 import AddRequest from '../Pages/HousekeepingManager/RequestsApprovals/AddRequest'
 import ViewRequest from '../Pages/HousekeepingManager/RequestsApprovals/ViewRequest'
-import Reports from '../Pages/HousekeepingManager/Reports/Reports'
+import UniversalReportsAnalyticsWorkspace from '../Common/ReportsAnalytics/UniversalReportsAnalyticsWorkspace'
 import AnnouncementList from '../Pages/HousekeepingManager/Announcement/AnnouncementList'
 import ViewAnnouncement from '../Pages/HousekeepingManager/Announcement/ViewAnnouncement'
 import AddAnnouncement from '../Pages/HousekeepingManager/Announcement/AddAnnouncement'
 import { HousekeepingDutyPage, MovementTable, RequirementsPage, SimpleRegister } from '../Common/demoDomain/DemoScreens'
 import EnterpriseRecognitionPage from '../Common/Recognition/EnterpriseRecognitionPage'
 import { getMovements } from '../Common/demoDomain/inventory'
-import { ProcurementBoard } from '../Common/demoDomain/WorkflowScreens'
+import PurchaseWorkflowWorkspace from '../Common/Procurement/PurchaseWorkflowWorkspace'
+import StoreRequisitionWorkspace from '../Common/StoresProcurement/StoreRequisitionWorkspace'
 import { LOST_SEED, RO_SEED, SCHEDULE_SEED, SOM_SEED } from '../Common/demoDomain/housekeeping'
 
 const HousekeepingManagerRoutes = () => {
@@ -31,7 +32,8 @@ const HousekeepingManagerRoutes = () => {
             <Route path="/housekeeping-manager/requests-approvals" element={<RequestsApprovalsList />} />
             <Route path="/housekeeping-manager/requests-approvals/add-request" element={<AddRequest />} />
             <Route path="/housekeeping-manager/requests-approvals/view-request/:id" element={<ViewRequest />} />
-            <Route path="/housekeeping-manager/reports" element={<Reports />} />
+            <Route path="/housekeeping-manager/reports" element={<UniversalReportsAnalyticsWorkspace roleOverride="housekeeping-manager" />} />
+            <Route path="/housekeeping-manager/reports-analytics" element={<UniversalReportsAnalyticsWorkspace roleOverride="housekeeping-manager" />} />
             <Route path="/housekeeping-manager/broadcast" element={<AnnouncementList />} />
             <Route path="/housekeeping-manager/broadcast/view-broadcast/:id" element={<ViewAnnouncement />} />
             <Route path="/housekeeping-manager/broadcast/add-broadcast" element={<AddAnnouncement />} />
@@ -42,7 +44,8 @@ const HousekeepingManagerRoutes = () => {
             <Route path="/housekeeping-manager/lost-found" element={<SimpleRegister title="Lost & Found" storageKey="schoolerp-housekeeping-lost-found-v1" seed={LOST_SEED} idPrefix="LF-2026-" columns={[{ key: 'date', label: 'Date' }, { key: 'item', label: 'Item' }, { key: 'foundLocation', label: 'Found Location' }, { key: 'claimStatus', label: 'Claim Status' }]} fields={[{ key: 'date', label: 'Date', type: 'date' }, { key: 'item', label: 'Item', required: true }, { key: 'foundLocation', label: 'Found Location' }, { key: 'reportedBy', label: 'Reported By' }, { key: 'description', label: 'Description', type: 'textarea' }, { key: 'claimStatus', label: 'Claim Status', type: 'select', options: ['Unclaimed', 'Claimed'] }, { key: 'claimedBy', label: 'Claimed By' }, { key: 'claimedDate', label: 'Claimed Date', type: 'date' }, { key: 'remarks', label: 'Remarks' }]} />} />
             <Route path="/housekeeping-manager/inventory-requirement" element={<RequirementsPage department="Housekeeping" requestedBy="Housekeeping Manager" lockDepartment />} />
             <Route path="/housekeeping-manager/movements" element={<MovementTable rows={getMovements()} department="Housekeeping" />} />
-            <Route path="/housekeeping-manager/purchase-workflow" element={<ProcurementBoard department="Housekeeping" requestedBy="Housekeeping Manager" />} />
+            <Route path="/housekeeping-manager/purchase-workflow" element={<PurchaseWorkflowWorkspace roleOverride="housekeeping-manager" />} />
+            <Route path="/housekeeping-manager/store-requests" element={<StoreRequisitionWorkspace roleOverride="housekeeping-manager" />} />
                         <Route path="/housekeeping-manager/attendance-and-leave" element={<AttendanceAndLeaveWorkspace defaultTab="overview" />} />
             {EnterpriseOperationsRoutes({ basePath: '/housekeeping-manager', role: 'housekeepingmanager' })}
             <Route path="*" element={<Navigate to="/housekeeping-manager/dashboard" replace />} />

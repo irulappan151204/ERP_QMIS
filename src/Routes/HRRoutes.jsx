@@ -20,7 +20,7 @@ import ChildConcession from '../Pages/HR/Payroll/ChildConcession'
 import Disciplinary from '../Pages/HR/Relations/Disciplinary'
 import ExitFormalities from '../Pages/HR/Exit/ExitFormalities'
 import StaffRelievingWorkspace from '../Common/Relieving/StaffRelievingWorkspace'
-import Reports from '../Pages/HR/Reports/Reports'
+import UniversalReportsAnalyticsWorkspace from '../Common/ReportsAnalytics/UniversalReportsAnalyticsWorkspace'
 import Notifications from '../Pages/HR/Notifications/Notifications'
 import Announcements from '../Pages/HR/Announcements/Announcements'
 import AddAnnouncement from '../Pages/HR/Announcements/AddAnnouncement'
@@ -76,7 +76,8 @@ const HRRoutes = () => {
             <Route path="/hr/hr-noc" element={<StaffRelievingWorkspace roleOverride="hr" />} />
             <Route path="/hr/staff-relieving" element={<StaffRelievingWorkspace roleOverride="hr" />} />
             <Route path="/hr/relieving-settlement" element={<ExitFormalities />} />
-            <Route path="/hr/reports" element={<Reports />} />
+            <Route path="/hr/reports" element={<UniversalReportsAnalyticsWorkspace roleOverride="hr" />} />
+            <Route path="/hr/reports-analytics" element={<UniversalReportsAnalyticsWorkspace roleOverride="hr" />} />
             <Route path="/hr/notifications" element={<Notifications />} />
             <Route path="/hr/announcements/add" element={<AddAnnouncement />} />
             <Route path="/hr/announcements/view/:id" element={<ViewAnnouncement />} />

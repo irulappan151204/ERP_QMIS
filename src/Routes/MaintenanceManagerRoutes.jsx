@@ -8,15 +8,17 @@ import ViewInventoryItem from '../Pages/MaintenanceManager/Inventory/ViewInvento
 import RequestsApprovalsList from '../Pages/MaintenanceManager/RequestsApprovals/RequestsApprovalsList'
 import AddRequest from '../Pages/MaintenanceManager/RequestsApprovals/AddRequest'
 import ViewRequest from '../Pages/MaintenanceManager/RequestsApprovals/ViewRequest'
-import Reports from '../Pages/MaintenanceManager/Reports/Reports'
+import UniversalReportsAnalyticsWorkspace from '../Common/ReportsAnalytics/UniversalReportsAnalyticsWorkspace'
 import AnnouncementList from '../Pages/MaintenanceManager/Announcement/AnnouncementList'
 import ViewAnnouncement from '../Pages/MaintenanceManager/Announcement/ViewAnnouncement'
 import AddAnnouncement from '../Pages/MaintenanceManager/Announcement/AddAnnouncement'
 import CampusMaintenance from '../Pages/Operations/Maintenance/CampusMaintenance'
-import { BuildingMaintenancePage, MaintenanceDutyPage, MovementTable, RequirementsPage, SimpleRegister } from '../Common/demoDomain/DemoScreens'
+import { BuildingMaintenancePage, MaintenanceDutyPage, MovementTable, SimpleRegister } from '../Common/demoDomain/DemoScreens'
 import EnterpriseRecognitionPage from '../Common/Recognition/EnterpriseRecognitionPage'
 import { getMovements } from '../Common/demoDomain/inventory'
-import { ProcurementBoard } from '../Common/demoDomain/WorkflowScreens'
+import PurchaseWorkflowWorkspace from '../Common/Procurement/PurchaseWorkflowWorkspace'
+import StoreRequisitionWorkspace from '../Common/StoresProcurement/StoreRequisitionWorkspace'
+import MaintenanceInventoryWorkspace from '../Common/MaintenanceInventory/MaintenanceInventoryWorkspace'
 import { EQUIPMENT_INSPECTION_SEED, MAINTENANCE_SCHEDULE_SEED } from '../Common/demoDomain/maintenance'
 import AttendanceAndLeaveWorkspace from '../Common/AttendanceAndLeave/AttendanceAndLeaveWorkspace'
 import { EnterpriseOperationsRoutes } from './EnterpriseOperationsRoutes'
@@ -34,7 +36,8 @@ const MaintenanceManagerRoutes = () => {
             <Route path="/maintenance-manager/requests-approvals" element={<RequestsApprovalsList />} />
             <Route path="/maintenance-manager/requests-approvals/add-request" element={<AddRequest />} />
             <Route path="/maintenance-manager/requests-approvals/view-request/:id" element={<ViewRequest />} />
-            <Route path="/maintenance-manager/reports" element={<Reports />} />
+            <Route path="/maintenance-manager/reports" element={<UniversalReportsAnalyticsWorkspace roleOverride="maintenance-manager" />} />
+            <Route path="/maintenance-manager/reports-analytics" element={<UniversalReportsAnalyticsWorkspace roleOverride="maintenance-manager" />} />
             <Route path="/maintenance-manager/broadcast" element={<AnnouncementList />} />
             <Route path="/maintenance-manager/broadcast/view-broadcast/:id" element={<ViewAnnouncement />} />
             <Route path="/maintenance-manager/broadcast/add-broadcast" element={<AddAnnouncement />} />
@@ -108,7 +111,9 @@ const MaintenanceManagerRoutes = () => {
             <Route path="/maintenance-manager/star-of-the-month" element={<EnterpriseRecognitionPage view="som" defaultDomain="non_academic" />} />
             <Route path="/maintenance-manager/inventory-requirement" element={<Navigate to="/maintenance-manager/stores-procurement" replace />} />
             <Route path="/maintenance-manager/movements" element={<MovementTable rows={getMovements()} department="Maintenance" />} />
-            <Route path="/maintenance-manager/purchase-workflow" element={<ProcurementBoard department="Maintenance" requestedBy="Maintenance Manager" />} />
+            <Route path="/maintenance-manager/purchase-workflow" element={<PurchaseWorkflowWorkspace roleOverride="maintenance-manager" />} />
+            <Route path="/maintenance-manager/store-requests" element={<StoreRequisitionWorkspace roleOverride="maintenance-manager" />} />
+            <Route path="/maintenance-manager/maintenance-inventory" element={<MaintenanceInventoryWorkspace roleOverride="maintenance-manager" />} />
             <Route path="/maintenance-manager/attendance-and-leave" element={<AttendanceAndLeaveWorkspace defaultTab="overview" />} />
             {EnterpriseOperationsRoutes({ basePath: '/maintenance-manager', role: 'maintenancemanager' })}
             <Route path="*" element={<Navigate to="/maintenance-manager/dashboard" replace />} />

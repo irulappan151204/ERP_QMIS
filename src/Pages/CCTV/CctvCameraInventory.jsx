@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     Camera,
     Plus,
@@ -86,7 +87,7 @@ const CctvCameraInventory = () => {
     const handleCreateCamera = async (e) => {
         e.preventDefault()
         if (!form.name || !form.zone || !form.ipAddress || !form.nvrChannel) {
-            alert('Please fill in required fields.')
+            toast.warn('Please fill in required fields.')
             return
         }
 
@@ -108,7 +109,7 @@ const CctvCameraInventory = () => {
                     currentStatus: CCTV_CAMERA_STATUS.ONLINE,
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to create camera'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to create camera'}`)
             }
         } catch (err) {
             console.error('Error adding camera:', err)

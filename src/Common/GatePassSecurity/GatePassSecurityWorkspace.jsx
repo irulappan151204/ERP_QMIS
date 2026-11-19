@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { toast } from 'react-toastify'
 import { useParams } from 'react-router-dom'
 import {
     Shield,
@@ -230,7 +231,7 @@ export default function GatePassSecurityWorkspace({ defaultTab = 'overview', rol
             setSelectedBadgeVisitor(newRecord) // Show instant printable badge
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to check in visitor')
         }
     }
 
@@ -240,7 +241,7 @@ export default function GatePassSecurityWorkspace({ defaultTab = 'overview', rol
             notify(`Visitor ${updated.visitorName} checked out! Exit recorded.`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to check out visitor')
         }
     }
 
@@ -260,7 +261,7 @@ export default function GatePassSecurityWorkspace({ defaultTab = 'overview', rol
             }
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to approve gate pass')
         }
     }
 
@@ -277,7 +278,7 @@ export default function GatePassSecurityWorkspace({ defaultTab = 'overview', rol
             notify(`Gate pass request rejected.`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to reject gate pass')
         }
     }
 
@@ -287,7 +288,7 @@ export default function GatePassSecurityWorkspace({ defaultTab = 'overview', rol
             notify(`Student ${pass.studentName} departure logged at gate. Status: Exit Recorded.`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to log exit')
         }
     }
 
@@ -297,7 +298,7 @@ export default function GatePassSecurityWorkspace({ defaultTab = 'overview', rol
             notify(`Student ${pass.studentName} return verified. Pass closed.`)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to verify return')
         }
     }
 

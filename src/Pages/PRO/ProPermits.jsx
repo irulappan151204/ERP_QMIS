@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     ShieldCheck,
     Plus,
@@ -89,7 +90,7 @@ const ProPermits = () => {
     const handleCreatePermit = async (e) => {
         e.preventDefault()
         if (!form.permitType || !form.permitNumber || !form.issuingAuthority || !form.expiryDate) {
-            alert('Please complete all required fields.')
+            toast.warn('Please complete all required fields.')
             return
         }
 
@@ -112,11 +113,11 @@ const ProPermits = () => {
                     status: 'Valid',
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to create permit'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to create permit'}`)
             }
         } catch (err) {
             console.error('Failed to register permit:', err)
-            alert('Registration failed.')
+            toast.error('Registration failed.')
         }
     }
 
@@ -145,7 +146,7 @@ const ProPermits = () => {
             }
         } catch (err) {
             console.error('Failed to renew permit:', err)
-            alert('Renewal initiation failed.')
+            toast.error('Renewal initiation failed.')
         }
     }
 

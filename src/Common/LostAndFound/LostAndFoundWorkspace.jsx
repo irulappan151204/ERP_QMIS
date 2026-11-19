@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { toast } from 'react-toastify'
 import {
     Search,
     Filter,
@@ -225,7 +226,7 @@ export default function LostAndFoundWorkspace({ defaultTab = 'directory', roleOv
     const handlePostSubmit = async (e) => {
         e.preventDefault()
         if (!postForm.title || !postForm.category || !postForm.location || !postForm.description) {
-            alert('Please fill in title, category, location, and description.')
+            toast.warn('Please fill in title, category, location, and description.')
             return
         }
 
@@ -263,7 +264,7 @@ export default function LostAndFoundWorkspace({ defaultTab = 'directory', roleOv
                 })
                 setRefreshKey((k) => k + 1)
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to report item'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to report item'}`)
             }
         } catch (err) {
             console.error('Error reporting item:', err)
@@ -274,7 +275,7 @@ export default function LostAndFoundWorkspace({ defaultTab = 'directory', roleOv
     const handleClaimSubmit = async (e) => {
         e.preventDefault()
         if (!selectedItemForClaim || !claimForm.proofDescription) {
-            alert('Please provide proof of ownership.')
+            toast.warn('Please provide proof of ownership.')
             return
         }
 
@@ -297,7 +298,7 @@ export default function LostAndFoundWorkspace({ defaultTab = 'directory', roleOv
                 })
                 setRefreshKey((k) => k + 1)
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to submit claim'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to submit claim'}`)
             }
         } catch (err) {
             console.error('Error submitting claim:', err)
@@ -321,7 +322,7 @@ export default function LostAndFoundWorkspace({ defaultTab = 'directory', roleOv
                 setSelectedItemForVerify(null)
                 setRefreshKey((k) => k + 1)
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to verify claim'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to verify claim'}`)
             }
         } catch (err) {
             console.error('Error verifying claim:', err)
@@ -345,7 +346,7 @@ export default function LostAndFoundWorkspace({ defaultTab = 'directory', roleOv
                 setSelectedItemForHandover(null)
                 setRefreshKey((k) => k + 1)
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to complete handover'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to complete handover'}`)
             }
         } catch (err) {
             console.error('Error handing over item:', err)

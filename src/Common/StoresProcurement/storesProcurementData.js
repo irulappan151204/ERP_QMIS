@@ -12,6 +12,7 @@
 
 import { recordAuditLog, dispatchNotification } from '../AuditAndNotifications/centralAuditEngine.js'
 import { addAnnouncement } from '../Announcement/announcementData.js'
+import { captureActivityEvent } from '../EmployeeActivityMonitoring/employeeActivityMonitoringData.js'
 
 export const INVENTORY_STORAGE_KEY = 'schoolerp-inventory-catalog-v1'
 export const REQUISITIONS_STORAGE_KEY = 'schoolerp-material-requisitions-v1'
@@ -742,6 +743,26 @@ export const submitMaterialRequisition = (payload) => {
         type: 'STORES_REQUISITION'
     })
 
+    try {
+        captureActivityEvent({
+            employeeId: requesterId,
+            employeeName: requesterName,
+            roleKey: 'staff',
+            department,
+            action: 'CREATE',
+            activityType: 'Task Execution',
+            title: `Submitted Material Requisition ${newId}`,
+            description: `Requested ${items.length} items (${purpose}) with priority ${priority}.`,
+            moduleRef: 'Stores & Procurement',
+            referenceId: newId,
+            statusBefore: 'None',
+            statusAfter: 'Submitted',
+            updatedValues: { requisitionId: newId, totalItemsCount, totalEstimatedValuation, priority }
+        })
+    } catch {
+        /* ignore */
+    }
+
     return newReq
 }
 
@@ -783,6 +804,26 @@ export const updateRequisitionApproval = (requisitionId, decision, approverName,
         link: '/stores-procurement?tab=requisitions',
         type: 'STORES_REQUISITION'
     })
+
+    try {
+        captureActivityEvent({
+            employeeName: approverName,
+            roleKey: approverRole,
+            department: target.department,
+            action: decision === 'Approved' ? 'APPROVE' : 'REJECT',
+            activityType: 'Approval Decision',
+            title: `${decision === 'Approved' ? 'Approved' : 'Rejected'} Material Requisition ${requisitionId}`,
+            description: remarks || `Requisition ${decision.toLowerCase()} by ${approverName} (${approverRole}).`,
+            moduleRef: 'Stores & Procurement',
+            referenceId: requisitionId,
+            statusBefore: oldStatus,
+            statusAfter: target.status,
+            previousValues: { status: oldStatus },
+            updatedValues: { status: target.status, decision, remarks }
+        })
+    } catch {
+        /* ignore */
+    }
 
     return target
 }
@@ -1178,6 +1219,25 @@ export const createPurchaseOrder = ({
         type: 'PURCHASE_ORDER'
     })
 
+    try {
+        captureActivityEvent({
+            employeeName: 'Store Officer',
+            roleKey: 'stationery-store-manager',
+            department: 'Stores & Procurement',
+            action: 'CREATE',
+            activityType: 'Form Submit',
+            title: `Generated Purchase Order ${poNumber}`,
+            description: `PO created for vendor ${vendor.name} totaling ₹ ${grandTotal.toLocaleString('en-IN')}.`,
+            moduleRef: 'Stores & Procurement',
+            referenceId: poNumber,
+            statusBefore: 'Draft',
+            statusAfter: 'Pending Approval',
+            updatedValues: { poNumber, vendor: vendor.name, grandTotal }
+        })
+    } catch {
+        /* ignore */
+    }
+
     return newPO
 }
 
@@ -1338,6 +1398,26 @@ export const processGoodsReceiptNote = ({
         priority: 'Normal',
         type: 'FINANCE_AP'
     })
+
+    try {
+        captureActivityEvent({
+            employeeId: receivedById,
+            employeeName: receivedByName,
+            roleKey: 'stationery-store-manager',
+            department: 'Stores & Procurement',
+            action: 'CREATE',
+            activityType: 'Goods Receipt',
+            title: `Posted Goods Receipt Note ${grnId} against PO ${poNumber}`,
+            description: `Received goods into central stock. Remarks: ${remarks || 'Stock accepted.'}`,
+            moduleRef: 'Stores & Procurement',
+            referenceId: grnId,
+            statusBefore: 'Sent to Vendor',
+            statusAfter: 'Fully Received',
+            updatedValues: { grnId, poNumber, stockUpdated: true }
+        })
+    } catch {
+        /* ignore */
+    }
 
     return { grn: newGRN, po, updatedCatalog }
 }

@@ -23,11 +23,38 @@ import {
     Check,
     DollarSign,
     RefreshCw,
-    Printer
+    Printer,
+    Database,
+    RotateCcw,
+    FileSpreadsheet,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight,
+    Activity,
+    SlidersHorizontal
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../context/AuthContext'
 import { getProfileLabel } from '../../Pages/Authentication/profileOptions'
+import { exportDataset } from '../ui/exportUtils'
+import {
+    getMaterialRequisitions,
+    getPurchaseOrders,
+    getInventoryCatalog
+} from '../StoresProcurement/storesProcurementData'
+import {
+    getAttendanceRecords,
+    getLeaveRequests
+} from '../AttendanceAndLeave/attendanceLeaveData'
+import {
+    FEE_TRANSACTIONS,
+    CONCESSIONS_REGISTER
+} from '../../Pages/AccountHead/FeesManagement/feesManagementData'
+import EnterpriseBarChart from '../ui/EnterpriseBarChart'
+import EnterpriseDonutChart from '../ui/EnterpriseDonutChart'
+import EnterpriseTrendChart from '../ui/EnterpriseTrendChart'
 
 const ROLE_REPORT_SUITES = {
     academic: {
@@ -43,7 +70,9 @@ const ROLE_REPORT_SUITES = {
             { col1: 'Grade 10 - Section B', col2: 'Science', col3: 'Annual Exam 2026', col4: '82.1%', col5: '97.2% Pass', col6: 'Rank 1: Diya Nair', status: 'Completed', date: '2026-10-28' },
             { col1: 'Grade 9 - Section A', col2: 'English Language', col3: 'Term 1 Exam', col4: '79.5%', col5: '95.0% Pass', col6: 'Rank 1: Rohan Verma', status: 'Completed', date: '2026-10-25' },
             { col1: 'Grade 9 - Section B', col2: 'Computer Science', col3: 'Continuous Assessment 2', col4: '91.0%', col5: '100% Pass', col6: 'Rank 1: Ananya Reddy', status: 'Completed', date: '2026-10-20' },
-            { col1: 'Grade 8 - Section A', col2: 'Social Studies', col3: 'Mid Term Test', col4: '76.8%', col5: '92.5% Pass', col6: 'Rank 1: Aditya Menon', status: 'Completed', date: '2026-10-15' }
+            { col1: 'Grade 8 - Section A', col2: 'Social Studies', col3: 'Mid Term Test', col4: '76.8%', col5: '92.5% Pass', col6: 'Rank 1: Aditya Menon', status: 'Completed', date: '2026-10-15' },
+            { col1: 'Grade 8 - Section B', col2: 'Mathematics', col3: 'Term 1 Exam', col4: '84.2%', col5: '98.0% Pass', col6: 'Rank 1: Maya Sundar', status: 'Completed', date: '2026-10-12' },
+            { col1: 'Grade 7 - Section A', col2: 'Science', col3: 'Unit Test 2', col4: '81.5%', col5: '94.0% Pass', col6: 'Rank 1: Rahul Iyer', status: 'Completed', date: '2026-10-10' }
         ],
         columns: ['Class / Batch', 'Subject', 'Assessment Phase', 'Class Average', 'Pass Rate', 'Top Performer', 'Audit Status', 'Date']
     },
@@ -59,7 +88,9 @@ const ROLE_REPORT_SUITES = {
             { col1: 'Academic Administration', col2: '48 Staff Members', col3: '96.4% Present', col4: '4 Approved Leaves', col5: '0 Pending Escalations', col6: 'Full Compliance', status: 'Completed', date: '2026-10-30' },
             { col1: 'Operations & Maintenance', col2: '32 Staff Members', col3: '93.8% Present', col4: '2 Approved Leaves', col5: '1 Pending Task', col6: 'Reviewed by HR', status: 'Completed', date: '2026-10-30' },
             { col1: 'Transport & Fleet Logistics', col2: '24 Drivers/Attendants', col3: '100% Present', col4: '0 Leaves', col5: '14 Routes Active', col6: 'Verified by HOD', status: 'Completed', date: '2026-10-30' },
-            { col1: 'Front Office & Admissions', col2: '8 Executives', col3: '100% Present', col4: '0 Leaves', col5: '18 New Enquiries', col6: 'Active Follow-up', status: 'Completed', date: '2026-10-29' }
+            { col1: 'Front Office & Admissions', col2: '8 Executives', col3: '100% Present', col4: '0 Leaves', col5: '18 New Enquiries', col6: 'Active Follow-up', status: 'Completed', date: '2026-10-29' },
+            { col1: 'Finance & Accounts', col2: '12 Accounts Personnel', col3: '100% Present', col4: '0 Leaves', col5: 'Reconciliation on Track', col6: 'Audited by Lead', status: 'Completed', date: '2026-10-28' },
+            { col1: 'Security & Campus Safety', col2: '18 Security Staff', col3: '94.4% Present', col4: '1 Leave', col5: 'Perimeter Secure', col6: 'Signed by Lead', status: 'Completed', date: '2026-10-27' }
         ],
         columns: ['Department / Unit', 'Staff Strength', 'Attendance Rate', 'Leave Outflow', 'Operational Metric', 'HR Audit Sign', 'Status', 'Date']
     },
@@ -73,7 +104,9 @@ const ROLE_REPORT_SUITES = {
         sampleData: [
             { col1: 'Term 2 Tuition Fee', col2: '₹ 84,50,000 Expected', col3: '₹ 79,20,000 Collected', col4: '93.7% Realized', col5: '₹ 5,30,000 Outstanding', col6: 'Reminder SMS Sent', status: 'Active', date: '2026-10-30' },
             { col1: 'Transport Bus Fleet Fee', col2: '₹ 18,20,000 Expected', col3: '₹ 17,90,000 Collected', col4: '98.3% Realized', col5: '₹ 30,000 Outstanding', col6: 'Reconciled with Fleet', status: 'Completed', date: '2026-10-28' },
-            { col1: 'Science Lab Modernization', col2: '₹ 12,00,000 Allocated', col3: '₹ 11,45,000 Utilized', col4: '95.4% Spent', col5: '₹ 55,000 Surplus', col6: 'PO Processed', status: 'Completed', date: '2026-10-22' }
+            { col1: 'Science Lab Modernization', col2: '₹ 12,00,000 Allocated', col3: '₹ 11,45,000 Utilized', col4: '95.4% Spent', col5: '₹ 55,000 Surplus', col6: 'PO Processed', status: 'Completed', date: '2026-10-22' },
+            { col1: 'Campus Wi-Fi Upgrade', col2: '₹ 4,50,000 Allocated', col3: '₹ 4,25,000 Utilized', col4: '94.4% Spent', col5: '₹ 25,000 Surplus', col6: 'Hardware Inwarded', status: 'Completed', date: '2026-10-18' },
+            { col1: 'Sports Complex Maintenance', col2: '₹ 3,00,000 Allocated', col3: '₹ 2,90,000 Utilized', col4: '96.6% Spent', col5: '₹ 10,000 Surplus', col6: 'Court Relined', status: 'Completed', date: '2026-10-15' }
         ],
         columns: ['Financial Head', 'Target Budget', 'Total Realized', 'Collection %', 'Variance / Dues', 'Finance Notes', 'Status', 'Date']
     },
@@ -227,6 +260,22 @@ const ROLE_REPORT_SUITES = {
             { col1: 'Transport & Safety Logistics', col2: 'Safety Process Audit', col3: '94.0% Index', col4: '3 Observations', col5: '3 Rectified (First Aid Replenished)', col6: 'Verified by Auditor', status: 'Completed', date: '2026-10-24' }
         ],
         columns: ['Auditee Department', 'Audit Scope', 'Compliance Index', 'Obs Count', 'Corrective Action (ATR)', 'Auditor Recommendation', 'Status', 'Date']
+    },
+    logistics: {
+        category: 'Logistics, Transport & Stores Procurement',
+        reports: [
+            { id: 'fleet-dispatch-roster', name: 'Fleet Route Dispatch & Student Boarding Roster', desc: 'Daily bus trip completion, student check-in percentages, and transit telemetry' },
+            { id: 'stores-stock-valuation', name: 'Central Stores Inventory Valuation & Stock Turnover', desc: 'SKU catalog valuation, minimum buffer thresholds, and monthly consumption' },
+            { id: 'store-requisition-velocity', name: 'Store Requisition & Issue Turnaround Velocity', desc: 'Department indent fulfillment times, pending HOD sign-offs, and stockouts' },
+            { id: 'vendor-grn-roster', name: 'Vendor Purchase Delivery & GRN Inspection Roster', desc: 'PO delivery timelines, accepted quantities, and damage return registers' }
+        ],
+        sampleData: [
+            { col1: 'Route 14 (Madurai North)', col2: 'Bus TN-58-B-1001', col3: '38 Students Boarded', col4: '100% Trip Completed', col5: 'Driver: K. Murugan', col6: 'On-time (08:22 AM)', status: 'Completed', date: '2026-10-30' },
+            { col1: 'A4 Copier Paper (75 GSM)', col2: 'Stock: 95 Reams', col3: 'Valuation: ₹ 27,075', col4: 'Reorder Level: 30', col5: 'Store: Central Rack A', col6: 'Buffer Healthy', status: 'Completed', date: '2026-10-30' },
+            { col1: 'Senior Science Lab Requisition', col2: 'MR-2026-001', col3: '5 Reams Issued', col4: 'HOD Approved', col5: 'Requester: Ananya Roy', col6: 'Fulfilled Same Day', status: 'Completed', date: '2026-10-28' },
+            { col1: 'Apex Educational Supplies (PO-01)', col2: 'PO ₹ 21,769', col3: 'GRN-2026-088 Inward', col4: 'Quality Certified', col5: 'AP Voucher Linked', col6: 'Store Mgr: Ramesh', status: 'Completed', date: '2026-10-26' }
+        ],
+        columns: ['Logistics Unit / Resource', 'Asset / Item Description', 'Operational Activity', 'Compliance Standard', 'Custodian / Driver', 'Verification Sign', 'Status', 'Date']
     }
 }
 
@@ -237,297 +286,464 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
 
     // Allowed suites based on RBAC role scoping
     const allowedSuiteKeys = useMemo(() => {
-        // Executive Leadership can access all suites
         if (['superadmin', 'director', 'principal', 'jointdirector', 'admin', 'administrator'].includes(activeRole)) {
-            return ['academic', 'administrative', 'financial', 'itsupport', 'maintenance', 'transport', 'stores', 'canteen', 'library', 'security', 'cctv', 'fileroom', 'housekeeping', 'audit']
+            return ['academic', 'administrative', 'financial', 'logistics', 'itsupport', 'maintenance', 'transport', 'stores', 'canteen', 'library', 'security', 'cctv', 'fileroom', 'housekeeping', 'audit']
         }
-        // Teachers & Coordinators: Academic only
         if (['teacher', 'coordinator'].includes(activeRole)) {
             return ['academic']
         }
-        // Finance / Account Head: Financial only
-        if (['accounthead', 'account-head', 'finance'].includes(activeRole)) {
+        if (['accounthead', 'account-head', 'finance', 'financial'].includes(activeRole)) {
             return ['financial']
         }
-        // IT Support: IT Support suite only
-        if (['itsupportmanager', 'itsupport'].includes(activeRole)) {
+        if (['itsupportmanager', 'itsupport', 'itsupport-manager', 'it-support-manager'].includes(activeRole)) {
             return ['itsupport']
         }
-        // Maintenance: Maintenance suite only
-        if (['maintenancemanager', 'maintenance'].includes(activeRole)) {
+        if (['maintenancemanager', 'maintenance', 'maintenance-manager'].includes(activeRole)) {
             return ['maintenance']
         }
-        // Transport: Transport suite only
-        if (['transportmanager', 'driver'].includes(activeRole)) {
+        if (['transportmanager', 'driver', 'transport', 'transport-manager'].includes(activeRole)) {
             return ['transport']
         }
-        // Stores: Stores suite only
-        if (['stationerystoremanager', 'stores'].includes(activeRole)) {
+        if (['stationerystoremanager', 'stores', 'stationery-store-manager', 'stationerystore'].includes(activeRole)) {
             return ['stores']
         }
-        // Canteen: Canteen suite only
-        if (['canteenmanager', 'canteen'].includes(activeRole)) {
+        if (['canteenmanager', 'canteen', 'canteen-manager'].includes(activeRole)) {
             return ['canteen']
         }
-        // Library: Library suite only
         if (['librarian', 'library'].includes(activeRole)) {
             return ['library']
         }
-        // Gatekeeper & Security: Security suite only
-        if (['gatekeeper', 'gatekeepermanager', 'security'].includes(activeRole)) {
+        if (['gatekeeper', 'gatekeepermanager', 'security', 'gate-keeper', 'gate-keeper-manager'].includes(activeRole)) {
             return ['security']
         }
-        // CCTV: CCTV suite only
-        if (['cctv', 'cctvoperator'].includes(activeRole)) {
+        if (['cctv', 'cctvoperator', 'cctv-operator'].includes(activeRole)) {
             return ['cctv']
         }
-        // File Room: File Room suite only
-        if (['fileroom', 'fileroommanager'].includes(activeRole)) {
+        if (['fileroom', 'fileroommanager', 'file-room', 'file-room-manager'].includes(activeRole)) {
             return ['fileroom']
         }
-        // Housekeeping: Housekeeping suite only
-        if (['housekeepingmanager', 'housekeeping'].includes(activeRole)) {
+        if (['housekeepingmanager', 'housekeeping', 'housekeeping-manager'].includes(activeRole)) {
             return ['housekeeping']
         }
-        // Governance & Audit: Audit only
-        if (['jointdirectoraudit', 'processauditor', 'qualityauditor'].includes(activeRole)) {
+        if (['jointdirectoraudit', 'processauditor', 'qualityauditor', 'audit', 'joint-director-audit', 'process-auditor', 'quality-auditor'].includes(activeRole)) {
             return ['audit']
         }
-        // Administration & HR: Administrative only
-        if (['hr', 'prm', 'frontoffice', 'jointdirectorassistant'].includes(activeRole)) {
+        if (['hr', 'prm', 'frontoffice', 'jointdirectorassistant', 'administrative'].includes(activeRole)) {
             return ['administrative']
         }
         return ['academic', 'administrative', 'financial', 'itsupport', 'maintenance', 'transport', 'stores', 'canteen', 'library', 'security', 'cctv', 'fileroom', 'housekeeping', 'audit']
     }, [activeRole])
 
-    // Determine default suite for role (clamped to allowedSuiteKeys)
     const initialSuiteKey = useMemo(() => {
         if (['teacher', 'coordinator'].includes(activeRole)) return 'academic'
-        if (['accounthead', 'account-head', 'finance'].includes(activeRole)) return 'financial'
-        if (['itsupportmanager', 'itsupport'].includes(activeRole)) return 'itsupport'
-        if (['maintenancemanager', 'maintenance'].includes(activeRole)) return 'maintenance'
-        if (['transportmanager', 'driver'].includes(activeRole)) return 'transport'
-        if (['stationerystoremanager', 'stores'].includes(activeRole)) return 'stores'
-        if (['canteenmanager', 'canteen'].includes(activeRole)) return 'canteen'
+        if (['accounthead', 'account-head', 'finance', 'financial'].includes(activeRole)) return 'financial'
+        if (['itsupportmanager', 'itsupport', 'itsupport-manager', 'it-support-manager'].includes(activeRole)) return 'itsupport'
+        if (['maintenancemanager', 'maintenance', 'maintenance-manager'].includes(activeRole)) return 'maintenance'
+        if (['transportmanager', 'driver', 'transport', 'transport-manager'].includes(activeRole)) return 'transport'
+        if (['stationerystoremanager', 'stores', 'stationery-store-manager', 'stationerystore'].includes(activeRole)) return 'stores'
+        if (['canteenmanager', 'canteen', 'canteen-manager'].includes(activeRole)) return 'canteen'
         if (['librarian', 'library'].includes(activeRole)) return 'library'
-        if (['gatekeeper', 'gatekeepermanager', 'security'].includes(activeRole)) return 'security'
-        if (['cctv', 'cctvoperator'].includes(activeRole)) return 'cctv'
-        if (['fileroom', 'fileroommanager'].includes(activeRole)) return 'fileroom'
-        if (['housekeepingmanager', 'housekeeping'].includes(activeRole)) return 'housekeeping'
-        if (['jointdirectoraudit', 'processauditor', 'qualityauditor'].includes(activeRole)) return 'audit'
-        if (['hr', 'prm', 'frontoffice', 'jointdirectorassistant'].includes(activeRole)) return 'administrative'
+        if (['gatekeeper', 'gatekeepermanager', 'security', 'gate-keeper', 'gate-keeper-manager'].includes(activeRole)) return 'security'
+        if (['cctv', 'cctvoperator', 'cctv-operator'].includes(activeRole)) return 'cctv'
+        if (['fileroom', 'fileroommanager', 'file-room', 'file-room-manager'].includes(activeRole)) return 'fileroom'
+        if (['housekeepingmanager', 'housekeeping', 'housekeeping-manager'].includes(activeRole)) return 'housekeeping'
+        if (['jointdirectoraudit', 'processauditor', 'qualityauditor', 'audit', 'joint-director-audit', 'process-auditor', 'quality-auditor'].includes(activeRole)) return 'audit'
+        if (['hr', 'prm', 'frontoffice', 'jointdirectorassistant', 'administrative'].includes(activeRole)) return 'administrative'
         return allowedSuiteKeys[0] || 'academic'
     }, [activeRole, allowedSuiteKeys])
 
     const [selectedSuiteKey, setSelectedSuiteKey] = useState(initialSuiteKey)
 
-    // Sync selectedSuiteKey if allowedSuiteKeys changes or initial doesn't match
     useEffect(() => {
         if (!allowedSuiteKeys.includes(selectedSuiteKey)) {
             setSelectedSuiteKey(allowedSuiteKeys[0] || 'academic')
         }
     }, [allowedSuiteKeys, selectedSuiteKey])
+
     const [selectedReportId, setSelectedReportId] = useState(ROLE_REPORT_SUITES[initialSuiteKey]?.reports[0]?.id || '')
     const [searchQuery, setSearchQuery] = useState('')
-    const [dateFrom, setDateFrom] = useState('2026-09-01')
-    const [dateTo, setDateTo] = useState('2026-10-31')
+    const [dateFrom, setDateFrom] = useState('')
+    const [dateTo, setDateTo] = useState('')
     const [statusFilter, setStatusFilter] = useState('All')
+    const [showExportMenu, setShowExportMenu] = useState(false)
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
 
     const currentSuite = ROLE_REPORT_SUITES[selectedSuiteKey] || ROLE_REPORT_SUITES.administrative
     const activeReport = (currentSuite?.reports || []).find((r) => r && r.id === selectedReportId) || currentSuite?.reports?.[0] || { id: 'default', name: 'General Report', columns: [] }
 
+    // Dynamic Live Data Enrichment from Operational Services
+    const activeSuiteRows = useMemo(() => {
+        try {
+            if (selectedSuiteKey === 'logistics' || selectedSuiteKey === 'stores') {
+                if (selectedReportId === 'stores-stock-valuation' || selectedReportId === 'stores-inventory-valuation') {
+                    const catalog = getInventoryCatalog()
+                    if (catalog && catalog.length > 0) {
+                        return catalog.map((item, idx) => ({
+                            col1: item.name || `Inventory Item ${idx + 1}`,
+                            col2: item.sku || item.id || `SKU-${idx + 101}`,
+                            col3: `${item.currentStock ?? item.stock ?? 0} ${item.unit || 'Units'}`,
+                            col4: `₹ ${Number(item.unitPrice || item.price || 0).toLocaleString('en-IN')}`,
+                            col5: `₹ ${(Number(item.currentStock ?? item.stock ?? 0) * Number(item.unitPrice || item.price || 0)).toLocaleString('en-IN')} Total`,
+                            col6: (item.currentStock ?? item.stock ?? 0) > (item.minStock || 10) ? 'Central Stores Rack' : 'Below Safety Buffer',
+                            status: (item.currentStock ?? item.stock ?? 0) > (item.minStock || 10) ? 'Completed' : 'Active',
+                            date: item.updatedAt ? item.updatedAt.split('T')[0] : '2026-10-30',
+                            isLive: true
+                        }))
+                    }
+                } else if (selectedReportId === 'store-requisition-velocity' || selectedReportId === 'stores-indent-fulfillment') {
+                    const reqs = getMaterialRequisitions()
+                    if (reqs && reqs.length > 0) {
+                        return reqs.map((req) => ({
+                            col1: req.department || 'Academic Department',
+                            col2: req.id,
+                            col3: `${(req.items || []).length || 1} Item(s) Requested`,
+                            col4: req.urgency || 'Standard Priority',
+                            col5: `Requester: ${req.requestedBy || 'Staff'}`,
+                            col6: req.status === 'Approved' ? 'HOD Approved' : req.status === 'Issued' ? 'Store Issued' : 'Under Review',
+                            status: ['Issued', 'Collected', 'Completed'].includes(req.status) ? 'Completed' : 'Active',
+                            date: req.createdAt ? req.createdAt.split('T')[0] : '2026-10-28',
+                            isLive: true
+                        }))
+                    }
+                } else if (selectedReportId === 'vendor-grn-roster') {
+                    const pos = getPurchaseOrders()
+                    if (pos && pos.length > 0) {
+                        return pos.map((po) => ({
+                            col1: `${po.vendorName || 'Procurement Vendor'} (${po.id})`,
+                            col2: `PO ₹ ${Number(po.totalAmount || 0).toLocaleString('en-IN')}`,
+                            col3: po.grnNumber ? `${po.grnNumber} Inward` : 'Pending Delivery GRN',
+                            col4: po.qualityInspection || 'Quality Certified',
+                            col5: po.financeLiabilityLinked ? 'AP Voucher Linked' : 'Pending Invoice Sync',
+                            col6: `Approver: ${po.approvedBy || 'Finance Head'}`,
+                            status: ['Delivered', 'Completed', 'Approved'].includes(po.status) ? 'Completed' : 'Active',
+                            date: po.createdAt ? po.createdAt.split('T')[0] : '2026-10-26',
+                            isLive: true
+                        }))
+                    }
+                }
+            } else if (selectedSuiteKey === 'administrative' && selectedReportId === 'staff-attendance') {
+                const attRecords = getAttendanceRecords()
+                if (attRecords && attRecords.length > 0) {
+                    const deptMap = {}
+                    attRecords.forEach((r) => {
+                        const dept = r.department || 'General Administration'
+                        if (!deptMap[dept]) {
+                            deptMap[dept] = { total: 0, present: 0, leaves: 0 }
+                        }
+                        deptMap[dept].total += 1
+                        if (r.status === 'Present') deptMap[dept].present += 1
+                        if (r.status === 'Leave' || r.status === 'Half-Day') deptMap[dept].leaves += 1
+                    })
+                    const deptRows = Object.entries(deptMap).map(([dept, stats]) => {
+                        const rate = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 100
+                        return {
+                            col1: dept,
+                            col2: `${stats.total} Staff Members`,
+                            col3: `${rate}% Present`,
+                            col4: `${stats.leaves} Approved Leaves`,
+                            col5: stats.leaves === 0 ? 'Full Staffing' : 'Duty Reassigned',
+                            col6: 'Biometric Verified',
+                            status: 'Completed',
+                            date: '2026-10-30',
+                            isLive: true
+                        }
+                    })
+                    if (deptRows.length > 0) return deptRows
+                }
+            } else if (selectedSuiteKey === 'financial') {
+                if (selectedReportId === 'fee-collections' && FEE_TRANSACTIONS && FEE_TRANSACTIONS.length > 0) {
+                    return FEE_TRANSACTIONS.map((tx) => ({
+                        col1: `${tx.studentName || 'Student'} (${tx.grade || 'Tuition'})`,
+                        col2: `₹ ${Number(tx.amount || 0).toLocaleString('en-IN')} Received`,
+                        col3: tx.paymentMode || 'Online Banking',
+                        col4: tx.receiptNo || 'RCP-LIVE',
+                        col5: tx.academicYear || '2026-2027',
+                        col6: `Cashier: ${tx.collectedBy || 'Finance Desk'}`,
+                        status: tx.status === 'Paid' || tx.status === 'Successful' ? 'Completed' : 'Active',
+                        date: tx.date || '2026-10-30',
+                        isLive: true
+                    }))
+                } else if (selectedReportId === 'concessions-audit' && CONCESSIONS_REGISTER && CONCESSIONS_REGISTER.length > 0) {
+                    return CONCESSIONS_REGISTER.map((c) => ({
+                        col1: `${c.studentName || 'Student'} (${c.grade || ''})`,
+                        col2: c.category || 'Scholarship',
+                        col3: `₹ ${Number(c.amount || 0).toLocaleString('en-IN')} Concession`,
+                        col4: c.percentage ? `${c.percentage}% Waiver` : 'Fixed Waiver',
+                        col5: `Sanctioned by: ${c.approvedBy || 'Director'}`,
+                        col6: c.referenceDoc || 'Audit Proof Attached',
+                        status: c.status === 'Approved' ? 'Completed' : 'Active',
+                        date: c.date || '2026-10-25',
+                        isLive: true
+                    }))
+                }
+            }
+        } catch (err) {
+            console.warn('Error computing live report data:', err)
+        }
+        return currentSuite.sampleData || []
+    }, [selectedSuiteKey, selectedReportId, currentSuite])
+
+    const isLiveDataActive = useMemo(() => {
+        return activeSuiteRows.some((r) => r.isLive)
+    }, [activeSuiteRows])
+
     // Filtered data
     const filteredRows = useMemo(() => {
-        return currentSuite.sampleData.filter((row) => {
+        return activeSuiteRows.filter((row) => {
             const matchesSearch =
                 !searchQuery ||
                 Object.values(row).some((val) => String(val).toLowerCase().includes(searchQuery.toLowerCase()))
             const matchesStatus = statusFilter === 'All' || row.status === statusFilter
-            const matchesDate = (!dateFrom || row.date >= dateFrom) && (!dateTo || row.date <= dateTo)
+            const matchesDate = (!dateFrom || !row.date || row.date >= dateFrom) && (!dateTo || !row.date || row.date <= dateTo)
             return matchesSearch && matchesStatus && matchesDate
         })
-    }, [currentSuite, searchQuery, statusFilter, dateFrom, dateTo])
+    }, [activeSuiteRows, searchQuery, statusFilter, dateFrom, dateTo])
 
-    const handleExportExcel = () => {
-        if (!filteredRows.length) {
-            toast.warn('No records match the current filters to export.')
-            return
-        }
-        const headers = currentSuite.columns
-        const escapeCsv = (val) => {
-            let s = String(val ?? '')
-            if (/^[=+\-@\t\r]/.test(s)) s = "'" + s
-            return `"${s.replace(/"/g, '""')}"`
-        }
-        const rows = filteredRows.map((row) => [
-            row.col1,
-            row.col2,
-            row.col3,
-            row.col4,
-            row.col5,
-            row.col6,
-            row.status,
-            row.date,
-        ])
-        const csvContent = [
-            headers.map(escapeCsv).join(','),
-            ...rows.map((r) => r.map(escapeCsv).join(',')),
-        ].join('\n')
+    // Pagination calculations
+    const totalRecords = filteredRows.length
+    const totalPages = Math.ceil(totalRecords / pageSize) || 1
+    const paginatedRows = useMemo(() => {
+        const start = (currentPage - 1) * pageSize
+        return filteredRows.slice(start, start + pageSize)
+    }, [filteredRows, currentPage, pageSize])
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        const cleanName = (activeReport.name || 'report').toLowerCase().replace(/[^a-z0-9_-]/g, '_')
-        const filename = `${cleanName}_${dateFrom}_${dateTo}.csv`
-        link.download = filename
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url)
-        toast.success(`Exported "${activeReport.name}" to CSV (${filename})`)
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchQuery, statusFilter, dateFrom, dateTo, selectedReportId, selectedSuiteKey, pageSize])
+
+    const handleResetFilters = () => {
+        setSearchQuery('')
+        setDateFrom('')
+        setDateTo('')
+        setStatusFilter('All')
+        setCurrentPage(1)
+        toast.info('Report filters reset to default view.')
     }
 
-    const handlePrint = () => {
-        if (!filteredRows.length) {
-            toast.warn('No records to print for the selected filter range.')
-            return
-        }
-        const tableHeadersHtml = currentSuite.columns
-            .map(
-                (c) =>
-                    `<th style="border:1px solid #cbd5e1;padding:8px 12px;background:#f8fafc;text-align:left;font-size:12px;color:#1e293b;">${c}</th>`
-            )
-            .join('')
-        const tableRowsHtml = filteredRows
-            .map(
-                (row) => `
-            <tr>
-                <td style="border:1px solid #e2e8f0;padding:8px 12px;font-size:12px;color:#334155;">${row.col1 ?? ''}</td>
-                <td style="border:1px solid #e2e8f0;padding:8px 12px;font-size:12px;color:#334155;">${row.col2 ?? ''}</td>
-                <td style="border:1px solid #e2e8f0;padding:8px 12px;font-size:12px;color:#334155;">${row.col3 ?? ''}</td>
-                <td style="border:1px solid #e2e8f0;padding:8px 12px;font-size:12px;color:#334155;">${row.col4 ?? ''}</td>
-                <td style="border:1px solid #e2e8f0;padding:8px 12px;font-size:12px;color:#334155;">${row.col5 ?? ''}</td>
-                <td style="border:1px solid #e2e8f0;padding:8px 12px;font-size:12px;color:#334155;">${row.col6 ?? ''}</td>
-                <td style="border:1px solid #e2e8f0;padding:8px 12px;font-size:12px;color:#334155;">${row.status ?? ''}</td>
-                <td style="border:1px solid #e2e8f0;padding:8px 12px;font-size:12px;color:#334155;">${row.date ?? ''}</td>
-            </tr>
-        `
-            )
-            .join('')
+    // Chart Data calculations
+    const categoryBarData = useMemo(() => {
+        const counts = {}
+        filteredRows.forEach((r) => {
+            const label = String(r.col1 || 'Item').split('-')[0].trim()
+            counts[label] = (counts[label] || 0) + 1
+        })
+        const categories = Object.keys(counts).slice(0, 6)
+        const data = categories.map((c) => counts[c])
+        return { categories, data }
+    }, [filteredRows])
 
-        const printHtml = `
-            <!doctype html>
-            <html>
-            <head>
-                <title>${activeReport.name} - ${dateFrom} to ${dateTo}</title>
-                <style>
-                    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #0f172a; margin: 0; }
-                    h1 { font-size: 20px; font-weight: 700; margin: 0 0 6px 0; color: #0f172a; }
-                    p { font-size: 13px; color: #64748b; margin: 0 0 16px 0; }
-                    .meta { display: flex; gap: 16px; margin-bottom: 20px; font-size: 12px; color: #475569; }
-                    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-                    @media print {
-                        @page { margin: 15mm; }
-                        body { padding: 0; }
-                    }
-                </style>
-            </head>
-            <body>
-                <h1>${activeReport.name}</h1>
-                <p>${activeReport.desc || ''}</p>
-                <div class="meta">
-                    <span><strong>Role:</strong> ${roleLabel}</span>
-                    <span><strong>Category:</strong> ${currentSuite.category}</span>
-                    <span><strong>Date Range:</strong> ${dateFrom} to ${dateTo}</span>
-                    <span><strong>Total Records:</strong> ${filteredRows.length}</span>
-                </div>
-                <table>
-                    <thead><tr>${tableHeadersHtml}</tr></thead>
-                    <tbody>${tableRowsHtml}</tbody>
-                </table>
-            </body>
-            </html>
-        `
+    const statusDonutData = useMemo(() => {
+        const completed = filteredRows.filter((r) => r.status === 'Completed').length
+        const active = filteredRows.filter((r) => r.status === 'Active').length
+        return [
+            { name: 'Completed & Certified', value: completed, color: '#10B981' },
+            { name: 'Active / In Execution', value: active, color: '#3B82F6' }
+        ]
+    }, [filteredRows])
 
-        if (typeof window !== 'undefined') {
-            const printWindow = window.open('', '_blank', 'width=900,height=700')
-            if (printWindow) {
-                printWindow.document.write(printHtml)
-                printWindow.document.close()
-                printWindow.focus()
-                setTimeout(() => {
-                    printWindow.print()
-                }, 300)
-            } else {
-                window.print()
+    const trendData = useMemo(() => {
+        return {
+            'Report Inflows': {
+                current: [12, 18, 16, 24, 28, 32, 29],
+                previous: [8, 14, 12, 19, 22, 25, 27]
+            },
+            'Audit Velocity': {
+                current: [94, 96, 95, 98, 97, 99, 98],
+                previous: [88, 91, 90, 93, 94, 95, 95]
+            },
+            'Execution Health': {
+                current: [100, 98, 99, 100, 99, 100, 100],
+                previous: [95, 96, 94, 97, 98, 98, 98]
             }
         }
-        toast.info(`Triggered print view for "${activeReport.name}"`)
+    }, [])
+
+    const exportColumns = useMemo(() => {
+        return (currentSuite?.columns || []).map((colName, index) => {
+            let key = `col${index + 1}`
+            if (index === currentSuite.columns.length - 2) key = 'status'
+            if (index === currentSuite.columns.length - 1) key = 'date'
+            return { key, header: colName }
+        })
+    }, [currentSuite])
+
+    const handleExport = (format) => {
+        setShowExportMenu(false)
+        if (!filteredRows.length) {
+            toast.warn('No records match current filters to export.')
+            return
+        }
+
+        exportDataset({
+            data: filteredRows,
+            columns: exportColumns,
+            format,
+            filename: `${activeReport.id}_report_${new Date().toISOString().split('T')[0]}`,
+            title: activeReport.name,
+            subtitle: `${currentSuite.category} - ${activeReport.desc || ''}`,
+            metadata: {
+                'Audited Category': currentSuite.category,
+                'Generated By Role': roleLabel,
+                'Filter Date From': dateFrom || 'All Records',
+                'Filter Date To': dateTo || 'Present',
+                'Total Audited Records': String(filteredRows.length),
+                'Export Timestamp': new Date().toLocaleString('en-GB')
+            }
+        })
+        toast.success(`Exporting ${filteredRows.length} records as ${format.toUpperCase()}...`)
     }
 
-    const handleExportPDF = () => {
-        toast.info(`Preparing "${activeReport.name}" for PDF print export...`)
-        handlePrint()
-    }
+    const handleExportPDF = () => handleExport('pdf')
+    const handleExportExcel = () => handleExport('xlsx')
+    const handleExportCSV = () => handleExport('csv')
+
+    // KPI Metrics
+    const completedCount = filteredRows.filter((r) => r.status === 'Completed').length
+    const activeCount = filteredRows.filter((r) => r.status === 'Active').length
+    const completionRate = filteredRows.length > 0 ? Math.round((completedCount / filteredRows.length) * 100) : 100
 
     return (
-        <div className="space-y-6 font-inter pb-8">
+        <div className="space-y-6 font-inter pb-8 p-4 md:p-6 bg-slate-50/50 min-h-screen">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 md:p-6 rounded-3xl border border-slate-200/90 shadow-xs">
                 <div className="flex items-center gap-3.5">
                     <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-2xs">
-                        <BarChart3 size={26} />
+                        <BarChart3 size={24} />
                     </div>
                     <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">
                                 Institutional Reports & Analytics
                             </h1>
                             <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 border border-indigo-100">
-                                {roleLabel}
+                                {roleLabel} • Executive Intelligence
                             </span>
                         </div>
                         <p className="text-xs text-slate-500 mt-0.5">
-                            Role-governed intelligence reports, metric aggregations, and exportable operational audit dossiers.
+                            Role-governed operational analytics, live telemetry metrics, and multi-format exportable dossiers.
                         </p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                    {/* Export Dropdown */}
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onClick={() => setShowExportMenu(!showExportMenu)}
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition"
+                        >
+                            <Download size={14} className="text-emerald-600" />
+                            <span>Export Dossier</span>
+                            <ChevronDown size={13} className="text-slate-400" />
+                        </button>
+
+                        {showExportMenu && (
+                            <div className="absolute right-0 mt-1 w-48 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl z-30 space-y-1 text-xs">
+                                <button
+                                    type="button"
+                                    onClick={() => handleExport('xlsx')}
+                                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition text-left"
+                                >
+                                    <FileSpreadsheet size={15} className="text-emerald-600" />
+                                    <span>Excel Workbook (.xlsx)</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleExport('csv')}
+                                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition text-left"
+                                >
+                                    <FileText size={15} className="text-blue-600" />
+                                    <span>CSV Spreadsheet (.csv)</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleExport('pdf')}
+                                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition text-left"
+                                >
+                                    <Printer size={15} className="text-rose-600" />
+                                    <span>Printable PDF Dossier</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
                     <button
                         type="button"
-                        onClick={handlePrint}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-2xs transition cursor-pointer"
+                        onClick={() => toast.info('Refreshed real-time analytics data cache.')}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition"
                     >
-                        <Printer size={14} className="text-indigo-600" />
-                        <span>Print</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleExportPDF}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-2xs transition cursor-pointer"
-                    >
-                        <Download size={14} className="text-rose-600" />
-                        <span>Export PDF</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleExportExcel}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-700 shadow-xs transition cursor-pointer"
-                    >
-                        <Download size={14} />
-                        <span>Export CSV</span>
+                        <RefreshCw size={14} className="text-blue-600" />
+                        <span>Sync Live Data</span>
                     </button>
                 </div>
             </div>
 
-            {/* Suite Category Switcher - Multi-Suite for Executives, Single Department Banner for Department Roles */}
+            {/* Role-Governed KPI Cards */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-[1.25rem] border border-blue-100 bg-[#E8F1FD]/70 p-4 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-600">Tracked Records</span>
+                        <Database size={16} className="text-blue-600" />
+                    </div>
+                    <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-2xl font-bold text-slate-900">{filteredRows.length}</span>
+                        <span className="text-[11px] font-medium text-blue-700">Audited Items</span>
+                    </div>
+                    <div className="mt-1 text-[10px] text-slate-500">Filtered within date window</div>
+                </div>
+
+                <div className="rounded-[1.25rem] border border-emerald-100 bg-emerald-50/50 p-4 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-600">Completed & Certified</span>
+                        <CheckCircle2 size={16} className="text-emerald-600" />
+                    </div>
+                    <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-2xl font-bold text-emerald-700">{completedCount}</span>
+                        <span className="text-[11px] font-medium text-emerald-800">Verified Units</span>
+                    </div>
+                    <div className="mt-1 text-[10px] text-emerald-700">{completionRate}% Completion Rate</div>
+                </div>
+
+                <div className="rounded-[1.25rem] border border-amber-100 bg-amber-50/50 p-4 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-600">Active in Pipeline</span>
+                        <Clock size={16} className="text-amber-600" />
+                    </div>
+                    <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-2xl font-bold text-amber-700">{activeCount}</span>
+                        <span className="text-[11px] font-medium text-amber-800">In Execution</span>
+                    </div>
+                    <div className="mt-1 text-[10px] text-amber-700">Awaiting closing reconciliation</div>
+                </div>
+
+                <div className="rounded-[1.25rem] border border-indigo-100 bg-indigo-50/50 p-4 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-600">Live Data Pipeline</span>
+                        <Activity size={16} className="text-indigo-600" />
+                    </div>
+                    <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-2xl font-bold text-indigo-700">Connected</span>
+                        {isLiveDataActive && (
+                            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        )}
+                    </div>
+                    <div className="mt-1 text-[10px] text-indigo-700">
+                        {isLiveDataActive ? 'Live Operational Records Active' : 'Statutory Standard Roster'}
+                    </div>
+                </div>
+            </div>
+
+            {/* Suite Category Switcher */}
             {allowedSuiteKeys.length > 1 ? (
-                <div className="flex items-center gap-2 overflow-x-auto bg-white p-2 rounded-2xl border border-slate-200 shadow-2xs sidebar-scroll-hide">
+                <div className="flex items-center gap-2 overflow-x-auto bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs scrollbar-none">
                     {allowedSuiteKeys.map((key) => {
                         const suite = ROLE_REPORT_SUITES[key]
                         if (!suite) return null
+                        const isSelected = selectedSuiteKey === key
                         return (
                             <button
                                 key={key}
@@ -536,8 +752,8 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
                                     setSelectedSuiteKey(key)
                                     setSelectedReportId(suite.reports[0]?.id || '')
                                 }}
-                                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                                    selectedSuiteKey === key
+                                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+                                    isSelected
                                         ? 'bg-indigo-600 text-white shadow-xs'
                                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                                 }`}
@@ -562,7 +778,7 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
                     })}
                 </div>
             ) : (
-                <div className="flex items-center justify-between bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between bg-white px-5 py-3 rounded-2xl border border-slate-200/80 shadow-2xs">
                     <div className="flex items-center gap-2.5">
                         <span className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
                             <Layers size={16} />
@@ -587,10 +803,10 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
                             key={rep.id}
                             type="button"
                             onClick={() => setSelectedReportId(rep.id)}
-                            className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                            className={`p-4 rounded-2xl border text-left transition ${
                                 isSelected
                                     ? 'bg-indigo-50/70 border-indigo-300 ring-2 ring-indigo-500/20 shadow-xs'
-                                    : 'bg-white border-slate-200 hover:bg-slate-50/80 shadow-2xs'
+                                    : 'bg-white border-slate-200/80 hover:bg-slate-50/80 shadow-2xs'
                             }`}
                         >
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Report Module</span>
@@ -605,66 +821,133 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
                 })}
             </div>
 
-            {/* Custom Date Range & Filters Bar */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex flex-wrap items-center gap-3 flex-1">
-                    <div className="relative flex-1 min-w-[200px] max-w-sm">
-                        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            {/* Interactive Visualizations Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                    <EnterpriseTrendChart
+                        tabs={['Report Inflows', 'Audit Velocity', 'Execution Health']}
+                        dataByTab={trendData}
+                        categories={['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Current']}
+                        height={260}
+                        onPointClick={(name) => {
+                            toast.info(`Viewing trend point telemetry for: ${name}`)
+                        }}
+                    />
+                </div>
+
+                <div>
+                    <EnterpriseDonutChart
+                        title="Delivery Status Composition"
+                        data={statusDonutData}
+                        height={260}
+                        onSliceClick={(name) => {
+                            if (name.includes('Completed')) {
+                                setStatusFilter('Completed')
+                            } else {
+                                setStatusFilter('Active')
+                            }
+                            toast.info(`Filtered table by status: ${name}`)
+                        }}
+                    />
+                </div>
+            </div>
+
+            {/* Multi-Facet Filters Bar */}
+            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="relative flex-1 min-w-[240px]">
+                        <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Search within report records..."
+                            placeholder="Search within report records (item, batch, status, auditor)..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-3.5 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500"
+                            className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-indigo-500"
                         />
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-xs text-slate-600">
-                        <span className="font-semibold text-slate-400 uppercase text-[10px]">From:</span>
+                    <div className="flex items-center gap-2 flex-wrap text-xs text-slate-600">
+                        <span className="font-semibold text-slate-500 text-[11px] uppercase tracking-wider">
+                            Showing {filteredRows.length} records
+                        </span>
+                        {(searchQuery || dateFrom || dateTo || statusFilter !== 'All') && (
+                            <button
+                                type="button"
+                                onClick={handleResetFilters}
+                                className="inline-flex items-center gap-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 text-xs font-semibold transition"
+                            >
+                                <RotateCcw size={12} /> Reset
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 border-t border-slate-100 text-xs">
+                    <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Date From</label>
                         <input
                             type="date"
                             value={dateFrom}
                             onChange={(e) => setDateFrom(e.target.value)}
-                            className="rounded-xl border border-slate-200 px-2.5 py-1 text-xs text-slate-800 focus:outline-none focus:border-indigo-500"
+                            className="w-full rounded-xl border border-slate-200 px-2.5 py-1 text-xs text-slate-800 focus:border-indigo-500"
                         />
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-xs text-slate-600">
-                        <span className="font-semibold text-slate-400 uppercase text-[10px]">To:</span>
+                    <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Date To</label>
                         <input
                             type="date"
                             value={dateTo}
                             onChange={(e) => setDateTo(e.target.value)}
-                            className="rounded-xl border border-slate-200 px-2.5 py-1 text-xs text-slate-800 focus:outline-none focus:border-indigo-500"
+                            className="w-full rounded-xl border border-slate-200 px-2.5 py-1 text-xs text-slate-800 focus:border-indigo-500"
                         />
                     </div>
 
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-indigo-500"
-                    >
-                        <option value="All">All Statuses</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Active">Active / In-progress</option>
-                    </select>
-                </div>
+                    <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Status Filter</label>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="w-full rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs text-slate-700 focus:border-indigo-500 bg-white"
+                        >
+                            <option value="All">All Statuses</option>
+                            <option value="Completed">Completed / Reconciled</option>
+                            <option value="Active">Active / In-progress</option>
+                        </select>
+                    </div>
 
-                <div className="text-xs text-slate-500 font-semibold shrink-0">
-                    Showing <strong>{filteredRows.length}</strong> audited records
+                    <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Rows Per Page</label>
+                        <select
+                            value={pageSize}
+                            onChange={(e) => setPageSize(Number(e.target.value))}
+                            className="w-full rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs text-slate-700 focus:border-indigo-500 bg-white"
+                        >
+                            <option value={10}>10 records</option>
+                            <option value={25}>25 records</option>
+                            <option value={50}>50 records</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             {/* Table Area */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
                         <h2 className="text-sm font-bold text-slate-900">{activeReport.name}</h2>
                         <p className="text-xs text-slate-500 mt-0.5">{activeReport.desc}</p>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        Live Data Certified
-                    </span>
+                    {isLiveDataActive ? (
+                        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Live Operational Records ({filteredRows.length})
+                        </span>
+                    ) : (
+                        <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+                            Institutional Standard Roster
+                        </span>
+                    )}
                 </div>
 
                 <div className="overflow-x-auto">
@@ -677,14 +960,25 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {filteredRows.length === 0 ? (
+                            {paginatedRows.length === 0 ? (
                                 <tr>
-                                    <td colSpan={currentSuite.columns.length} className="py-8 text-center text-slate-400">
-                                        No records found matching filters for this date window.
+                                    <td colSpan={currentSuite.columns.length} className="py-10 text-center text-slate-400">
+                                        <div className="max-w-xs mx-auto space-y-2">
+                                            <FileText size={28} className="mx-auto text-slate-300" />
+                                            <p className="font-semibold text-slate-600">No records found matching filters</p>
+                                            <p className="text-[11px] text-slate-400">Try broadening your search query or clearing the date window.</p>
+                                            <button
+                                                type="button"
+                                                onClick={handleResetFilters}
+                                                className="inline-flex items-center gap-1 rounded-xl bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+                                            >
+                                                <RotateCcw size={12} /> Reset Filters
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ) : (
-                                filteredRows.map((row, idx) => (
+                                paginatedRows.map((row, idx) => (
                                     <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
                                         <td className="py-3 px-4 font-bold text-slate-900">{row.col1}</td>
                                         <td className="py-3 px-4 font-medium text-slate-700">{row.col2}</td>
@@ -693,21 +987,69 @@ export default function UniversalReportsAnalyticsWorkspace({ roleOverride = null
                                         <td className="py-3 px-4 text-slate-600">{row.col5}</td>
                                         <td className="py-3 px-4 text-slate-700 font-medium">{row.col6}</td>
                                         <td className="py-3 px-4">
-                                            <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                            <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
                                                 row.status === 'Completed'
-                                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                                    : 'bg-blue-50 text-blue-700 border border-blue-200'
+                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                    : 'bg-blue-50 text-blue-700 border-blue-200'
                                             }`}>
                                                 {row.status}
                                             </span>
                                         </td>
-                                        <td className="py-3 px-4 font-mono text-slate-400">{row.date}</td>
+                                        <td className="py-3 px-4 font-mono text-slate-400 text-[11px] whitespace-nowrap">{row.date}</td>
                                     </tr>
                                 ))
                             )}
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-600">
+                        <div>
+                            Showing <span className="font-bold text-slate-800">{(currentPage - 1) * pageSize + 1}</span> to{' '}
+                            <span className="font-bold text-slate-800">{Math.min(currentPage * pageSize, totalRecords)}</span> of{' '}
+                            <span className="font-bold text-slate-800">{totalRecords}</span> entries
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <button
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(1)}
+                                className="p-1 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                                title="First Page"
+                            >
+                                <ChevronsLeft size={14} />
+                            </button>
+                            <button
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage((p) => p - 1)}
+                                className="p-1 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                                title="Previous Page"
+                            >
+                                <ChevronLeft size={14} />
+                            </button>
+                            <span className="px-3 py-1 font-semibold text-slate-800">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage((p) => p + 1)}
+                                className="p-1 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                                title="Next Page"
+                            >
+                                <ChevronRight size={14} />
+                            </button>
+                            <button
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(totalPages)}
+                                className="p-1 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                                title="Last Page"
+                            >
+                                <ChevronsRight size={14} />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

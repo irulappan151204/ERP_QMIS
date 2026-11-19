@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     Camera,
     Plus,
@@ -102,7 +103,7 @@ const CctvBusCameraMonitoring = () => {
     const handleAuditSubmit = async (e) => {
         e.preventDefault()
         if (!form.busNo || !form.inspectorName) {
-            alert('Please specify bus number and inspector.')
+            toast.warn('Please specify bus number and inspector.')
             return
         }
 
@@ -126,7 +127,7 @@ const CctvBusCameraMonitoring = () => {
                     inspectorName: 'S. Selvakumar',
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to submit camera audit'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to submit camera audit'}`)
             }
         } catch (err) {
             console.error('Error submitting camera audit:', err)

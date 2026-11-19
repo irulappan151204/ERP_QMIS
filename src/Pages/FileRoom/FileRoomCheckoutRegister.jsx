@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     ArrowRightLeft,
     Plus,
@@ -137,7 +138,7 @@ const FileRoomCheckoutRegister = () => {
         const file = e.target.files?.[0]
         if (!file) return
         if (file.size > 10 * 1024 * 1024) {
-            alert('File size exceeds 10MB limit.')
+            toast.error('File size exceeds 10MB limit.')
             return
         }
         setIssueForm((prev) => ({
@@ -154,7 +155,7 @@ const FileRoomCheckoutRegister = () => {
     const handleIssueSubmit = async (e) => {
         e.preventDefault()
         if (!issueForm.fileId || !issueForm.requestedByName || !issueForm.purpose) {
-            alert('Please fill in borrower name, purpose, and target file.')
+            toast.warn('Please fill in borrower name, purpose, and target file.')
             return
         }
 
@@ -184,11 +185,11 @@ const FileRoomCheckoutRegister = () => {
                 })
                 loadData()
             } else {
-                alert(`Error: ${res.error?.message || res.error || 'Failed to issue file'}`)
+                toast.error(`Error: ${res.error?.message || res.error || 'Failed to issue file'}`)
             }
         } catch (err) {
             console.error('Checkout error:', err)
-            alert('Checkout error occurred.')
+            toast.error('Checkout error occurred.')
         }
     }
 
@@ -211,14 +212,14 @@ const FileRoomCheckoutRegister = () => {
             }
         } catch (err) {
             console.error('Return error:', err)
-            alert('Failed to return file.')
+            toast.error('Failed to return file.')
         }
     }
 
     const handleInwardSubmit = async (e) => {
         e.preventDefault()
         if (!inwardForm.fileName || !inwardForm.receivedFrom || !inwardForm.department) {
-            alert('Please fill in file name, received from, and department.')
+            toast.warn('Please fill in file name, received from, and department.')
             return
         }
 

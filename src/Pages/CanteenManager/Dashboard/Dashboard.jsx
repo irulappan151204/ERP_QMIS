@@ -68,6 +68,7 @@ const Dashboard = () => {
 
     return (
         <section className='space-y-6 font-inter pb-8'>
+            <IntegrationNotice state='demo' title='Demonstration canteen operations ledger' description='Reference dashboard with order volumes, low-stock warnings and menu item sales stored in browser memory.' />
             {/* Header Banner */}
             <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs'>
                 <div className='flex items-center gap-3.5'>

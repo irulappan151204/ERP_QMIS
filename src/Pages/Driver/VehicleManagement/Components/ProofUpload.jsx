@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react'
+import { toast } from 'react-toastify'
 import { FileUp } from 'lucide-react'
 
 const ProofUpload = ({
@@ -22,12 +23,12 @@ const ProofUpload = ({
         if (!file) return
 
         if (!SUPPORTED_FORMATS.includes(file.type)) {
-            alert('Unsupported format. Please upload PDF, JPG, or PNG.')
+            toast.warn('Unsupported format. Please upload PDF, JPG, or PNG.')
             return
         }
 
         if (file.size > maxSizeMb * 1024 * 1024) {
-            alert(`File size exceeds ${maxSizeMb}MB limit.`)
+            toast.error(`File size exceeds ${maxSizeMb}MB limit.`)
             return
         }
 

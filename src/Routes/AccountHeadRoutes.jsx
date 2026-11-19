@@ -9,7 +9,7 @@ import Collections from '../Pages/AccountHead/Collections/Collections'
 import WalletManagement from '../Pages/AccountHead/WalletManagement/WalletManagement'
 import Accounting from '../Pages/AccountHead/Accounting/Accounting'
 import Approvals from '../Pages/AccountHead/Approvals/Approvals'
-import ReportsAnalytics from '../Pages/AccountHead/ReportsAnalytics/ReportsAnalytics'
+import UniversalReportsAnalyticsWorkspace from '../Common/ReportsAnalytics/UniversalReportsAnalyticsWorkspace'
 import Settings from '../Pages/AccountHead/Settings/Settings'
 import { TaskManagementRoutes } from '../Common/TaskManagement/TaskManagementRoutes'
 import { BookFeePage, BudgetPage, FeeProjectionPanel, MfpPlaceholder } from '../Common/demoDomain/DemoScreens'
@@ -27,7 +27,8 @@ const AccountHeadRoutes = () => {
             <Route path="/account-head/accounting" element={<Navigate to="/account-head/accounting/day-book" replace />} />
             <Route path="/account-head/accounting/:section" element={<Accounting />} />
             <Route path="/account-head/approvals" element={<Approvals />} />
-            <Route path="/account-head/reports-analytics" element={<ReportsAnalytics />} />
+            <Route path="/account-head/reports-analytics" element={<UniversalReportsAnalyticsWorkspace roleOverride="accounthead" />} />
+            <Route path="/account-head/reports" element={<UniversalReportsAnalyticsWorkspace roleOverride="accounthead" />} />
             <Route path="/account-head/settings" element={<Settings />} />
             <Route path="/account-head/pos-sync" element={<PosEdcSyncWorkspace />} />
             <Route path="/account-head/payment-vouchers" element={<PaymentVouchers />} />

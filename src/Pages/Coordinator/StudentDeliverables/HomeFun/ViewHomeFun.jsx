@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
+import { toast } from 'react-toastify'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Eye, FileUp, Upload } from 'lucide-react'
 import pdf_icon from '../../../../assets/images/pdf-icon.png'
@@ -89,12 +90,12 @@ const StudentSubmissionSection = ({ record }) => {
 
         const supported = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf']
         if (!supported.includes(file.type)) {
-            alert('Unsupported format. Please upload PDF, JPG, or PNG.')
+            toast.warn('Unsupported format. Please upload PDF, JPG, or PNG.')
             return
         }
 
         if (file.size > 5 * 1024 * 1024) {
-            alert('File size exceeds 5MB limit.')
+            toast.error('File size exceeds 5MB limit.')
             return
         }
 
@@ -107,7 +108,7 @@ const StudentSubmissionSection = ({ record }) => {
     const handleSubmit = (event) => {
         event.preventDefault()
         if (!fileData) {
-            alert('Please upload your assignment file before submitting.')
+            toast.warn('Please upload your assignment file before submitting.')
             return
         }
 

@@ -5,7 +5,6 @@ import { EnterpriseOperationsRoutes } from './EnterpriseOperationsRoutes'
 import { TaskManagementRoutes } from '../Common/TaskManagement/TaskManagementRoutes'
 import DepartmentTicketingWorkspace from '../Common/DepartmentTicketing/DepartmentTicketingWorkspace'
 import Dashboard from '../Pages/ITSupportManager/Dashboard/Dashboard'
-import AssetManagement from '../Pages/ITSupportManager/AssetManagement/AssetManagement'
 import AddAsset from '../Pages/ITSupportManager/AssetManagement/AddAsset'
 import ViewAsset from '../Pages/ITSupportManager/AssetManagement/ViewAsset'
 import SupportTicketsList from '../Pages/ITSupportManager/SupportTickets/SupportTicketsList'
@@ -13,23 +12,25 @@ import ViewSupportTicket from '../Pages/ITSupportManager/SupportTickets/ViewSupp
 import RequestsApprovalsList from '../Pages/ITSupportManager/RequestsApprovals/RequestsApprovalsList'
 import AddRequest from '../Pages/ITSupportManager/RequestsApprovals/AddRequest'
 import ViewRequest from '../Pages/ITSupportManager/RequestsApprovals/ViewRequest'
-import Reports from '../Pages/ITSupportManager/Reports/Reports'
+import UniversalReportsAnalyticsWorkspace from '../Common/ReportsAnalytics/UniversalReportsAnalyticsWorkspace'
 import AnnouncementList from '../Pages/ITSupportManager/Announcement/AnnouncementList'
 import ViewAnnouncement from '../Pages/ITSupportManager/Announcement/ViewAnnouncement'
 import AddAnnouncement from '../Pages/ITSupportManager/Announcement/AddAnnouncement'
-import MaintenanceInventory from '../Pages/ITSupportManager/MaintenanceInventory/MaintenanceInventory'
-import StoresProcurementWorkspace from '../Common/StoresProcurement/StoresProcurementWorkspace'
-import UnavailableWorkflowPage from '../Common/ui/UnavailableWorkflowPage'
+import PurchaseWorkflowWorkspace from '../Common/Procurement/PurchaseWorkflowWorkspace'
+import StoreRequisitionWorkspace from '../Common/StoresProcurement/StoreRequisitionWorkspace'
+import AssetManagementWorkspace from '../Common/AssetManagement/AssetManagementWorkspace'
+import MaintenanceInventoryWorkspace from '../Common/MaintenanceInventory/MaintenanceInventoryWorkspace'
 
 const ITSupportManagerRoutes = () => {
     return (
         <ReactRoutes>
             <Route path="/it-support-manager/dashboard" element={<Dashboard />} />
-            <Route path="/it-support-manager/maintenance-inventory" element={<MaintenanceInventory />} />
-            <Route path="/it-support-manager/asset-management" element={<AssetManagement />} />
+            <Route path="/it-support-manager/maintenance-inventory" element={<MaintenanceInventoryWorkspace roleOverride="it-support-manager" />} />
+            <Route path="/it-support-manager/asset-management" element={<AssetManagementWorkspace roleOverride="it-support-manager" />} />
             <Route path="/it-support-manager/asset-management/add-asset" element={<AddAsset />} />
             <Route path="/it-support-manager/asset-management/view-asset/:id" element={<ViewAsset />} />
-            <Route path="/it-support-manager/purchase-workflow" element={<StoresProcurementWorkspace defaultTab="purchase-orders" roleOverride="it-support-manager" />} />
+            <Route path="/it-support-manager/purchase-workflow" element={<PurchaseWorkflowWorkspace roleOverride="it-support-manager" />} />
+            <Route path="/it-support-manager/store-requests" element={<StoreRequisitionWorkspace roleOverride="it-support-manager" />} />
             
             {/* IT Service Desk / Support Tickets */}
             <Route path="/it-support-manager/support-tickets" element={<DepartmentTicketingWorkspace roleOverride="it-support-manager" defaultTab="department-queue" />} />
@@ -37,7 +38,8 @@ const ITSupportManagerRoutes = () => {
             <Route path="/it-support-manager/requests-approvals" element={<RequestsApprovalsList />} />
             <Route path="/it-support-manager/requests-approvals/add-request" element={<AddRequest />} />
             <Route path="/it-support-manager/requests-approvals/view-request/:id" element={<ViewRequest />} />
-            <Route path="/it-support-manager/reports" element={<Reports />} />
+            <Route path="/it-support-manager/reports" element={<UniversalReportsAnalyticsWorkspace roleOverride="it-support-manager" />} />
+            <Route path="/it-support-manager/reports-analytics" element={<UniversalReportsAnalyticsWorkspace roleOverride="it-support-manager" />} />
             <Route path="/it-support-manager/broadcast" element={<AnnouncementList />} />
             <Route path="/it-support-manager/broadcast/view-broadcast/:id" element={<ViewAnnouncement />} />
             <Route path="/it-support-manager/broadcast/add-broadcast" element={<AddAnnouncement />} />

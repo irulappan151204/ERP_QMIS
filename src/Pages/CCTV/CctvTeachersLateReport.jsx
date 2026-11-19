@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     Clock,
     Plus,
@@ -110,7 +111,7 @@ const CctvTeachersLateReport = () => {
     const handleCreateSubmit = async (e) => {
         e.preventDefault()
         if (!form.teacherName.trim() || !form.shiftInTime || !form.actualArrivalTime) {
-            alert('Please fill in teacher name, shift time, and arrival time.')
+            toast.warn('Please fill in teacher name, shift time, and arrival time.')
             return
         }
 
@@ -136,7 +137,7 @@ const CctvTeachersLateReport = () => {
                     status: 'Logged',
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to log late report'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to log late report'}`)
             }
         } catch (err) {
             console.error('Error logging late report:', err)
@@ -145,7 +146,7 @@ const CctvTeachersLateReport = () => {
 
     const exportToCsv = () => {
         if (filteredReports.length === 0) {
-            alert('No records available to export.')
+            toast.warn('No records available to export.')
             return
         }
 

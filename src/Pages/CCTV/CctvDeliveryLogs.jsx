@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     History,
     Download,
@@ -72,7 +73,7 @@ const CctvDeliveryLogs = () => {
                 setDeliverModal(null)
                 loadData()
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to deliver clip'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to deliver clip'}`)
             }
         } catch (err) {
             console.error('Clip delivery error:', err)

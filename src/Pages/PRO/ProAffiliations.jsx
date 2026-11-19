@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     Award,
     Plus,
@@ -86,7 +87,7 @@ const ProAffiliations = () => {
     const handleCreateSubmit = async (e) => {
         e.preventDefault()
         if (!form.affiliationCode || !form.validityStartDate || !form.validityEndDate) {
-            alert('Please fill in required fields.')
+            toast.warn('Please fill in required fields.')
             return
         }
 
@@ -98,11 +99,11 @@ const ProAffiliations = () => {
                 setFeedbackMessage(`Affiliation ${res.data.affiliationCode} successfully saved.`)
                 setTimeout(() => setFeedbackMessage(''), 4000)
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to save affiliation'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to save affiliation'}`)
             }
         } catch (err) {
             console.error('Failed to create affiliation:', err)
-            alert('Error creating affiliation record.')
+            toast.error('Error creating affiliation record.')
         }
     }
 

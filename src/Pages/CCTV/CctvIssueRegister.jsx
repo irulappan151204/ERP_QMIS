@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     AlertTriangle,
     Plus,
@@ -121,7 +122,7 @@ const CctvIssueRegister = () => {
     const handleCreateSubmit = async (e) => {
         e.preventDefault()
         if (!form.zone || !form.defectCategory || !form.severity) {
-            alert('Please select zone, defect category, and severity.')
+            toast.warn('Please select zone, defect category, and severity.')
             return
         }
 
@@ -145,7 +146,7 @@ const CctvIssueRegister = () => {
                     notes: '',
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to report defect'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to report defect'}`)
             }
         } catch (err) {
             console.error('Error logging issue:', err)
@@ -175,7 +176,7 @@ const CctvIssueRegister = () => {
                 setFeedbackMessage(`Issue ${res.data.id} updated to status: ${res.data.status}`)
                 setTimeout(() => setFeedbackMessage(''), 4000)
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to update issue'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to update issue'}`)
             }
         } catch (err) {
             console.error('Error updating issue status:', err)

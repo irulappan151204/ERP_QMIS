@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     Activity,
     FileText,
@@ -139,7 +140,7 @@ const FileRoomReportsActivity = () => {
     // CSV Download
     const exportCSV = () => {
         if (activeTab === 'ACTIVITY') {
-            if (!activities.length) return alert('No activity logs to export.')
+            if (!activities.length) return toast.warn('No activity logs to export.')
             const headers = ['Timestamp', 'Action', 'File Ref', 'Document Title', 'Actor', 'Department', 'Details']
             const rows = activities.map((a) => [
                 `"${a.timestamp}"`,
@@ -152,7 +153,7 @@ const FileRoomReportsActivity = () => {
             ])
             downloadCsvBlob(headers, rows, 'FileRoom_Activity_Audit_Log')
         } else {
-            if (!reportFiles.length) return alert('No files to export.')
+            if (!reportFiles.length) return toast.warn('No files to export.')
             const headers = ['Barcode', 'Document Title', 'Category', 'Owner Dept', 'Storage Location', 'Security Tier', 'Status', 'Registered Date']
             const rows = reportFiles.map((f) => {
                 const loc = f.storageLocation || {}

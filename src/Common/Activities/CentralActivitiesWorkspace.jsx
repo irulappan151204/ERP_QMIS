@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { toast } from 'react-toastify'
 import {
     Trophy,
     Palette,
@@ -175,7 +176,7 @@ export default function CentralActivitiesWorkspace({ defaultCategory = 'all', ro
     const handleCreateActivity = (e) => {
         e.preventDefault()
         if (!newActivity.eventName.trim() || !newActivity.venue.trim()) {
-            alert('Please enter activity title and venue.')
+            toast.warn('Please enter activity title and venue.')
             return
         }
 

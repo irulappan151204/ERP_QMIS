@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     ShieldCheck,
     Plus,
@@ -101,7 +102,7 @@ const CctvOperationalStatus = () => {
     const handleLogSubmit = async (e) => {
         e.preventDefault()
         if (!form.checkDate || !form.shift || !form.inspectorName) {
-            alert('Please fill in check date, shift, and inspector name.')
+            toast.warn('Please fill in check date, shift, and inspector name.')
             return
         }
 
@@ -136,7 +137,7 @@ const CctvOperationalStatus = () => {
                 setFeedbackMessage(`Operational shift check logged successfully. Status: ${res.data.status}`)
                 setTimeout(() => setFeedbackMessage(''), 4000)
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to log daily check'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to log daily check'}`)
             }
         } catch (err) {
             console.error('Check submission failed:', err)
@@ -170,7 +171,7 @@ const CctvOperationalStatus = () => {
                 setFeedbackMessage(`Anomaly marked as rectified successfully. Check status updated to: ${res.data.status}`)
                 setTimeout(() => setFeedbackMessage(''), 4000)
             } else {
-                alert(`Error: ${res.error || 'Failed to resolve anomaly'}`)
+                toast.error(`Error: ${res.error || 'Failed to resolve anomaly'}`)
             }
         } catch (err) {
             console.error('Resolution submission failed:', err)

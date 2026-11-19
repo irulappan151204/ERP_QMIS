@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Plus } from 'lucide-react'
-import { DataTable, DataToolbar, IntegrationNotice, StatusBadge } from '../../../Common/ui'
+import { Plus, Download } from 'lucide-react'
+import { DataTable, DataToolbar, IntegrationNotice, StatusBadge, exportDataset } from '../../../Common/ui'
 import { ASSET_CATEGORIES, getAssets, STATUS_OPTIONS } from './assetData'
 
 const selectClass = 'min-h-10 rounded-lg border border-[var(--erp-line-strong)] bg-white px-3 text-sm text-[var(--erp-ink)]'
@@ -29,6 +29,25 @@ const AssetManagement = () => {
         { key: 'status', label: 'Status', render: (asset) => <StatusBadge status={asset.status} /> },
     ]
     const reset = () => { setQuery(''); setCategory(''); setStatus('') }
+    const handleExport = (format) => {
+        exportDataset({
+            format,
+            filename: `IT_Asset_Register_${new Date().toISOString().slice(0, 10)}`,
+            columns: [
+                { key: 'assetId', label: 'Asset ID' },
+                { key: 'assetName', label: 'Asset Name' },
+                { key: 'category', label: 'Category' },
+                { key: 'department', label: 'Location / Department' },
+                { key: 'custodian', label: 'Custodian' },
+                { key: 'serialNumber', label: 'Serial Number' },
+                { key: 'warrantyExpiry', label: 'Warranty Expiry' },
+                { key: 'status', label: 'Status' }
+            ],
+            data: filtered,
+            moduleName: 'ITAssetManagement'
+        })
+    }
+
     return (
         <section className='space-y-5'>
             <IntegrationNotice state='demo' title='Browser-stored asset register' description='Asset locations, custodians and lifecycle states are local demonstration records. Production updates require the asset API, authorization and immutable transfer history.' />

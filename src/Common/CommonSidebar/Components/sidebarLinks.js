@@ -905,7 +905,7 @@ export const librarianSidebarLinks = [
     {
         id: 11,
         title: "Request Product from Store",
-        to: "/librarian/stores-procurement",
+        to: "/librarian/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -1028,7 +1028,7 @@ export const gateKeeperSidebarLinks = [
     {
         id: 17,
         title: "Request Product from Store",
-        to: "/gate-keeper/stores-procurement",
+        to: "/gate-keeper/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -1127,7 +1127,7 @@ export const gateKeeperManagerSidebarLinks = [
     {
         id: 11,
         title: "Request Product from Store",
-        to: "/gatekeeper-manager/stores-procurement",
+        to: "/gatekeeper-manager/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -1208,7 +1208,7 @@ export const canteenManagerSidebarLinks = [
     {
         id: 8,
         title: "Request Product from Store",
-        to: "/canteen-manager/stores-procurement",
+        to: "/canteen-manager/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -1295,7 +1295,7 @@ export const itSupportManagerSidebarLinks = [
     {
         id: 9,
         title: "Request Product from Store",
-        to: "/it-support-manager/stores-procurement",
+        to: "/it-support-manager/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -1345,13 +1345,13 @@ export const stationeryStoreManagerSidebarLinks = [
     },
     {
         id: 3,
-        title: "Issue & Returns",
+        title: "Store Requests & Issues",
         to: "/stationery-store-manager/issue-returns",
         icon: ArrowRightLeft,
     },
     {
         id: 4,
-        title: "Requests & Approvals",
+        title: "Department Indents",
         to: "/stationery-store-manager/requests-approvals",
         icon: ClipboardCheck,
     },
@@ -1387,7 +1387,7 @@ export const stationeryStoreManagerSidebarLinks = [
     },
     {
         id: 10,
-        title: "Purchase Workflow",
+        title: "Purchase Orders (Vendor PO)",
         to: "/stationery-store-manager/purchase-workflow",
         icon: ClipboardCheck,
     },
@@ -1523,7 +1523,7 @@ export const housekeepingManagerSidebarLinks = [
     {
         id: 14,
         title: "Request Product from Store",
-        to: "/housekeeping-manager/stores-procurement",
+        to: "/housekeeping-manager/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -1622,7 +1622,7 @@ export const maintenanceManagerSidebarLinks = [
     {
         id: 15,
         title: "Request Product from Store",
-        to: "/maintenance-manager/stores-procurement",
+        to: "/maintenance-manager/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -1722,7 +1722,7 @@ export const teacherSidebarLinks = [
     {
         id: 22,
         title: "Request Product from Store",
-        to: "/teacher/stores-procurement",
+        to: "/teacher/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -1871,7 +1871,7 @@ export const coordinatorSidebarLinks = [
     {
         id: 21,
         title: "Request Product from Store",
-        to: "/coordinator/stores-procurement",
+        to: "/coordinator/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -1994,7 +1994,7 @@ export const transportManagerSidebarLinks = [
     {
         id: 17,
         title: "Request Product from Store",
-        to: "/transport-manager/stores-procurement",
+        to: "/transport-manager/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -2127,7 +2127,7 @@ export const jointDirectorSidebarLinks = [
     {
         id: 14,
         title: "Request Product from Store",
-        to: "/joint-director/stores-procurement",
+        to: "/joint-director/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -2264,7 +2264,7 @@ export const jointDirectorAssistantSidebarLinks = [
     {
         id: 13,
         title: "Request Product from Store",
-        to: "/joint-director-assistant/stores-procurement",
+        to: "/joint-director-assistant/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -2406,7 +2406,7 @@ export const jointDirectorAuditSidebarLinks = [
     {
         id: "jda-store",
         title: "Request Product from Store",
-        to: "/joint-director-audit/stores-procurement",
+        to: "/joint-director-audit/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -2508,7 +2508,7 @@ export const processAuditorSidebarLinks = [
     {
         id: "pa-store",
         title: "Request Product from Store",
-        to: "/process-auditor/stores-procurement",
+        to: "/process-auditor/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -2610,7 +2610,7 @@ export const qualityAuditorSidebarLinks = [
     {
         id: "qa-store",
         title: "Request Product from Store",
-        to: "/quality-auditor/stores-procurement",
+        to: "/quality-auditor/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -2679,7 +2679,7 @@ export const hrSidebarLinks = [
     { id: 10, title: "Exit Formalities", to: "/hr/exit", icon: DoorOpen },
     { id: 11, title: "Reports", to: "/hr/reports", icon: BarChart3 },
     { id: 12, title: "Announcements", to: "/hr/announcements", icon: Rss },
-    { id: 13, title: "Request Product from Store", to: "/hr/stores-procurement", icon: ShoppingCart },
+    { id: 13, title: "Request Product from Store", to: "/hr/store-requests", icon: ShoppingCart },
     { id: 14, title: "Audit Observations", to: "/hr/audit-observations", icon: ShieldCheck },
     { id: 15, title: "Staff Relieving & NOC", to: "/hr/relieving-request", icon: FileText },
     { id: 16, title: "Lost & Found", to: "/hr/lost-and-found", icon: Archive },
@@ -2792,7 +2792,7 @@ export const accountHeadSidebarLinks = [
     {
         id: 16,
         title: "Request Product from Store",
-        to: "/account-head/stores-procurement",
+        to: "/account-head/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -3001,7 +3001,7 @@ export const directorSidebarLinks = [
     {
         id: 18,
         title: "Request Product from Store",
-        to: "/director/stores-procurement",
+        to: "/director/store-requests",
         icon: ShoppingCart,
     },
     {
@@ -3162,7 +3162,7 @@ export const principalSidebarLinks = [
     {
         id: 16,
         title: "Request Product from Store",
-        to: "/principal/stores-procurement",
+        to: "/principal/store-requests",
         icon: ShoppingCart,
     },
     {

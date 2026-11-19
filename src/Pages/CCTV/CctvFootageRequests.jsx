@@ -108,7 +108,7 @@ const CctvFootageRequests = () => {
     const handleCreateRequest = async (e) => {
         e.preventDefault()
         if (!form.incidentDate || !form.justificationText || form.cameraIds.length === 0) {
-            alert('Please fill in required fields.')
+            toast.warn('Please fill in required fields.')
             return
         }
 
@@ -135,7 +135,7 @@ const CctvFootageRequests = () => {
                     isSensitive: false,
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to submit request'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to submit request'}`)
             }
         } catch (err) {
             console.error('Error submitting footage request:', err)
@@ -165,7 +165,7 @@ const CctvFootageRequests = () => {
                 setReviewerName('')
                 loadData()
             } else {
-                alert(`Approval Error: ${res.error?.message || 'Failed to process tier approval'}`)
+                toast.error(`Approval Error: ${res.error?.message || 'Failed to process tier approval'}`)
             }
         } catch (err) {
             console.error('Approval tier submission failed:', err)
@@ -232,7 +232,7 @@ const CctvFootageRequests = () => {
                         type='button'
                         onClick={(e) => {
                             e.stopPropagation()
-                            alert(`Supporting Attachment:\nFilename: ${row.attachmentFileName}\nAssociated with Requisition ${row.id}`)
+                            toast.info(`Supporting Attachment:\nFilename: ${row.attachmentFileName}\nAssociated with Requisition ${row.id}`)
                         }}
                         className='inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-800 text-[11px] font-medium transition-colors'
                         title={`Click to view ${row.attachmentFileName}`}

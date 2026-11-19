@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     ShieldAlert,
     Clock,
@@ -145,7 +146,7 @@ const FileRoomRetentionAudit = () => {
 
         const isPermanent = disposalModalFile.retentionRule === 'Permanent Archival'
         if (isPermanent && !disposalForm.permanentOverrideAuthorized) {
-            alert('Cannot execute disposal: Permanent Archival files require explicit Board of Management & Managing Director dual authorization.')
+            toast.error('Cannot execute disposal: Permanent Archival files require explicit Board of Management & Managing Director dual authorization.')
             return
         }
 
@@ -175,11 +176,11 @@ const FileRoomRetentionAudit = () => {
                 loadData()
                 setViewCertificate(res.data)
             } else {
-                alert(`Error: ${res.error?.message || res.error || 'Failed to execute disposal'}`)
+                toast.error(`Error: ${res.error?.message || res.error || 'Failed to execute disposal'}`)
             }
         } catch (err) {
             console.error('Disposal execution failed:', err)
-            alert('Failed to execute archival disposal.')
+            toast.error('Failed to execute archival disposal.')
         }
     }
 

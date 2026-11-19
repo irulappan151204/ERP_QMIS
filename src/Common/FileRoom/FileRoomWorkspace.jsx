@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { toast } from 'react-toastify'
 import { useParams } from 'react-router-dom'
 import ViewRecordModal from '../CommonComponents/ViewRecordModal'
 import {
@@ -312,7 +313,7 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
             setIsInwardModalOpen(false)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to inward file')
         }
     }
 
@@ -336,7 +337,7 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
             setSelectedFileForIssue(null)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to issue file')
         }
     }
 
@@ -356,7 +357,7 @@ export default function FileRoomWorkspace({ defaultTab = 'overview', roleOverrid
             setSelectedRecordForReturn(null)
             setRefreshKey((k) => k + 1)
         } catch (err) {
-            alert(err.message)
+            toast.error(err.message || 'Failed to return file')
         }
     }
 

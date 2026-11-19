@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     Volume2,
     Plus,
@@ -104,7 +105,7 @@ const CctvPaAnnouncements = () => {
     const handleCreateSubmit = async (e) => {
         e.preventDefault()
         if (!form.message.trim() || form.targetZones.length === 0) {
-            alert('Please provide announcement script/message and select at least one audio zone.')
+            toast.warn('Please provide announcement script/message and select at least one audio zone.')
             return
         }
 
@@ -126,7 +127,7 @@ const CctvPaAnnouncements = () => {
                     isEmergency: false,
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to broadcast PA announcement'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to broadcast PA announcement'}`)
             }
         } catch (err) {
             console.error('Error creating PA announcement:', err)

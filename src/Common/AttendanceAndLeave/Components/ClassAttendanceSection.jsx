@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { toast } from 'react-toastify'
 import {
     Users,
     CheckCircle2,
@@ -105,7 +106,7 @@ export default function ClassAttendanceSection({ roleKey = 'teacher', currentUse
     // Bulk apply status to selected students
     const handleApplyBulkStatus = () => {
         if (selectedIds.length === 0) {
-            alert('Please select at least one student to update status.')
+            toast.warn('Please select at least one student to update status.')
             return
         }
 

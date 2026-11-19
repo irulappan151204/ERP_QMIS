@@ -182,7 +182,7 @@ const FileRoomRepository = () => {
         const file = e.target.files?.[0]
         if (!file) return
         if (file.size > 10 * 1024 * 1024) {
-            alert('File size exceeds 10MB limit.')
+            toast.error('File size exceeds 10MB limit.')
             return
         }
         setForm((prev) => ({
@@ -199,7 +199,7 @@ const FileRoomRepository = () => {
     const handleRegisterSubmit = async (e) => {
         e.preventDefault()
         if (!form.fileRefNo || !form.fileName || !form.category || !form.ownerDepartment) {
-            alert('Please provide all mandatory file fields.')
+            toast.warn('Please provide all mandatory file fields.')
             return
         }
 
@@ -232,11 +232,11 @@ const FileRoomRepository = () => {
                     attachment: null,
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to register file'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to register file'}`)
             }
         } catch (err) {
             console.error('File registration failed:', err)
-            alert('File registration failed.')
+            toast.error('File registration failed.')
         }
     }
 

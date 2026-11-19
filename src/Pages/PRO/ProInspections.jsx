@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     CheckCircle2,
     Plus,
@@ -86,7 +87,7 @@ const ProInspections = () => {
     const handleCreateInspection = async (e) => {
         e.preventDefault()
         if (!form.inspectingBody || !form.inspectionDate || !form.purpose) {
-            alert('Please fill in required fields.')
+            toast.warn('Please fill in required fields.')
             return
         }
 
@@ -109,11 +110,11 @@ const ProInspections = () => {
                     reportAttachmentUrl: '',
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to save inspection'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to save inspection'}`)
             }
         } catch (err) {
             console.error('Failed to create inspection:', err)
-            alert('Error logging inspection.')
+            toast.error('Error logging inspection.')
         }
     }
 

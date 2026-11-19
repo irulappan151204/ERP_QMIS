@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import {
     FileText,
     Plus,
@@ -106,7 +107,7 @@ const ProCorrespondence = () => {
     const handleRegisterSubmit = async (e) => {
         e.preventDefault()
         if (!form.referenceNumber || !form.subject || !form.governmentDepartment) {
-            alert('Please provide reference number, subject, and government department.')
+            toast.warn('Please provide reference number, subject, and government department.')
             return
         }
 
@@ -132,11 +133,11 @@ const ProCorrespondence = () => {
                     escalationLevel: 'Normal',
                 })
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to create correspondence'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to create correspondence'}`)
             }
         } catch (err) {
             console.error('Registration failed:', err)
-            alert('Failed to register correspondence.')
+            toast.error('Failed to register correspondence.')
         }
     }
 

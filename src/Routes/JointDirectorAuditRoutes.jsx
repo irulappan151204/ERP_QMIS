@@ -11,7 +11,7 @@ import AuditMonitoringList from '../Pages/JointDirectorAudit/AuditMonitoring/Aud
 import ViewAuditMonitoring from '../Pages/JointDirectorAudit/AuditMonitoring/ViewAuditMonitoring'
 import FindingsComplianceList from '../Pages/JointDirectorAudit/FindingsCompliance/FindingsComplianceList'
 import ViewFinding from '../Pages/JointDirectorAudit/FindingsCompliance/ViewFinding'
-import ReportsAnalytics from '../Pages/JointDirectorAudit/ReportsAnalytics/ReportsAnalytics'
+import UniversalReportsAnalyticsWorkspace from '../Common/ReportsAnalytics/UniversalReportsAnalyticsWorkspace'
 import { TaskManagementRoutes } from '../Common/TaskManagement/TaskManagementRoutes'
 import ViewEmployeeProfile from '../Pages/JointDirectorAudit/EmployeeManagement/ViewEmployeeProfile'
 import RequestApprovals from '../Pages/JointDirectorAudit/RequestApprovals/RequestApprovals'
@@ -66,7 +66,8 @@ const JointDirectorAuditRoutes = () => {
             <Route path="/joint-director-audit/audit-monitoring/view/:id" element={<ViewAuditMonitoring />} />
             <Route path="/joint-director-audit/findings-compliance" element={<FindingsComplianceList />} />
             <Route path="/joint-director-audit/findings-compliance/view/:id" element={<ViewFinding />} />
-            <Route path="/joint-director-audit/reports-analytics" element={<ReportsAnalytics />} />
+            <Route path="/joint-director-audit/reports-analytics" element={<UniversalReportsAnalyticsWorkspace roleOverride="joint-director-audit" />} />
+            <Route path="/joint-director-audit/reports" element={<UniversalReportsAnalyticsWorkspace roleOverride="joint-director-audit" />} />
             {TaskManagementRoutes({ basePath: '/joint-director-audit' })}
             <Route path="/joint-director-audit/employee-management/:roleKey" element={<ViewEmployeeProfile />} />
             <Route path="/joint-director-audit/employee-management" element={<Navigate to="/joint-director-audit/employee-management/hr-manager" replace />} />

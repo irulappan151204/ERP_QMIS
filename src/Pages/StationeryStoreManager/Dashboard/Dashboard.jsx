@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import {
     AlertTriangle,
     ArrowDownToLine,
@@ -219,7 +220,7 @@ const Dashboard = () => {
                 open={requestModalOpen}
                 onClose={() => setRequestModalOpen(false)}
                 onSubmitSuccess={(newReq) => {
-                    alert(`Store Request ${newReq.requestId} submitted successfully.`)
+                    toast.success(`Store Request ${newReq.requestId} submitted successfully.`)
                 }}
             />
         </section>

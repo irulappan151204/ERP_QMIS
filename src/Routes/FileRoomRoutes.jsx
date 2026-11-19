@@ -7,7 +7,7 @@ import FileRoomCheckoutRegister from '../Pages/FileRoom/FileRoomCheckoutRegister
 import FileRoomAccessApprovals from '../Pages/FileRoom/FileRoomAccessApprovals'
 import FileRoomMovementLogs from '../Pages/FileRoom/FileRoomMovementLogs'
 import FileRoomRetentionAudit from '../Pages/FileRoom/FileRoomRetentionAudit'
-import FileRoomReportsActivity from '../Pages/FileRoom/FileRoomReportsActivity'
+import UniversalReportsAnalyticsWorkspace from '../Common/ReportsAnalytics/UniversalReportsAnalyticsWorkspace'
 import EscalationListPage from '../Common/EscalationManagement/EscalationListPage'
 import AddEscalationPage from '../Common/EscalationManagement/AddEscalationPage'
 import ViewEscalationPage from '../Common/EscalationManagement/ViewEscalationPage'
@@ -24,9 +24,10 @@ const FileRoomRoutes = () => {
             <Route path="/file-room/access-approvals" element={<FileRoomAccessApprovals />} />
             <Route path="/file-room/movement-logs" element={<FileRoomMovementLogs />} />
             <Route path="/file-room/retention-audit" element={<FileRoomRetentionAudit />} />
-            <Route path="/file-room/reports-activity" element={<FileRoomReportsActivity />} />
-            <Route path="/file-room/activity-reports" element={<FileRoomReportsActivity />} />
-            <Route path="/file-room/reports" element={<FileRoomReportsActivity />} />
+            <Route path="/file-room/reports" element={<UniversalReportsAnalyticsWorkspace roleOverride="file-room" />} />
+            <Route path="/file-room/reports-activity" element={<UniversalReportsAnalyticsWorkspace roleOverride="file-room" />} />
+            <Route path="/file-room/activity-reports" element={<UniversalReportsAnalyticsWorkspace roleOverride="file-room" />} />
+            <Route path="/file-room/reports-analytics" element={<UniversalReportsAnalyticsWorkspace roleOverride="file-room" />} />
             <Route path="/file-room/attendance-and-leave" element={<AttendanceAndLeaveWorkspace defaultTab="overview" />} />
             <Route path="/file-room/escalation-management" element={<EscalationListPage roleKey="fileroom" />} />
             <Route path="/file-room/escalation-management/add-escalation" element={<AddEscalationPage roleKey="fileroom" />} />

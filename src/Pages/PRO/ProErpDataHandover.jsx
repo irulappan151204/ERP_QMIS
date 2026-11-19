@@ -103,7 +103,7 @@ const ProErpDataHandover = () => {
         const file = e.target.files?.[0]
         if (!file) return
         if (file.size > 10 * 1024 * 1024) {
-            alert('File size exceeds 10MB limit.')
+            toast.error('File size exceeds 10MB limit.')
             return
         }
         setForm((prev) => ({
@@ -120,7 +120,7 @@ const ProErpDataHandover = () => {
     const handleCreateSubmit = async (e) => {
         e.preventDefault()
         if (!form.dataCategory || !form.description || !form.handoverBy || !form.receivedBy) {
-            alert('Please fill in all mandatory handover fields.')
+            toast.warn('Please fill in all mandatory handover fields.')
             return
         }
 
@@ -144,11 +144,11 @@ const ProErpDataHandover = () => {
                 })
                 loadData()
             } else {
-                alert(`Error: ${res.error?.message || 'Failed to register handover'}`)
+                toast.error(`Error: ${res.error?.message || 'Failed to register handover'}`)
             }
         } catch (err) {
             console.error('Handover registration failed:', err)
-            alert('Handover registration failed.')
+            toast.error('Handover registration failed.')
         }
     }
 
@@ -174,13 +174,13 @@ const ProErpDataHandover = () => {
             }
         } catch (err) {
             console.error('Failed to update handover status:', err)
-            alert('Status update failed.')
+            toast.error('Status update failed.')
         }
     }
 
     const exportToCSV = () => {
         if (!handovers.length) {
-            alert('No handover data to export.')
+            toast.warn('No handover data to export.')
             return
         }
         const headers = ['Batch ID', 'Date', 'Category', 'Description', 'Handover By', 'Received By', 'Record Count', 'Status', 'Remarks']

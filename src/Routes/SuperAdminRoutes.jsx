@@ -34,6 +34,7 @@ import ApprovalsList from '../Pages/SuperAdmin/Approvals/ApprovalsList'
 import ViewApproval from '../Pages/SuperAdmin/Approvals/ViewApproval'
 import FinanceOverview from '../Pages/SuperAdmin/Finance/FinanceOverview'
 import FinanceSectionList from '../Pages/SuperAdmin/Finance/FinanceSectionList'
+import UniversalReportsAnalyticsWorkspace from '../Common/ReportsAnalytics/UniversalReportsAnalyticsWorkspace'
 import AuditReportsOverview from '../Pages/SuperAdmin/AuditReports/AuditReportsOverview'
 import AuditReportsSectionList from '../Pages/SuperAdmin/AuditReports/AuditReportsSectionList'
 import AdminUsersList from '../Pages/SuperAdmin/UserCreation/AdminUsersList'
@@ -85,7 +86,7 @@ const SuperAdminRoutes = () => {
             <Route path="/super-admin/finance/wallets" element={<FinanceSectionList sectionKey="wallets" />} />
             <Route path="/super-admin/finance/transport" element={<FinanceSectionList sectionKey="transport" />} />
             <Route path="/super-admin/finance/accounting" element={<FinanceSectionList sectionKey="accounting" />} />
-            <Route path="/super-admin/finance/reports" element={<FinanceSectionList sectionKey="reports" />} />
+            <Route path="/super-admin/finance/reports" element={<UniversalReportsAnalyticsWorkspace roleOverride="financial" />} />
 
             <Route path="/super-admin/audit-reports" element={<Navigate to="/super-admin/audit-reports/overview" replace />} />
             <Route path="/super-admin/audit-reports/overview" element={<AuditReportsOverview />} />
